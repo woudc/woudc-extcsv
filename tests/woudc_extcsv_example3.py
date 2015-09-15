@@ -43,14 +43,22 @@
 #
 # =================================================================
 
-# Until functions
+# Create extcsv object
+# Example 3: create object with template/common table pre-populated
 
-def validate_extcsv():
-    """
-    validate extcsv
-    """
+import os
+import logging
+from woudc.extcsv import WOUDCextCSVWriter
+from extcsv.util import setup_logger
 
-def serialize_extcsv():
-    """
-    write extcsv to file
-    """
+# setup logging
+setup_logger('../etc/extcsv3.log', 'DEBUG')
+
+
+# new extcsv object
+extcsv = WOUDCextCSVWriter(template=True)
+extcsv.filename = 'extcsv3.csv'
+
+extcsv.add_data('CONTENT','WOUDC', field='Class')
+
+extcsv.serialize()

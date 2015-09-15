@@ -1,0 +1,37 @@
+Dataset|Level|Form |Table Names|"Required/
+Optional"|Number of Occurences for Table Name|"Incompatible 
+Table Name:"|Field Names|All Field Names Required?|What are the optional Field Names?||
+common|n/a|n/a|#CONTENT|required|1|n/a|Class,Category,Level,Form|yes|n/a||
+common|n/a|n/a|#DATA_GENERATION|required|1|n/a|Date,Agency,Version,ScientificAuthority|no|ScientificAuthority||
+common|n/a|n/a|#PLATFORM|required|1|n/a|Type,ID,Name,Country,GAW_ID|no|GAW_ID||
+common|n/a|n/a|#INSTRUMENT|required|1|n/a|Name,Model,Number|yes|n/a||
+common|n/a|n/a|#LOCATION|required|1|n/a|Latitude,Longitude,Height|yes|n/a||
+Broad-band|1|1|#TIMESTAMP|required|1|n/a|UTCOffset,Date,Time|no|Time||
+Broad-band|1|1|#DIFFUSE|required|1|#GLOBAL|Time,Irradiance|yes|n/a||
+Broad-band|1|1|#GLOBAL|required|1|#DIFFUSE|Time,Irradiance|yes|n/a||
+Lidar|1|1|#TIMESTAMP |required|1|n/a|UTCOffset,Date,Time|yes|n/a||
+Lidar|1|1|#OZONE_SUMMARY|required|1+|n/a|Altitudes,MinAltitude,MaxAltitude,StartDate,StartTime,EndDate,EndTime,PulsesAveraged|yes|n/a||
+Lidar|1|1|#OZONE_PROFILE|required|1+|n/a|Altitude,OzoneDensity,StandardError,RangeResolution,AirDensity,Temperature|yes|n/a||
+Multi-band|1|1|#TIMESTAMP |required|1|n/a|UTCOffset,Date,Time|yes|n/a||
+Multi-band|1|1|#GLOBAL|required|1|#SIMULTANEOUS|Wavelength,S-Irradiance,Time,SZA|yes|n/a||
+Multi-band|1|1|#SIMULTANEOUS|required|1|#GLOBAL|Wavelength,GLS-Irradiance,DFS-Irradiance,DRS-Irradiance,Time,Airmass,SZA|yes|n/a||
+OzoneSonde|1|1|#TIMESTAMP|required|1|n/a|UTCOffset,Date,Time|yes|n/a||
+OzoneSonde|1|1|#FLIGHT_SUMMARY|required|1|n/a|IntegratedO3,CorrectionCode,SondeTotalO3,CorrectionFactor,TotalO3,WLCode,ObsType,Instrument,Number|yes|n/a||
+OzoneSonde|1|1|#PROFILE|required|1|n/a|Pressure,O3PartialPressure,Temperature,WindSpeed,WindDirection,LevelCode,Duration,GPHeight,RelativeHumidity,SampleTemperature|yes|n/a||
+OzoneSonde|1|1|#AUXILIARY_DATA|optional|1|n/a|MeteoSonde,ib1,ib2,PumpRate,BackgroundCorr,SampleTemperatureType,MinutesGroundO3|yes|n/a||
+OzoneSonde|1|1|#PUMP_CORRECTION|optional|1|n/a|Pressure,Correction|yes|n/a||
+Spectral|1|1|#TIMESTAMP|optional |1+|n/a|UTCOffset,Date,Time|yes|n/a||
+Spectral|1|1|#GLOBAL_SUMMARY_NSF|required|1+|#GLOBAL_SUMMARY|Filename,Volume,SZA,Azimuth,Sky_condition,Minimum_useable_wavelength,E290-320,E320-400,UVIndex|yes|n/a||
+Spectral|1|1|#GLOBAL_SUMMARY|required|1+|#GLOBAL_SUMMARY_NSF|Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC,O3,Err_O3,SO2,Err_SO2,F324|no|O3,Err_O3,SO2,Err_SO2,F324||
+Spectral|1|1|#GLOBAL|required|1+|n/a|Wavelength,S-Irradiance,Time,SZA|yes|n/a||
+TotalOzone|1|1|#TIMESTAMP|required|2|n/a|UTCOffset,Date,Time|no|Time||
+TotalOzone|1|1|#DAILY|required|1|n/a|Date,WLCode,ObsCode,ColumnO3,StdDevO3,UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2|yes|n/a||
+TotalOzone|1|1|#MONTHLY|optional|1|n/a|Date,ColumnO3,StdDevO3,Npts|yes|n/a||
+TotalOzone|1|1|#SAOZ_DATA_V2|optional|1|n/a|Date,Jday,O3sr,O3ss,dO3sr,dO3ss,NO2sr,NO2ss,dNO2sr,dNO2ss|yes|n/a||
+TotalOzoneObs|1|1|#TIMESTAMP|required|1|n/a|UTCOffset,Date,Time|no|Time||
+TotalOzoneObs|1|1|#OBSERVATIONS|required|1|n/a|Time,WLCode,ObsCode,Airmass,ColumnO3,StdDevO3,ColumnSO2,StdDevSO2,ZA,NdFilter,TempC,F324|no|ZA,NdFilter,TempC,F324||
+TotalOzoneObs|1|1|#DAILY_SUMMARY|required|1|n/a|WLCode,ObsCode,nObs,MeanO3,StdDevO3|yes|n/a||
+UmkehrN14|1|1|#TIMESTAMP|required|2|n/a|UTCOffset,Date,Time|no|Time||
+UmkehrN14|1|1|#N14_VALUES|required|1|n/a|Date,H,L,W,WLCode,ObsCode,ColumnO3,N600,N650,N700,N740,N750,N770,N800,N830,N840,N850,N865,N880,N890,N900|no|W||
+UmkehrN14|2|1|#TIMESTAMP|required|2|n/a|UTCOffset,Date,Time|no|Time||
+UmkehrN14|2|1|#C_PROFILE|required|1|n/a|Date,H,L,ColumnO3Obs,ColumnO3Retr,Layer10,Layer9,Layer8,Layer7,Layer6,Layer5,Layer4,Layer3,Layer2,Layer1,ITER,SX,SZA_1,nSZA,DFMRS,FEPS,RMSRES|yes|n/a||
