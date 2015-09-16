@@ -385,7 +385,6 @@ class WOUDCextCSVWriter(object):
             violations = validate[1]
             msg = violations
             LOGGER.error(msg)
-            print msg
 
     def table_index(self, table, index):
         """
