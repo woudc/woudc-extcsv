@@ -49,6 +49,7 @@ import os
 import csv
 import logging
 from sets import Set
+from StringIO import StringIO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -118,64 +119,70 @@ def validate_extcsv(extcsv):
     return [error, violations]
 
 
-def serialize_extcsv(extcsv, path=None):
+def serialize_extcsv(extcsv, path=None, to_file=False):
     """
     write extcsv to file
     """
     out_path = None
+    mem_file = StringIO()
     extcsv_ds = extcsv.extcsv_ds
-    extcsv
-    if extcsv.filename is not None:
-        if path is not None:
-            if os.path.isdir(path):
-                out_path = path
+    # write to string buffer
+    csv_writer = csv.writer(mem_file)
+    if len(extcsv.file_comments) != 0:
+        for comment in extcsv.file_comments:
+            mem_file.write('* %s%s' % (comment, os.linesep))
+        mem_file.write('%s' % os.linesep)
+    for table, fields in extcsv_ds.iteritems():
+        mem_file.write('#%s%s' % (table[0: table.index('$')], os.linesep))
+        t_comments = fields['comments']
+        row = fields.keys()[1:]
+        csv_writer.writerow(row)
+        values = fields.values()[1:]
+        max_len = len(max(values, key=len))
+        for i in range(0, max_len):
+            row = []
+            for value in values:
+                try:
+                    row.append(value[i])
+                except IndexError:
+                    row.append('')
+            # clean up row
+            for j in range(len(row)-1, 0, -1):
+                if row[j] != '':
+                    break
+                else:
+                    row.pop(j)
+            csv_writer.writerow(row)
+        if len(t_comments) > 0:
+            for comment in t_comments:
+                mem_file.write('* %s%s' % (comment, os.linesep))
+        if extcsv_ds.keys().index(table) != len(extcsv_ds.keys()) - 1:
+            mem_file.write('%s' % os.linesep)
+
+    #write to file, if asked
+    if to_file:
+        if extcsv.filename is not None:
+            if path is not None:
+                if os.path.isdir(path):
+                    out_path = path
+                else:
+                    msg = 'Invalid path provided: %s' % path
+                    LOGGER.error(msg)
             else:
-                msg = 'Invalid path provided: %s' % path
-                LOGGER.error(msg)
+                out_path = extcsv.filename
+            LOGGER.info('Path to output file: %s', out_path)
+            if out_path is not None:
+                try:
+                    with open(out_path, 'w') as out_file:
+                        out_file.write(mem_file.getvalue())
+                except Exception, err:
+                    msg = 'Unable to create file at %s to write extended CSV, due to: %s' % (out_path, str(err))
+                    LOGGER.error(msg)
         else:
-            out_path = extcsv.filename
-        LOGGER.info('Path to output file: %s', out_path)
-        if out_path is not None:
-            # write out extcsv
-            try:
-                with open(out_path, 'w') as out_file:
-                    csv_writer = csv.writer(out_file)
-                    if len(extcsv.file_comments) != 0:
-                        for comment in extcsv.file_comments:
-                            out_file.write('* %s%s' % (comment, os.linesep))
-                        out_file.write('%s' % os.linesep)
-                    for table, fields in extcsv_ds.iteritems():
-                        out_file.write('#%s%s' % (table[0: table.index('$')], os.linesep))
-                        t_comments = fields['comments']
-                        row = fields.keys()[1:]
-                        csv_writer.writerow(row)
-                        values = fields.values()[1:]
-                        max_len = len(max(values, key=len))
-                        for i in range(0, max_len):
-                            row = []
-                            for value in values:
-                                try:
-                                    row.append(value[i])
-                                except IndexError:
-                                    row.append('')
-                            # clean up row
-                            for j in range(len(row)-1, 0, -1):
-                                if row[j] != '':
-                                    break
-                                else:
-                                    row.pop(j)
-                            csv_writer.writerow(row)
-                        if len(t_comments) > 0:
-                            for comment in t_comments:
-                                out_file.write('* %s%s' % (comment, os.linesep))
-                        if extcsv_ds.keys().index(table) != len(extcsv_ds.keys()) - 1:
-                            out_file.write('%s' % os.linesep)
-            except Exception, err:
-                msg = 'Unable to create file at %s to write extended CSV, due to: %s' % (out_path, str(err))
-                LOGGER.error(msg)
-    else:
-        msg = 'No filename provided for extended CSV. Please set filename: extcsv_obj.filename=<filename>.'
-        LOGGER.error(msg)
+            msg = 'No filename provided for extended CSV. Please set filename: extcsv_obj.filename=<filename>.'
+            LOGGER.error(msg)
+
+    return mem_file
     
 def setup_logger(logfile, loglevel):
     """Setup logging mechanism"""
