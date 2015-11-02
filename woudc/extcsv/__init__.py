@@ -50,7 +50,7 @@ import csv
 import logging
 from StringIO import StringIO
 from collections import OrderedDict
-from extcsv.util import validate_extcsv, serialize_extcsv
+from woudc.extcsv.util import validate_extcsv, serialize_extcsv
 #from woudc import errors
 #from woudc.util import update_report
 
@@ -365,7 +365,7 @@ class WOUDCextCSVWriter(object):
         return self.extcsv_ds[table_n][field]
         
         
-    def serialize(self, path=None):
+    def serialize(self, path=None, to_file=False):
         """
         write out extcsv object to file
         """
@@ -374,7 +374,7 @@ class WOUDCextCSVWriter(object):
         if not bad:
             # object is good, write it out
             try:
-                w_path = serialize_extcsv(self, path)
+                w_path = serialize_extcsv(self, path, to_file)
                 LOGGER.info('File written to: %s', w_path)
             except Exception, err:
                 msg = 'ExtCSV cannot be serialized, due to: %s' % str(err)
