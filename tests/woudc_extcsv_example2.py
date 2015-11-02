@@ -49,7 +49,7 @@
 import os
 import logging
 from woudc.extcsv import WOUDCextCSVWriter
-from extcsv.util import setup_logger
+from woudc.extcsv.util import setup_logger
 
 # setup logging
 setup_logger('../etc/extcsv2.log', 'DEBUG')

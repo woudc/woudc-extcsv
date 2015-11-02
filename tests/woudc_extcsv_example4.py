@@ -50,7 +50,7 @@ import os
 import logging
 from collections import OrderedDict
 from woudc.extcsv import WOUDCextCSVWriter
-from extcsv.util import setup_logger
+from woudc.extcsv.util import setup_logger
 
 # setup logging
 setup_logger('../etc/extcsv4.log', 'DEBUG')
