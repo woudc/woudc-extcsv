@@ -59,19 +59,22 @@ LOGGER = logging.getLogger(__name__)
 
 class WOUDCextCSVWriter(object):
     """Generic extended CSV writer object, used for serialization"""
-    
+
     def __init__(self, ds=None, template=False):
         """
         Initialize a WOUDCextCSVWriter object.
-        
+
         :param ds: an OrderedDict of WOUDC tables, fields, values and commons with which
                     your object will be instatiated.
+        :type ds: OrderedDict
         :param template: set True if you want the default/common WOUDC extendedCSV tables
                         and fields instantiated in your object.
-        
+        :type template: boolean
+
         :returns: WOUDCextCSVWriter object
+        :type: WOUDCextCSVWriter
         """
-        
+
         self._filename = None
         self._file_comments = []
         self._extcsv_ds = OrderedDict()
@@ -99,48 +102,64 @@ class WOUDCextCSVWriter(object):
     @property
     def filename(self):
         """
-        Get filename
-        
+        Get filename.
+
         :returns: this objects's file name
         """
-        
+
         return self._filename
-        
+
     @filename.setter
     def filename(self, value):
         """
-        Set filename
-        
+        Set filename.
+
         :param value: name of file
         """
-        
+
         self._filename = value
-        
+
     @property
     def file_comments(self):
         """
-        get file comments
+        Get file comments.
+
+        :returns: return file level comments
         """
+
         return self._file_comments
 
-        
+
     @property
     def extcsv_ds(self):
         """
-        get internal data structure.
+        Get internal data structure.
+
+        :returns: object's internal data structure
         """
+
         return self._extcsv_ds
-        
+
 
     def add_comment(self, comment):
-        """add file level comments"""
+        """
+        Add file level comments.
+
+        :param comment: file level comment to be added.
+        """
+
         self.file_comments.append(comment)
-        
-        
-    def add_table(self,table, table_comment=None, index=1):
+
+
+    def add_table(self, table, table_comment=None, index=1):
         """
-        add table
+        Add table to extcsv.
+
+        :param table: name of table to be added to extcsv.
+        :param table_comment: table level comment.
+        :param index: table index or grouping.
         """
+
         table_n = self.table_index(table, index)
         if table_n not in self.extcsv_ds.keys():
             self.extcsv_ds[table_n] = OrderedDict()
@@ -151,14 +170,20 @@ class WOUDCextCSVWriter(object):
                 self.extcsv_ds[table_n]['comments'].append(table_comment)
         else:
             msg = 'Table: %s at index: %s already exists' % (table, index)
-            print msg
             LOGGER.error(msg)
-            
+
 
     def add_field(self, table, field, index=1, delim=','):
         """
-        add field
+        Add field to extcsv table.
+
+        :param table: table to which field is to be added.
+        :param field: name of filed to be added to extcsv table.
+        :param index: table index or grouping.
+        :param delim: delimiter if multiple field names are to be added
+                        at one time.
         """
+
         table_n = self.table_index(table, index)
         # add table if not present
         if table_n not in self.extcsv_ds.keys():
@@ -181,14 +206,21 @@ class WOUDCextCSVWriter(object):
                     msg = 'Field: %s was added to Table: %s at index: %s' % (field, table, index)
                     LOGGER.info(msg)
                 else:
-                    msg = 'Field: %s already persent in Table: %s at index: %s' % (field, table, index)
+                    msg = 'Field: %s already persent in Table: %s\
+                    at index: %s' % (field, table, index)
                     LOGGER.error(msg)
-                
+
 
     def add_data(self, table, data, field=None, index=1, delim=','):
         """
-        add data
+        Add data to extcsv table field.
+
+        :param table: name of table.
+        :param field: name of field.
+        :param index: table index or grouping.
+        :param delim: delimiter used to seperate multiple field and/or data values.
         """
+
         table_n = self.table_index(table, index)
         # add table if not present
         if table_n not in self.extcsv_ds.keys():
@@ -201,7 +233,7 @@ class WOUDCextCSVWriter(object):
                     self.add_field(table, f, index=index)
         if all([
             delim not in data,
-            field is not None,
+            field is not None
             ]): # vertical insert
             if delim not in field:
                 if not isinstance(data, list):
@@ -247,8 +279,12 @@ class WOUDCextCSVWriter(object):
 
     def remove_table(self, table, index=1):
         """
-        remove table
+        Remove table from extcsv.
+
+        :param table: name of table to be removed.
+        :param index: table index or grouping.
         """
+
         table_n = self.table_index(table, index)
         try:
             del self.extcsv_ds[table_n]
@@ -257,12 +293,17 @@ class WOUDCextCSVWriter(object):
         except Exception, err:
             msg = 'Unable to delete Table: %s at index: %s, due to: %s' % (table, index, str(err))
             LOGGER.error(msg)
-        
-        
+
+
     def remove_field(self, table, field, index=1):
         """
-        remove field from table, including it's data
+        Remove field from table, including data attached to the field.
+        
+        :param table: name of table from which field is to be removed.
+        :param field: name of field to be removed.
+        :param index: table index or grouping.
         """
+
         table_n = self.table_index(table, index)
         try:
             del self.extcsv_ds[table_n][field]
@@ -271,12 +312,21 @@ class WOUDCextCSVWriter(object):
         except Exception, err:
             msg = 'Unable to remove Field: %s of Table: %s at index: %s, due to: %s' % (field, table, index, str(err))
             LOGGER.error(msg)
-            
-            
+
+
     def remove_data(self, table, field, data=None, index=1, d_index=None, all_occurances=False):
         """
-        remove data
+        Remove data from extcsv table field.
+
+        :param table: name of table to remove data from.
+        :param field: name of field to remove data from.
+        :param data: data to be removed from extcsv table field.
+        :param index: table index or grouping.
+        :param d_index: index of data in a multi value field (e.g.: profile field).
+        :param all_occurances: indicates whether to remove all occurances of matching data
+                                from extcsv data table field.
         """
+
         table_n = self.table_index(table, index)
         if all([
             d_index is None,
@@ -307,22 +357,27 @@ class WOUDCextCSVWriter(object):
             msg = 'All occurance of data: %s from Field: %s of table: %s at index: %s removed.' %\
                 (data, field, table, index)
             LOGGER.info(msg)
-            
+
     def clear_file(self):
         """
-        clear all tables
+        Remove all tables from extcsv.
         """
+        
         try:
             self.extcsv_ds.clear()
             LOGGER.info('Extended CSV cleared.')
         except Exception, err:
             msg = 'Could not clear extended CSV, due to: %s' % str(err)
             LOGGER.error(msg)
-        
+
     def clear_table(self, table, index=1):
         """
-        Clear table (all fields except table commenets)
+        Clear table (all fields except table comments).
+
+        :param table: table name to be cleared.
+        :param index: table index or grouping.
         """
+
         table_n = self.table_index(table, index)
         try:
             # back up comments
@@ -335,11 +390,16 @@ class WOUDCextCSVWriter(object):
         except Exception, err:
             msg = 'Could not clear table: %s at index: %s, due to: %s' % (table, index, str(err))
             LOGGER.error(msg)
-        
+
     def clear_field(self, table, field, index=1):
         """
-        Clear field
+        Clear all values from field.
+
+        :param table: table name.
+        :param field: field name.
+        :param index: table index.
         """
+
         table_n = self.table_index(table, index)
         try:
             self.extcsv_ds[table_n][field] = []
@@ -351,31 +411,48 @@ class WOUDCextCSVWriter(object):
                 
     def inspect_table(self, table, index=1):
         """
-        return table
+        Return the contents of an extcsv table.
+
+        :param table: table name.
+        :param index: table index.
+        :returns: table dictionary of it's field(s) and their value(s).
         """
+
         table_n = self.table_index(table, index)
         return self.extcsv_ds[table_n]
 
 
     def inspect_field(self, table, field, index=1):
         """
-        return field
+        Return the content of a field.
+
+        :param table: table name.
+        :param field: field name.
+        :param index: table index.
+        :returns: list of value(s) at extcsv table field.
         """
+
         table_n = self.table_index(table, index)
         return self.extcsv_ds[table_n][field]
-        
-        
+
+
     def serialize(self, path=None, to_file=False):
         """
-        write out extcsv object to file
+        Write extcsv to a string buffer, with the option of then to write it to
+        a file on disk.
+
+        :param path: the directory on local disk where to write out the extcsv file.
+        :param to_file: indicates where to write to disk or just to memory (default).
+        :returns: 
         """
+
         validate = validate_extcsv(self.extcsv_ds)
         bad = validate[0]
         if not bad:
             # object is good, write it out
             try:
-                w_path = serialize_extcsv(self, path, to_file)
-                LOGGER.info('File written to: %s', w_path)
+                mem_file = serialize_extcsv(self, path, to_file)
+                LOGGER.info('File written to memory: %s', mem_file)
             except Exception, err:
                 msg = 'ExtCSV cannot be serialized, due to: %s' % str(err)
                 LOGGER.error(msg)
@@ -386,30 +463,38 @@ class WOUDCextCSVWriter(object):
             msg = violations
             LOGGER.error(msg)
 
+        return mem_file
+
     def table_index(self, table, index):
         """
-        helper
-        return table index str
+        Helper: return table index.
         """
+
         sep = '$'
         return '%s%s%s' % (table, sep, index)
-        
-        
+
+
     def get_ds(self):
         """
-        return internal data structure
+        Helper: return internal data structure
         for testing only
         """
+
         print self.extcsv_ds
-        
+
 
 class WOUDCextCSVReader(object):
     """Objectifies incoming extended CSV file"""
 
     def __init__(self, file_contents, report=None, ipath=None):
         """
-        Read WOUDC extCSV file and objectify
+        Parse WOUDC extcsv file and put into internal data structure.
+
+        :param file_contents: a string buffer of file content.
+        :param report: report object.
+        :param ipath: absolute path of file on disk.
         """
+
         self.file_path = ipath
         self.sections = {}
         self.metadata_tables = []
@@ -418,7 +503,7 @@ class WOUDCextCSVReader(object):
         self.comments = {}
         self.updated = False
         self.mtime = None
-        self.error = []
+        self.errors = []
         # get file modified time
         try:
             self.mtime = os.path.getmtime(self.file_path)
@@ -431,7 +516,7 @@ class WOUDCextCSVReader(object):
         if len(blocks) == 0:
             msg = 'File located at: %s is malformed.' % self.file_path
             LOGGER.error(msg)
-            raise errors.BPSMalformedExtCSVError(msg)
+            #raise errors.BPSMalformedExtCSVError(msg)
         # get rid of first element of cruft
         head_comment = blocks.pop(0)
         c = StringIO(head_comment.strip())
@@ -464,8 +549,7 @@ class WOUDCextCSVReader(object):
                 ]):
                 msg = 'Invalid delimiter detected in file: %s' % self.file_path
                 LOGGER.error(msg)
-                if report is not None:
-                    self.errors.append(6)
+                self.errors.append(6)
                     #continue
             try:
                 s = StringIO(b.strip())
@@ -474,7 +558,7 @@ class WOUDCextCSVReader(object):
             except Exception, err:
                 msg = 'File located at: %s is malformed.' % self.file_path
                 LOGGER.error(msg)
-                raise errors.BPSMalformedExtCSVError(msg)
+                #raise errors.BPSMalformedExtCSVError(msg)
             if header not in [
                 'PROFILE',
                 'DAILY',
@@ -515,9 +599,7 @@ class WOUDCextCSVReader(object):
                 except StopIteration:
                     msg = 'Extended CSV table %s has no fields' % header
                     LOGGER.info(msg)
-                    if report is not None:
-                        self.errors.append({140:{'TABLE_NAME': header}})
-                        self.errors.append(140)
+                    self.errors.append(140)
                 values = None
                 try:
                     values = c.next()
@@ -527,8 +609,8 @@ class WOUDCextCSVReader(object):
                 except StopIteration:
                     msg = 'Extended CSV table %s has no values' % header
                     LOGGER.info(msg)
-                    if report is not None:
-                        self.errors.append({140:{'TABLE_NAME': header}})
+                    #self.errors.append({140:{'TABLE_NAME': header}})
+                    self.errors.append(140)
                     continue
                 try:
                     anything_more = (c.next()[0]).strip()
@@ -538,13 +620,12 @@ class WOUDCextCSVReader(object):
                         anything_more != os.linesep,
                         '*' not in anything_more,
                         ]):
-                        if report is not None:
-                            self.errors(3)
-                            self.errors.append({140:{'TABLE_NAME': header}})
+                        self.errors.append(140)
+                        #self.errors.append({140:{'TABLE_NAME': header}})
                 except Exception, err:
                     pass
                 if len(values) > len(fields):
-                    self.errors(3)
+                    self.errors.append(3)
                     continue
                 i = 0
                 for field in fields:
@@ -572,7 +653,7 @@ class WOUDCextCSVReader(object):
                             w.writerow(row)
                         else:
                             if columns[0].lower() == 'time':
-                                self.errors(21)
+                                self.errors.append(21)
                 if header not in self.sections:
                     #self.sections[header] = {'_raw': buf.getvalue()}
                     self.all_tables.append(header)
@@ -624,6 +705,11 @@ class WOUDCextCSVReader(object):
 
             
     def __eq__(self, other): 
-        """equals method"""
-        return self.__dict__ == other.__dict__
+        """
+        Equals method.
         
+        :param other: object to be compared with self.
+        :returns: boolean result of comparison.
+        """
+
+        return self.__dict__ == other.__dict__
