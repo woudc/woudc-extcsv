@@ -55,8 +55,12 @@ LOGGER = logging.getLogger(__name__)
 
 def validate_extcsv(extcsv):
     """
-    validate extcsv for common/metadata tables and fields
+    Validate extcsv for common/metadata tables and fields
+    
+    :param extcsv: WOUDCextCSVWriter object
+    :returns: list of error codes and violations
     """
+    
     error = False
     violations = []
     rules = table_configuration_lookup('common')
@@ -121,8 +125,16 @@ def validate_extcsv(extcsv):
 
 def serialize_extcsv(extcsv, path=None, to_file=False):
     """
-    write extcsv to file
+    Write extended CSV object to memory file, with the option of
+    writing out to a file on disk.
+    
+    :param extcsv: WOUDCextCSVWriter object
+    :param path: directory on local disk to write to.
+    :param to_file: indicates whether to write to disk or not,
+                    default set to no.
+    :returns: StringIO object of file content.
     """
+
     out_path = None
     mem_file = StringIO()
     extcsv_ds = extcsv.extcsv_ds
@@ -185,15 +197,17 @@ def serialize_extcsv(extcsv, path=None, to_file=False):
     return mem_file
     
 def setup_logger(logfile, loglevel):
-    """Setup logging mechanism"""
+    """
+    Setup logging mechanism
+    
+    :param logfile: path to log file on disk.
+    :param loglevel: logging level.
+    """
 
     # regular logging format
     msg_format = '[%(asctime)s] [%(levelname)s] file=%(pathname)s \
     line=%(lineno)s module=%(module)s function=%(funcName)s [%(message)s]'
-    
-    # UAT logging format
-    # msg_format = '[%(message)s]'
-    
+
     datetime_format = '%a, %d %b %Y %H:%M:%S'
 
     loglevels = {
@@ -218,9 +232,10 @@ def table_configuration_lookup(
     all_tables=False
     ):
     """
-    return table + field presence rules
+    Helper: return table + field presence rules
     for this dataset
     """
+    
     rules = []
     all_tb = []
     rule = {
