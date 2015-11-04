@@ -44,7 +44,7 @@
 # =================================================================
 
 import os
-from distutils.core import setup
+from distutils.core import setup, Command
 import woudc_extcsv
 
 KEYWORDS = [
@@ -68,13 +68,29 @@ SCRIPTS = []
 URL = 'https://github.com/woudc/woudc-extcsv'
 
 
+class PyTest(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import subprocess
+        import sys
+        errno = subprocess.call([sys.executable, 'tests/run_tests.py'])
+        raise SystemExit(errno)
+
+
 # from https://wiki.python.org/moin/Distutils/Cookbook/AutoPackageDiscovery
 def is_package(path):
     """decipher whether path is a Python package"""
     return (
         os.path.isdir(path) and
         os.path.isfile(os.path.join(path, '__init__.py'))
-        )
+    )
 
 
 def find_packages(path, base=''):
@@ -105,6 +121,7 @@ setup(
     maintainer_email=EMAIL,
     url=URL,
     packages=find_packages('.'),
+    package_data={'woudc_extcsv': ['table_configuration.csv']},
     scripts=SCRIPTS,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -115,5 +132,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering :: Atmospheric Science'
-    ]
+    ],
+    cmdclass={'test': PyTest},
+    test_suite='tests.run_tests'
 )

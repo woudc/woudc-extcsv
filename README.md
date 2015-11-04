@@ -13,21 +13,29 @@ Python package providing read/write support of the WOUDC Extended CSV format.
 
 ## Installing the Package
 
-
 ## Development
 
+### Running tests
 
-## Setting up a Development Environment
+```bash
+# via distutils
+python setup.py test
+# manually
+python run_tests.py
+```
 
+### Code Conventions
 
-## Running tests
+woudc_extcsv code conventions are as per
+[PEP8](https://www.python.org/dev/peps/pep-0008)
 
+```bash
+# code should always pass the following
+find -type f -name "*.py" | xargs pep8 --ignore=E402
+find -type f -name "*.py" | xargs pyflakes
+```
 
-## Code Conventions
+## Issues
 
-
-## Bugs and Issues
-
-All bugs, enhancements and issues can be logged on the DMSec
-Mantis tracker (Project=WOUDC, Category=CATEGORY) at
-http://nadm-mantis-dmsec.ontario.int.ec.gc.ca
+All bugs, enhancements and issues are managed on
+[GitHub](https://github.com/woudc/woudc_extcsv/issues)
