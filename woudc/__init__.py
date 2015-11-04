@@ -18,7 +18,7 @@
 # those files. Users are asked to read the 3rd Party Licenses
 # referenced with those assets.
 #
-# Copyright (c) YYYY Government of Canada
+# Copyright (c) 2015 Government of Canada
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -42,4 +42,3 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 # =================================================================
-__version__ = 'x.y.z'

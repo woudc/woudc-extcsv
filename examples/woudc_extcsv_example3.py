@@ -44,7 +44,21 @@
 # =================================================================
 
 # Create extcsv object
-# example 1
+# Example 3: create object with template/common table pre-populated
 
 import os
-from extcsv.writer import WOUDCextCSVWriter
+import logging
+from woudc.extcsv import WOUDCextCSVWriter
+from woudc.extcsv.util import setup_logger
+
+# setup logging
+setup_logger('../etc/extcsv3.log', 'DEBUG')
+
+
+# new extcsv object
+extcsv = WOUDCextCSVWriter(template=True)
+extcsv.filename = 'extcsv3.csv'
+
+extcsv.add_data('CONTENT','WOUDC', field='Class')
+
+extcsv.serialize(to_file=True)

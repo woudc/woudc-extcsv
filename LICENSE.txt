@@ -1,4 +1,4 @@
-foopackage - Terms and Conditions of Use
+woudc-extcsv - Terms and Conditions of Use
 ========================================
 
 Unless otherwise noted, computer program source code of this distribution
@@ -19,7 +19,7 @@ are asked to read the 3rd Party Licenses referenced with those assets.
 The MIT License (MIT)
 =====================
 
-Copyright (c) YYYY Government of Canada
+Copyright (c) 2015 Government of Canada
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

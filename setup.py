@@ -46,21 +46,21 @@
 import os
 import sys
 from distutils.core import setup
-import foopackage
+from woudc import extcsv
 
 # set dependencies
-INSTALL_REQUIRES = [line.strip() for line in open('requirements.txt')]
+# INSTALL_REQUIRES = [line.strip() for line in open('requirements.txt')]
 
 KEYWORDS = [
     'kw1',
     'kw2'
 ]
  
-DESCRIPTION = 'This is the foopackage package'
+DESCRIPTION = 'Python package providing read/write support of the WOUDC Extended CSV format.'
 
 CONTACT = 'Meteorological Service of Canada, Environment Canada'
 
-EMAIL = 'firstname.lastname@ec.gc.ca'
+EMAIL = 'thinesh.sornalingam@ec.gc.ca'
 
 SCRIPTS = []
 
@@ -89,10 +89,10 @@ def find_packages(path, base="" ):
     return packages
 
 setup(
-    name='foopackage',
-    version=foopackage.__version__,
+    name='woudc-extcsv',
+    version=extcsv.__version__,
     description=DESCRIPTION.strip(),
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     license='MIT',
     platforms='all',
     keywords=' '.join(KEYWORDS),
@@ -101,7 +101,7 @@ setup(
     maintainer=CONTACT,
     maintainer_email=EMAIL,
     url=URL,
-    install_requires=INSTALL_REQUIRES,
+    #install_requires=INSTALL_REQUIRES,
     packages=find_packages('.'),
     #package_data=PACKAGE_DATA,
     scripts=SCRIPTS,
