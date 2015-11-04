@@ -18,7 +18,7 @@
 # those files. Users are asked to read the 3rd Party Licenses
 # referenced with those assets.
 #
-# Copyright (c) YYYY Government of Canada
+# Copyright (c) 2015 Government of Canada
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -44,27 +44,29 @@
 # =================================================================
 
 import os
-import sys
 from distutils.core import setup
-from woudc import extcsv
-
-# set dependencies
-# INSTALL_REQUIRES = [line.strip() for line in open('requirements.txt')]
+import woudc_extcsv
 
 KEYWORDS = [
-    'kw1',
-    'kw2'
+    'woudc',
+    'ozone',
+    'uv',
+    'ultra-violet',
+    'WMO',
+    'Extended CSB'
 ]
- 
-DESCRIPTION = 'Python package providing read/write support of the WOUDC Extended CSV format.'
 
-CONTACT = 'Meteorological Service of Canada, Environment Canada'
+DESCRIPTION = '''Python package providing read/write support of the
+WOUDC Extended CSV format.'''
 
-EMAIL = 'thinesh.sornalingam@ec.gc.ca'
+CONTACT = 'Meteorological Service of Canada'
+
+EMAIL = 'thinesh.sornalingam@canada.ca'
 
 SCRIPTS = []
 
-URL = 'http://somehost/somepath'
+URL = 'https://github.com/woudc/woudc-extcsv'
+
 
 # from https://wiki.python.org/moin/Distutils/Cookbook/AutoPackageDiscovery
 def is_package(path):
@@ -74,23 +76,24 @@ def is_package(path):
         os.path.isfile(os.path.join(path, '__init__.py'))
         )
 
-def find_packages(path, base="" ):
+
+def find_packages(path, base=''):
     """Find all packages in path"""
     packages = {}
     for item in os.listdir(path):
-        dir = os.path.join(path, item)
-        if is_package( dir ):
+        dirp = os.path.join(path, item)
+        if is_package(dirp):
             if base:
                 module_name = "%(base)s.%(item)s" % vars()
             else:
                 module_name = item
-            packages[module_name] = dir
-            packages.update(find_packages(dir, module_name))
+            packages[module_name] = dirp
+            packages.update(find_packages(dirp, module_name))
     return packages
 
 setup(
     name='woudc-extcsv',
-    version=extcsv.__version__,
+    version=woudc_extcsv.__version__,
     description=DESCRIPTION.strip(),
     long_description=open('README.md').read(),
     license='MIT',
@@ -101,9 +104,7 @@ setup(
     maintainer=CONTACT,
     maintainer_email=EMAIL,
     url=URL,
-    #install_requires=INSTALL_REQUIRES,
     packages=find_packages('.'),
-    #package_data=PACKAGE_DATA,
     scripts=SCRIPTS,
     classifiers=[
         'Development Status :: 4 - Beta',
