@@ -60,6 +60,203 @@ __dirpath = os.path.dirname(os.path.realpath(__file__))
 TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 
 
+class Reader(object):
+    """WOUDC Extended CSV reader"""
+
+    def __init__(self, content):
+        """
+        Parse WOUDC Extended CSV into internal data structure
+
+        :param content: string buffer of content
+        """
+
+        header_fields = [
+            'PROFILE',
+            'DAILY',
+            'GLOBAL',
+            'DIFFUSE',
+            # 'MONTHLY',
+            'OZONE_PROFILE',
+            'N14_VALUES',
+            'C_PROFILE',
+            'OBSERVATIONS',
+            'PUMP_CORRECTION',
+            'SIMULTANEOUS',
+            'DAILY_SUMMARY',
+            'DAILY_SUMMARY_NSF',
+            'SAOZ_DATA_V2',
+            'GLOBAL_DAILY_TOTALS'
+        ]
+
+        self.sections = {}
+        self.metadata_tables = []
+        self.data_tables = []
+        self.all_tables = []
+        self.comments = {}
+        self.updated = False
+        self.errors = []
+
+        LOGGER.info('processing Extended CSV')
+        blocks = re.split('#', content)
+        if len(blocks) == 0:
+            msg = 'no tables found'
+            LOGGER.error(msg)
+        # get rid of first element of cruft
+        head_comment = blocks.pop(0)
+        c = StringIO(head_comment.strip())
+        for line in c:
+            if all([line.strip() != '', line.strip() != os.linesep,
+                    line[0] != '*']):
+                self.errors.append(9)
+        self.table_count = {}
+        for b in blocks:
+            # determine delimiter
+            if '::' in b:
+                b.replace('::', ',')
+                self.errors.append(5)
+            if ';' in b:
+                b.replace(';', ',')
+                self.errors.append(5)
+            if '$' in b:
+                b.replace('$', ',')
+                self.errors.append(5)
+            if '%' in b:
+                b.replace('%', ',')
+                self.errors.append(5)
+            if any(['|' in b, '/' in b, '\\' in b]):
+                msg = 'invalid delimiter'
+                LOGGER.error(msg)
+                self.errors.append(6)
+            try:
+                s = StringIO(b.strip())
+                c = csv.reader(s)
+                header = (c.next()[0]).strip()
+            except Exception as err:
+                msg = 'Extended CSV malformed'
+                LOGGER.error(msg)
+            if header not in header_fields:  # metadata
+                if header not in self.sections:
+                    self.sections[header] = {}
+                    self.metadata_tables.append(header)
+                    self.table_count[header] = 1
+                    self.all_tables.append(header)
+                else:
+                    self.table_count[header] = self.table_count[header] + 1
+                    header = '%s%s' % (header, self.table_count[header])
+                    self.sections[header] = {}
+                    self.metadata_tables.append(header)
+                self.sections[header]['_raw'] = b.strip()
+                try:
+                    fields = c.next()
+                    # archive fix start
+                    fields = filter(lambda a: a != '', fields)
+                    # archive fix end
+                    if len(fields[0]) > 0:
+                        if fields[0][0] == '*':
+                            self.errors.append(8)
+                except StopIteration:
+                    msg = 'Extended CSV table %s has no fields' % header
+                    LOGGER.info(msg)
+                    self.errors.append(140)
+                values = None
+                try:
+                    values = c.next()
+                    if len(values[0]) > 0:
+                        if values[0][0] == '*':
+                            self.errors.append(8)
+                except StopIteration:
+                    msg = 'Extended CSV table %s has no values' % header
+                    LOGGER.info(msg)
+                    self.errors.append(140)
+                    continue
+                try:
+                    anything_more = (c.next()[0]).strip()
+                    if all([anything_more is not None, anything_more != '',
+                            anything_more != os.linesep,
+                            '*' not in anything_more]):
+                        self.errors.append(140)
+                except Exception as err:
+                    LOGGER.warning(err)
+                if len(values) > len(fields):
+                    self.errors.append(3)
+                    continue
+                i = 0
+                for field in fields:
+                    field = field.strip()
+                    try:
+                        self.sections[header][field] = (values[i]).strip()
+                        i += 1
+                    except (KeyError, IndexError):
+                        self.sections[header][field] = None
+                        msg = 'corrupt format section %s skipping' % header
+                        LOGGER.debug(msg)
+            else:  # payload
+                buf = StringIO(None)
+                w = csv.writer(buf)
+                columns = None
+                for row in c:
+                    if columns is None:
+                        columns = row
+                    if all([row != '', row is not None, row != []]):
+                        if '*' not in row[0]:
+                            w.writerow(row)
+                        else:
+                            if columns[0].lower() == 'time':
+                                self.errors.append(21)
+                if header not in self.sections:
+                    self.all_tables.append(header)
+                    self.data_tables.append(header)
+                    self.table_count[header] = 1
+                else:
+                    self.table_count[header] = self.table_count[header] + 1
+                    header = '%s%s' % (header, self.table_count[header])
+                    self.sections[header] = {}
+                    self.data_tables.append(header)
+                self.sections[header] = {'_raw': buf.getvalue()}
+        # objectify comments found in file
+        # preserve order of occurence
+        hash_detected = False
+        table = None
+        comments_list = []
+        table_count = {}
+        for line in content.splitlines():
+            if '#' in line:  # table detected
+                if not hash_detected:
+                    self.comments['header_comments'] = comments_list
+                    comments_list = []
+                    table = line[1:].strip()
+                    if table in table_count.keys():
+                        table_count[table] = table_count[table] + 1
+                        table = '%s_%s' % (table, table_count[table])
+                    else:
+                        table_count[table] = 1
+                    hash_detected = True
+                    continue
+                self.comments[table] = comments_list
+                table = line[1:].strip()
+                if table in table_count.keys():
+                    table_count[table] = table_count[table] + 1
+                    table = '%s_%s' % (table, table_count[table])
+                else:
+                    table_count[table] = 1
+                comments_list = []
+                continue
+            # comments are prefixed by '*' in column 0 of each line
+            if line.startswith('*'):  # comment detected,
+                comments_list.append(line.strip('\n'))
+        self.comments[table] = comments_list
+
+    def __eq__(self, other):
+        """
+        equals builtin
+
+        :param other: object to be compared
+        :returns: boolean result of comparison
+        """
+
+        return self.__dict__ == other.__dict__
+
+
 class Writer(object):
     """WOUDC Extended CSV writer"""
 
@@ -422,220 +619,62 @@ class Writer(object):
         table_n = _table_index(table, index)
         return self.extcsv_ds[table_n][field]
 
-    def dumps(self):
-        """
-        Dump Extended CSV object to a string
-        :returns: string
-        """
-
-        validate = validate_extcsv(self.extcsv_ds)
-        bad = validate[0]
-        if not bad:  # object is good, write it out
-            try:
-                mem_file = _serialize_extcsv(self)
-                LOGGER.info('object dumped to string')
-            except Exception as err:
-                msg = 'Extended CSV cannot be serialized %s' % err
-                LOGGER.error(msg)
-        else:  # object is bad, log violations
-            msg = validate[1]
-            LOGGER.error(msg)
-
-        return mem_file
-
     def validate(self):
-        """validate Extended CSV object"""
-        return _validate(self._extcsv_ds)
-
-
-class Reader(object):
-    """WOUDC Extended CSV reader"""
-
-    def __init__(self, content):
         """
-        Parse WOUDC Extended CSV into internal data structure
+        Validate extcsv for common/metadata tables and fields
 
-        :param content: string buffer of content
+        :returns: list of error codes and violations
         """
 
-        header_fields = [
-            'PROFILE',
-            'DAILY',
-            'GLOBAL',
-            'DIFFUSE',
-            # 'MONTHLY',
-            'OZONE_PROFILE',
-            'N14_VALUES',
-            'C_PROFILE',
-            'OBSERVATIONS',
-            'PUMP_CORRECTION',
-            'SIMULTANEOUS',
-            'DAILY_SUMMARY',
-            'DAILY_SUMMARY_NSF',
-            'SAOZ_DATA_V2',
-            'GLOBAL_DAILY_TOTALS'
-        ]
-
-        self.sections = {}
-        self.metadata_tables = []
-        self.data_tables = []
-        self.all_tables = []
-        self.comments = {}
-        self.updated = False
-        self.mtime = None
-        self.errors = []
-
-        LOGGER.info('processing Extended CSV')
-        blocks = re.split('#', content)
-        if len(blocks) == 0:
-            msg = 'no tables found'
-            LOGGER.error(msg)
-        # get rid of first element of cruft
-        head_comment = blocks.pop(0)
-        c = StringIO(head_comment.strip())
-        for line in c:
-            if all([line.strip() != '', line.strip() != os.linesep,
-                    line[0] != '*']):
-                self.errors.append(9)
-        self.table_count = {}
-        for b in blocks:
-            # determine delimiter
-            if '::' in b:
-                b.replace('::', ',')
-                self.errors.append(5)
-            if ';' in b:
-                b.replace(';', ',')
-                self.errors.append(5)
-            if '$' in b:
-                b.replace('$', ',')
-                self.errors.append(5)
-            if '%' in b:
-                b.replace('%', ',')
-                self.errors.append(5)
-            if any(['|' in b, '/' in b, '\\' in b]):
-                msg = 'invalid delimiter'
-                LOGGER.error(msg)
-                self.errors.append(6)
-            try:
-                s = StringIO(b.strip())
-                c = csv.reader(s)
-                header = (c.next()[0]).strip()
-            except Exception as err:
-                msg = 'Extended CSV malformed'
-                LOGGER.error(msg)
-            if header not in header_fields:  # metadata
-                if header not in self.sections:
-                    self.sections[header] = {}
-                    self.metadata_tables.append(header)
-                    self.table_count[header] = 1
-                    self.all_tables.append(header)
-                else:
-                    self.table_count[header] = self.table_count[header] + 1
-                    header = '%s%s' % (header, self.table_count[header])
-                    self.sections[header] = {}
-                    self.metadata_tables.append(header)
-                self.sections[header]['_raw'] = b.strip()
-                try:
-                    fields = c.next()
-                    # archive fix start
-                    fields = filter(lambda a: a != '', fields)
-                    # archive fix end
-                    if len(fields[0]) > 0:
-                        if fields[0][0] == '*':
-                            self.errors.append(8)
-                except StopIteration:
-                    msg = 'Extended CSV table %s has no fields' % header
-                    LOGGER.info(msg)
-                    self.errors.append(140)
-                values = None
-                try:
-                    values = c.next()
-                    if len(values[0]) > 0:
-                        if values[0][0] == '*':
-                            self.errors.append(8)
-                except StopIteration:
-                    msg = 'Extended CSV table %s has no values' % header
-                    LOGGER.info(msg)
-                    self.errors.append(140)
-                    continue
-                try:
-                    anything_more = (c.next()[0]).strip()
-                    if all([anything_more is not None, anything_more != '',
-                            anything_more != os.linesep,
-                            '*' not in anything_more]):
-                        self.errors.append(140)
-                except Exception as err:
-                    LOGGER.warning(err)
-                if len(values) > len(fields):
-                    self.errors.append(3)
-                    continue
-                i = 0
+        error = False
+        violations = []
+        rules = table_configuration_lookup('common')
+        for rule in rules:
+            table = rule['table']
+            table = '%s$1' % table[1:]
+            table_required = rule['table_required']
+            fields = rule['fields'].split(',')
+            fields = [x.lower().strip() for x in fields]
+            optional_fields = rule['optional_fields'].split(',')
+            optional_fields = [x.lower() for x in optional_fields]
+            for f in optional_fields:
+                if f in fields:
+                    fields.remove(f)
+            # check required table
+            if all([table not in self.extcsv_ds.keys(),
+                    table_required == 'required']):
+                violations.append(1)
+                error = True
                 for field in fields:
-                    field = field.strip()
-                    try:
-                        self.sections[header][field] = (values[i]).strip()
-                        i += 1
-                    except (KeyError, IndexError):
-                        self.sections[header][field] = None
-                        msg = 'corrupt format section %s skipping' % header
-                        LOGGER.debug(msg)
-            else:  # payload
-                buf = StringIO(None)
-                w = csv.writer(buf)
-                columns = None
-                for row in c:
-                    if columns is None:
-                        columns = row
-                    if all([row != '', row is not None, row != []]):
-                        if '*' not in row[0]:
-                            w.writerow(row)
-                        else:
-                            if columns[0].lower() == 'time':
-                                self.errors.append(21)
-                if header not in self.sections:
-                    self.all_tables.append(header)
-                    self.data_tables.append(header)
-                    self.table_count[header] = 1
-                else:
-                    self.table_count[header] = self.table_count[header] + 1
-                    header = '%s%s' % (header, self.table_count[header])
-                    self.sections[header] = {}
-                    self.data_tables.append(header)
-                self.sections[header] = {'_raw': buf.getvalue()}
-        # objectify comments found in file
-        # preserve order of occurence
-        hash_detected = False
-        table = None
-        comments_list = []
-        table_count = {}
-        for line in content.splitlines():
-            if '#' in line:  # table detected
-                if not hash_detected:
-                    self.comments['header_comments'] = comments_list
-                    comments_list = []
-                    table = line[1:].strip()
-                    if table in table_count.keys():
-                        table_count[table] = table_count[table] + 1
-                        table = '%s_%s' % (table, table_count[table])
-                    else:
-                        table_count[table] = 1
-                    hash_detected = True
-                    continue
-                self.comments[table] = comments_list
-                table = line[1:].strip()
-                if table in table_count.keys():
-                    table_count[table] = table_count[table] + 1
-                    table = '%s_%s' % (table, table_count[table])
-                else:
-                    table_count[table] = 1
-                comments_list = []
-                continue
-            # comments are prefixed by '*' in column 0 of each line
-            if line.startswith('*'):  # comment detected,
-                comments_list.append(line.strip('\n'))
-        self.comments[table] = comments_list
+                    if field not in optional_fields:
+                        error = True
+                        violations.append(3)
+            else:
+                # check required fields
+                fields_in = self.extcsv_ds[table]
+                fields_in = [x.lower() for x in fields_in]
+                a = Set(fields_in)
+                b = Set(fields)
+                c = a ^ b
+                while len(c) > 0:
+                    item = c.pop()
+                    if all([item not in optional_fields,
+                            item in fields_in,
+                            item != 'comments']):  # unrecognized field name
+                        error = True
+                        violations.append(4)
+                    if item in fields:
+                        error = True
+                        violations.append(3)
 
-    def _serialize(self):
+            if all([rule['incompatible_table'] is not None,
+                    rule['incompatble_table'] in self.extcsv_ds.keys()]):
+                error = True
+                violations.append(2)
+
+        return [error, violations]
+
+    def serialize(self):
         """
         Write Extended CSV object to string
 
@@ -680,20 +719,6 @@ class Reader(object):
 
         return mem_file
 
-    def validate(self):
-        """validate Extended CSV object"""
-        return _validate(self._extcsv_ds)
-
-    def __eq__(self, other):
-        """
-        equals builtin
-
-        :param other: object to be compared
-        :returns: boolean result of comparison
-        """
-
-        return self.__dict__ == other.__dict__
-
 
 def _table_index(table, index):
     """
@@ -702,62 +727,6 @@ def _table_index(table, index):
 
     sep = '$'
     return '%s%s%s' % (table, sep, index)
-
-
-def _validate(extcsv):
-    """
-    Validate extcsv for common/metadata tables and fields
-
-    :param extcsv: Writer object
-    :returns: list of error codes and violations
-    """
-
-    error = False
-    violations = []
-    rules = table_configuration_lookup('common')
-    for rule in rules:
-        table = rule['table']
-        table = '%s$1' % table[1:]
-        table_required = rule['table_required']
-        fields = rule['fields'].split(',')
-        fields = [x.lower().strip() for x in fields]
-        optional_fields = rule['optional_fields'].split(',')
-        optional_fields = [x.lower() for x in optional_fields]
-        for f in optional_fields:
-            if f in fields:
-                fields.remove(f)
-        # check required table
-        if all([table not in extcsv.keys(), table_required == 'required']):
-            violations.append(1)
-            error = True
-            for field in fields:
-                if field not in optional_fields:
-                    error = True
-                    violations.append(3)
-        else:
-            # check required fields
-            fields_in = extcsv[table]
-            fields_in = [x.lower() for x in fields_in]
-            a = Set(fields_in)
-            b = Set(fields)
-            c = a ^ b
-            while len(c) > 0:
-                item = c.pop()
-                if all([item not in optional_fields,
-                        item in fields_in,
-                        item != 'comments']):  # unrecognized field name
-                    error = True
-                    violations.append(4)
-                if item in fields:
-                    error = True
-                    violations.append(3)
-
-        if all([rule['incompatible_table'] is not None,
-                rule['incompatble_table'] in extcsv.keys()]):
-            error = True
-            violations.append(2)
-
-    return [error, violations]
 
 
 def table_configuration_lookup(dataset, level='n/a', form='n/a',
@@ -823,3 +792,81 @@ def table_configuration_lookup(dataset, level='n/a', form='n/a',
         return all_tb
     else:
         return rules
+
+
+# module level entry points / helper functions
+
+def load(filename):
+    """
+    Load Extended CSV from file
+
+    :param filename: filename
+    :returns: Extended CSV data structure
+    """
+
+    with open(filename) as ff:
+        return Reader(ff.read())
+
+
+def loads(strbuf):
+    """
+    Load Extended CSV from string
+
+    :param strbuf: string representation of Extended CSV
+    :returns: Extended CSV data structure
+    """
+
+    return Reader(strbuf)
+
+
+def dump(extcsv_obj, filename):
+    """
+    Dump Extended CSV object to file
+
+    :param extcsv_obj: Extended CSV object
+    :param filename: filename
+    :returns: void, writes file to disk
+    """
+
+    LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
+    with open(filename, 'wb') as ff:
+        ff.write(_dump(extcsv_obj))
+
+
+def dumps(extcsv_obj):
+    """
+    Dump Extended CSV object to string representation
+
+    :param extcsv_obj: Extended CSV object
+    :returns: string
+    """
+
+    return _dump(extcsv_obj)
+
+
+def _dump(extcsv_obj):
+    """
+    Internal helper function to dump Extended CSV object to
+    string representation or file
+
+    :param extcsv_obj: Extended CSV object
+    :returns: string representation of Extended CSV
+    """
+
+    validate = extcsv_obj.validate()
+    bad = validate[0]
+
+    if bad:  # validation errors found
+        msg = 'Could not serialize object to string.  Violations found: %s' % \
+              validate[1]
+        LOGGER.error(msg)
+        raise RuntimeError(msg)
+
+    # object is good, dump to string or file
+    try:
+        LOGGER.info('Serializing object to string')
+        return extcsv_obj.serialize()
+    except Exception as err:
+        msg = 'Extended CSV cannot be serialized %s' % err
+        LOGGER.error(msg)
+        raise RuntimeError(msg)
