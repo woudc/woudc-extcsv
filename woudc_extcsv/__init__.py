@@ -668,7 +668,7 @@ class Writer(object):
                         violations.append(3)
 
             if all([rule['incompatible_table'] is not None,
-                    rule['incompatble_table'] in self.extcsv_ds.keys()]):
+                    rule['incompatible_table'] in self.extcsv_ds.keys()]):
                 error = True
                 violations.append(2)
 
@@ -830,6 +830,7 @@ def dump(extcsv_obj, filename):
 
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
     with open(filename, 'wb') as ff:
+        print(_dump(extcsv_obj))
         ff.write(_dump(extcsv_obj))
 
 
@@ -862,10 +863,10 @@ def _dump(extcsv_obj):
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
-    # object is good, dump to string or file
+    # object is good, dump to string
     try:
         LOGGER.info('Serializing object to string')
-        return extcsv_obj.serialize()
+        return extcsv_obj.serialize().getvalue()
     except Exception as err:
         msg = 'Extended CSV cannot be serialized %s' % err
         LOGGER.error(msg)
