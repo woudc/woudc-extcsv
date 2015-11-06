@@ -830,7 +830,6 @@ def dump(extcsv_obj, filename):
 
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
     with open(filename, 'wb') as ff:
-        print(_dump(extcsv_obj))
         ff.write(_dump(extcsv_obj))
 
 
