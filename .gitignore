@@ -1,1 +1,3 @@
 *.pyc
+build
+woudc_extcsv.egg-info
