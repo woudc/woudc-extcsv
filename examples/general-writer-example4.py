@@ -43,32 +43,29 @@
 #
 # =================================================================
 
-# Create extcsv object
-# Example 4: Create object from a supplied OrderedDict and write to file
+# Example 4:
+# Create object from a supplied OrderedDict and write to file
 
 import os
 import logging
 from collections import OrderedDict
-from woudc.extcsv import WOUDCextCSVWriter
-from woudc.extcsv.util import setup_logger
+import woudc_extcsv
+
 
 # setup logging
-setup_logger('../etc/extcsv4.log', 'DEBUG')
+datetime_format = '%a, %d %b %Y %H:%M:%S'
+msg_format = '[%(asctime)s] [%(levelname)s] [%(message)s]'
+logging.basicConfig(filename='example4.log',
+                    format=msg_format,
+                    datefmt=datetime_format,
+                    level=logging.DEBUG)
 
 LOGGER = logging.getLogger(__name__)
 
 
 # new extcsv object
 in_ds = OrderedDict([('CONTENT$1', OrderedDict([('comments', []), ('Class', ['WOUDC']), ('Category', ['Spectral']), ('Level', ['1.0']), ('Form', ['1'])])), ('DATA_GENERATION$1', OrderedDict([('comments', []), ('Date', ['2005-04-30']), ('Agency', ['EPA_UGA']), ('Version', ['2.00']), ('ScientificAuthority', [])])), ('PLATFORM$1', OrderedDict([('comments', []), ('Type', ['STN']), ('ID', ['388']), ('Name', ['Shenandoah']), ('Country', ['USA']), ('GAW_ID', [])])), ('INSTRUMENT$1', OrderedDict([('comments', []), ('Name', ['Brewer']), ('Model', ['MKIV']), ('Number', ['137'])])), ('LOCATION$1', OrderedDict([('comments', ['Time reported is Solar Time.  Subtract UTCOffset for UTC.', '"Reformatted by the WOUDC"', 'This is a table comment.']), ('Latitude', ['38.52']), ('Longitude', ['-78.44']), ('Height', ['1073'])])), ('TIMESTAMP$1', OrderedDict([('comments', []), ('UTCOffset', ['-05:27:17']), ('Date', ['2004-01-31']), ('Time', ['07:28:49'])])), ('GLOBAL_SUMMARY$1', OrderedDict([('comments', []), ('Time', ['07:28:49']), ('IntACGIH', ['9.891E-02']), ('IntCIE', ['1.745E+00']), ('ZenAngle', ['84.36']), ('MuValue', ['7.79']), ('AzimAngle', ['117.27']), ('Flag', ['000030']), ('TempC', ['12'])])), ('GLOBAL$1', OrderedDict([('comments', []), ('Wavelength', ['290.0', '290.5', '291.0', '291.5']), ('S-Irradiance', ['1.700E-06', '8.000E-07', '0.000E+00', '8.000E-07']), ('Time', [])])), ('TIMESTAMP$2', OrderedDict([('comments', []), ('UTCOffset', ['-05:27:18']), ('Date', ['2004-01-31']), ('Time', ['07:58:48'])])), ('GLOBAL_SUMMARY$2', OrderedDict([('comments', []), ('Time', ['07:58:48']), ('IntACGIH', ['3.617E-01']), ('IntCIE', ['5.720E+00']), ('ZenAngle', ['79.26']), ('MuValue', ['4.92']), ('AzimAngle', ['122.36']), ('Flag', ['000030']), ('TempC', ['12'])])), ('GLOBAL$2', OrderedDict([('comments', []), ('Wavelength', ['290.0', '290.5', '291.0', '291.5']), ('S-Irradiance', ['0.000E+00', '9.000E-07', '0.000E+00', '4.100E-06']), ('Time', [])])), ('GLOBAL_DAILY_SUMMARY$1', OrderedDict([('comments', []), ('IntACGIH', ['1.794E+02']), ('IntCIE', ['1.387E+03'])])), ('GLOBAL_DAILY_SUMMsfsfARY$1', OrderedDict([('comments', []), ('IntACGIH', []), ('IntCIE', [])]))])
-extcsv = WOUDCextCSVWriter(ds=in_ds)
-extcsv.filename = 'extcsv4.csv'
+extcsv = woudc_extcsv.Writer(ds=in_ds)
 
-# write out file to disk
-mem_file = extcsv.serialize()
-
-try:
-    with open(extcsv.filename, 'w') as out_file:
-        out_file.write(mem_file.getvalue())
-except Exception, err:
-    msg = 'Unable to write file: %s to write extended CSV, due to: %s' % (extcsv.filename, str(err))
-    LOGGER.error(msg)
+# write to file
+woudc_extcsv.dump(extcsv, 'general-extcsv-example4.csv')

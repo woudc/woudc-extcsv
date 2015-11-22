@@ -43,21 +43,26 @@
 #
 # =================================================================
 
-# Create extcsv object
-# Example 1: Create object using various writer methods
+# Example 1: 
+# Create extcsv object using various methods
 
 import os
 import logging
-from woudc.extcsv import WOUDCextCSVWriter
-from woudc.extcsv.util import setup_logger
+import woudc_extcsv
 
 # setup logging
-setup_logger('../etc/extcsv.log', 'DEBUG')
+datetime_format = '%a, %d %b %Y %H:%M:%S'
+msg_format = '[%(asctime)s] [%(levelname)s] [%(message)s]'
+logging.basicConfig(filename='example1.log',
+                    format=msg_format,
+                    datefmt=datetime_format,
+                    level=logging.DEBUG)
+
 
 LOGGER = logging.getLogger(__name__)
 
 # new extcsv object
-extcsv = WOUDCextCSVWriter()
+extcsv = woudc_extcsv.Writer()
 
 # add table
 extcsv.add_table('CONTENT', 'This table stores basic metadata')
@@ -98,36 +103,34 @@ extcsv.remove_data('CONTENT', 'Class', data='d', index=2)
 extcsv.remove_data('CONTENT', 'Class', data='e', index=2)
 extcsv.remove_data('CONTENT', 'Class', d_index=1, index=2)
 extcsv.remove_data('CONTENT', 'Category', d_index=0, index=3)
-extcsv.remove_data('CONTENT', 'Category', data=7, index=3, all_occurances=True)
-extcsv.remove_data('CONTENT', 'Category', data=23424, index=3, all_occurances=True)
-extcsv.remove_data('CONTENT', 'Category', data=8, index=3, all_occurances=True)
-extcsv.remove_data('CONTENT', 'Category', data=10, index=3, all_occurances=True)
+extcsv.remove_data('CONTENT', 'Category', data=7, index=3, all_occurences=True)
+extcsv.remove_data('CONTENT', 'Category', data=23424, index=3, all_occurences=True)
+extcsv.remove_data('CONTENT', 'Category', data=8, index=3, all_occurences=True)
+extcsv.remove_data('CONTENT', 'Category', data=10, index=3, all_occurences=True)
 
 
-#clear
-#extcsv.clear_file()
+# clear file
+# extcsv.clear_file()
+
 extcsv.clear_table('CONTENT', index=3)
 extcsv.add_data('CONTENT','new_value', index=3, field='Category')
 extcsv.clear_field('CONTENT', index=3, field='Category')
 
+# take a look at a table
 extcsv.inspect_table('CONTENT', index=3)
 
-
+# Add file level comments
 extcsv.add_comment('Comment1')
 extcsv.add_comment('Comment2')
 extcsv.add_comment('Comment3')
-extcsv.filename = 'extcsv1.csv'
-#extcsv.get_ds()
 
-# have the lib write out the file
-# extcsv.serialize(to_file=True)
+# Give the file a name
+extcsv.filename = 'general-extcsv-example1.csv'
 
-# do you own io
-mem_file = extcsv.serialize()
-print mem_file
-try:
-    with open(extcsv.filename, 'w') as out_file:
-        out_file.write(mem_file.getvalue())
-except Exception, err:
-    msg = 'Unable to write file: %s to write extended CSV, due to: %s' % (extcsv.filename, str(err))
-    LOGGER.error(msg)
+'''
+Write to file.
+By default, the extcsv object will be validated for common/metadata tables and fields.
+This file is missing some metadata tables and fields, thus file will not serialize. 
+Violations will be printed to standard out and logged.
+'''
+woudc_extcsv.dump(extcsv)

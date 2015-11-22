@@ -43,22 +43,30 @@
 #
 # =================================================================
 
-# Create extcsv object
-# Example 3: create object with template/common table pre-populated
+# Example 3: 
+# Create extcsv object with template/common table pre-populated
 
 import os
 import logging
-from woudc.extcsv import WOUDCextCSVWriter
-from woudc.extcsv.util import setup_logger
+import woudc_extcsv
 
 # setup logging
-setup_logger('../etc/extcsv3.log', 'DEBUG')
+datetime_format = '%a, %d %b %Y %H:%M:%S'
+msg_format = '[%(asctime)s] [%(levelname)s] [%(message)s]'
+logging.basicConfig(filename='example3.log',
+                    format=msg_format,
+                    datefmt=datetime_format,
+                    level=logging.DEBUG)
+
+LOGGER = logging.getLogger(__name__)
 
 
 # new extcsv object
-extcsv = WOUDCextCSVWriter(template=True)
-extcsv.filename = 'extcsv3.csv'
+# turn template on to have all common/metadata tables and their fields available
+extcsv = woudc_extcsv.Writer(template=True)
 
+# add value to common/metadata fields
 extcsv.add_data('CONTENT','WOUDC', field='Class')
 
-extcsv.serialize(to_file=True)
+# write to file
+woudc_extcsv.dump(extcsv, 'general-extcsv-example3.csv')
