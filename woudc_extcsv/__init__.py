@@ -340,6 +340,18 @@ class Writer(object):
         """
 
         self.file_comments.append(comment)
+        
+    def add_table_comment(self, table, comment, index=1):
+        """
+        Add table level comments
+        
+        :param table: table name
+        :param index: table index or grouping
+        :param comment: table level comment to be added.
+        """
+        
+        table_n = _table_index(table, index)
+        self.extcsv_ds[table_n]['comments'].append(comment)
 
     def add_table(self, table, table_comment=None, index=1):
         """
@@ -401,7 +413,7 @@ class Writer(object):
                           (field, table, index)
                     LOGGER.error(msg)
 
-    def add_data(self, table, data, field=None, index=1, delimiter=','):
+    def add_data(self, table, data, field=None, index=1, delimiter=',', table_comment=None):
         """
         Add data to Extended CSV table field
 
@@ -415,6 +427,9 @@ class Writer(object):
         # add table if not present
         if table_n not in self.extcsv_ds.keys():
             self.add_table(table, index=index)
+        # add table comment
+        if table_comment is not None:
+            self.add_table_comment(table, table_comment, index)
         # add field if not present
         if field is not None:
             field_l = field.split(delimiter)
@@ -453,8 +468,9 @@ class Writer(object):
                 msg = 'fields / values mismatch; skipping'
                 LOGGER.error(msg)
             else:
+                data_index = 0
                 for data in data_l:
-                    data_index = data_l.index(data) + 1
+                    data_index += 1
                     try:
                         field = self.extcsv_ds[table_n].keys()[data_index]
                     except IndexError, err:
@@ -643,12 +659,12 @@ class Writer(object):
             # check required table
             if all([table not in self.extcsv_ds.keys(),
                     table_required == 'required']):
-                violations.append(1)
+                violations.append(_violation_lookup(1, table))
                 error = True
                 for field in fields:
                     if field not in optional_fields:
                         error = True
-                        violations.append(3)
+                        violations.append(_violation_lookup(3, field))
             else:
                 # check required fields
                 fields_in = self.extcsv_ds[table]
@@ -662,15 +678,15 @@ class Writer(object):
                             item in fields_in,
                             item != 'comments']):  # unrecognized field name
                         error = True
-                        violations.append(4)
+                        violations.append(_violation_lookup(4, item))
                     if item in fields:
                         error = True
-                        violations.append(3)
+                        violations.append(_violation_lookup(3, item))
 
             if all([rule['incompatible_table'] is not None,
                     rule['incompatible_table'] in self.extcsv_ds.keys()]):
                 error = True
-                violations.append(2)
+                violations.append(_violation_lookup(2, table))
 
         return [error, violations]
 
@@ -719,15 +735,48 @@ class Writer(object):
 
         return mem_file
 
+# table name and index separator
+sep = '$'
 
 def _table_index(table, index):
     """
     Helper function to return table index.
     """
 
-    sep = '$'
     return '%s%s%s' % (table, sep, index)
+    
 
+def _violation_lookup(code, rpl_str=None):
+    """
+    Helper function to look up error message given
+    violation code
+    
+    :param code: violation code
+    :param rpl_str: optional replacement string
+    :returns: violation message
+    """
+    
+    violations_map = {
+        1     :   '{Missing required table name: $$$.}',
+        2     :   '{Table name: $$$ is not from approved list.}',
+        3     :   '{Missing required field name: $$$.}',
+        4     :   '{Field name: $$$, is not from approved list.}',
+        5     :   '{Improper delimiter found (";" or ":" or "$" or "%"), corrected to "," (comma).}',
+        6     :   '{Unknown delimiter found.  Delimiter must be "," (comma).}',
+        8     :   '{Remarks - cannot be between TABLE names and Field names nor between Field names and values of field.}',
+        9     :   '{Cannot identify data, possibly a remark, but no asterisk (*) used.}',
+        140   :   '{Incorrectly formatted table: $$$. Table does not contain exactly 3 lines.}'
+    }
+    
+    if sep in rpl_str:
+        rpl_str = rpl_str[:rpl_str.index(sep)]
+
+    if rpl_str is not None:
+        msg = violations_map[code].replace('$$$', rpl_str)
+        return msg
+    else:
+        return violations_map[code]
+    
 
 def table_configuration_lookup(dataset, level='n/a', form='n/a',
                                all_tables=False):
@@ -819,7 +868,7 @@ def loads(strbuf):
     return Reader(strbuf)
 
 
-def dump(extcsv_obj, filename):
+def dump(extcsv_obj, filename=None):
     """
     Dump Extended CSV object to file
 
@@ -827,7 +876,8 @@ def dump(extcsv_obj, filename):
     :param filename: filename
     :returns: void, writes file to disk
     """
-
+    if filename is None:
+        filename = extcsv_obj.filename
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
     with open(filename, 'wb') as ff:
         ff.write(_dump(extcsv_obj))
@@ -847,7 +897,7 @@ def dumps(extcsv_obj):
 def _dump(extcsv_obj):
     """
     Internal helper function to dump Extended CSV object to
-    string representation or file
+    string representation
 
     :param extcsv_obj: Extended CSV object
     :returns: string representation of Extended CSV
@@ -858,7 +908,7 @@ def _dump(extcsv_obj):
 
     if bad:  # validation errors found
         msg = 'Could not serialize object to string.  Violations found: %s' % \
-              validate[1]
+              ','.join(validate[1])
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
