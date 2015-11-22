@@ -7,13 +7,33 @@ Python package providing read/write support of the WOUDC Extended CSV format.
 
 ## Requirements
 
+* Python 2.6 and above.
 
 ## Dependencies
 
 
 ## Installing the Package
 
+```bash
+git clone http://gitlab.ssc.etg.gc.ca/woudc/woudc-extcsv && cd woudc-extcsv
+python setup.py build
+python setup.py install
+```
+
 ## Development
+
+For development environments, install
+within a Python virtualenv (http://virtualenv.org):
+
+
+```bash
+virtualenv foo
+cd foo
+. bin/activate
+# Fork http://gitlab.ssc.etg.gc.ca/woudc/woudc-extcsv
+# git clone http://gitlab.ssc.etg.gc.ca/{yourname}/woudc-extcsv && cd woudc-extcsv
+# install steps as per above
+```
 
 ### Running tests
 
