@@ -613,6 +613,6 @@ class extcsv_reader(unittest.TestCase):
                         'check totalozone daily value in my extcsv')
         self.assertEquals('23', my_daily_row[my_daily_header.index('UTC_Mean')],
                         'check totalozone daily value in my extcsv')
-
+# main
 if __name__ == '__main__':
     unittest.main()
