@@ -44,20 +44,24 @@
 # =================================================================
 
 # Create extcsv object
-# Example 2: Create a spectral object and write it to file
+# Example 2: Create a spectral extcsv object and write it to file
 
 import os
 import logging
-from woudc.extcsv import WOUDCextCSVWriter
-from woudc.extcsv.util import setup_logger
+import woudc_extcsv
 
 # setup logging
-setup_logger('../etc/extcsv2.log', 'DEBUG')
+datetime_format = '%a, %d %b %Y %H:%M:%S'
+msg_format = '[%(asctime)s] [%(levelname)s] [%(message)s]'
+logging.basicConfig(filename='example2.log',
+                    format=msg_format,
+                    datefmt=datetime_format,
+                    level=logging.DEBUG)
 
 
 # new extcsv object
-extcsv = WOUDCextCSVWriter()
-extcsv.filename = 'extcsv2.csv'
+extcsv = woudc_extcsv.Writer()
+extcsv.filename = 'general-extcsv-example2.csv'
 
 # add data here
 extcsv.add_data('CONTENT','WOUDC,Spectral,1.0,1', field='Class,Category,Level,Form')
@@ -84,13 +88,7 @@ extcsv.add_field('GLOBAL_DAILY_SUMMsfsfARY', 'IntACGIH,IntCIE')
 
 extcsv.add_comment('This is a spectral file')
 extcsv.add_comment('This is a file comment.')
-#extcsv.get_ds()
+
 
 # write out file to disk
-mem_file = extcsv.serialize()
-try:
-    with open(extcsv.filename, 'w') as out_file:
-        out_file.write(mem_file.getvalue())
-except Exception, err:
-    msg = 'Unable to write file: %s to write extended CSV, due to: %s' % (extcsv.filename, str(err))
-    LOGGER.error(msg)
+woudc_extcsv.dump(extcsv)
