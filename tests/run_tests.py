@@ -56,6 +56,15 @@ def msg(test_id, test_description):
     return '%s: %s' % (test_id, test_description)
 
 
+def load_test_data_file(filename):
+    """helper function to open test file regardless of invocation"""
+
+    try:
+        return load(filename)
+    except IOError as err:
+        return load('tests/{}'.format(filename))
+
+
 def get_data(extcsv, table, field, index=1):
     """helper function, gets data from extcsv object"""
 
@@ -340,7 +349,7 @@ class extcsv_reader(unittest.TestCase):
     def test_table_presence(self):
         """Test if table exits"""
 
-        extcsv_to = load('data/20061201.brewer.mkiv.153.imd.csv')
+        extcsv_to = load_test_data_file('data/20061201.brewer.mkiv.153.imd.csv')
         self.assertTrue('CONTENT' in extcsv_to.sections,
                         'check totalozone table presence')
         self.assertTrue('DATA_GENERATION' in extcsv_to.sections,
@@ -354,7 +363,7 @@ class extcsv_reader(unittest.TestCase):
         self.assertTrue('TIMESTAMP3' not in extcsv_to.sections,
                         'check totalozone table not presence')
 
-        extcsv_sp = load('data/20040109.brewer.mkiv.144.epa_uga.csv')
+        extcsv_sp = load_test_data_file('data/20040109.brewer.mkiv.144.epa_uga.csv')
         self.assertTrue('DATA_GENERATION' in extcsv_sp.sections,
                         'check spectral table presence')
         self.assertTrue('GLOBAL_SUMMARY' in extcsv_sp.sections,
@@ -367,7 +376,7 @@ class extcsv_reader(unittest.TestCase):
     def test_field_presence(self):
         """Test if field exist"""
         
-        extcsv_oz = load('data/20151021.ecc.6a.6a28340.smna.csv')
+        extcsv_oz = load_test_data_file('data/20151021.ecc.6a.6a28340.smna.csv')
         self.assertTrue('Category' in extcsv_oz.sections['CONTENT'],
                         'check ozonesonde field presence')
         self.assertTrue('Version' in extcsv_oz.sections['DATA_GENERATION'],
@@ -403,7 +412,7 @@ class extcsv_reader(unittest.TestCase):
     def test_value(self):
         """Test values"""
         
-        extcsv_to = load('data/20061201.brewer.mkiv.153.imd.csv')
+        extcsv_to = load_test_data_file('data/20061201.brewer.mkiv.153.imd.csv')
         self.assertEquals('WOUDC', extcsv_to.sections['CONTENT']['Class'],
                         'check totalozone value')
         self.assertEquals('', extcsv_to.sections['PLATFORM']['GAW_ID'],
@@ -437,7 +446,7 @@ class extcsv_reader(unittest.TestCase):
         self.assertEquals('259', daily_row[daily_header.index('ColumnO3')],
                         'check totalozone daily value')
         
-        extcsv_sp = load('data/20040109.brewer.mkiv.144.epa_uga.csv')
+        extcsv_sp = load_test_data_file('data/20040109.brewer.mkiv.144.epa_uga.csv')
         self.assertEquals('2.291E+00', extcsv_sp.sections['GLOBAL_SUMMARY']['IntCIE'],
                         'check spectral value')
         self.assertEquals('000000', extcsv_sp.sections['GLOBAL_SUMMARY']['Flag'],
@@ -474,7 +483,7 @@ class extcsv_reader(unittest.TestCase):
         self.assertEquals('6.440E+02', extcsv_sp.sections['GLOBAL_DAILY_SUMMARY']['IntACGIH'],
                         'check spectral global daily summary value')
                         
-        extcsv_oz = load('data/20151021.ecc.6a.6a28340.smna.csv')
+        extcsv_oz = load_test_data_file('data/20151021.ecc.6a.6a28340.smna.csv')
         self.assertEquals('6a', extcsv_oz.sections['INSTRUMENT']['Model'],
                         'check ozonesonde value')
         self.assertEquals('323.75', extcsv_oz.sections['FLIGHT_SUMMARY']['SondeTotalO3'],
