@@ -46,7 +46,6 @@
 # Example 1:
 # Create extcsv object using various methods
 
-import os
 import logging
 import woudc_extcsv
 
@@ -91,13 +90,11 @@ extcsv.add_field('CONTENT', 'Class,Category,Level', index=2)
 extcsv.add_data('CONTENT', 'd,e,f', index=2)
 extcsv.add_data('CONTENT', 'g,h,i', index=2, field='Category')
 extcsv.add_data('CONTENT', [1, 2, 3, 4, 5], index=2, field='Category')
-extcsv.add_data(
-               'CONTENT',
-               ['sfsf,sdfsf', 7, 8, 9, 10],
-               index=2,
-               field='Category')
-extcsv.add_data(
-                'CONTENT',
+extcsv.add_data('CONTENT',
+                ['sfsf,sdfsf', 7, 8, 9, 10],
+                index=2,
+                field='Category')
+extcsv.add_data('CONTENT',
                 ['sfsf,sdfsf', 7, 8, 9, 10, 7, 8, 8],
                 index=3,
                 field='Category')
@@ -112,20 +109,17 @@ extcsv.remove_data('CONTENT', 'Class', data='e', index=2)
 extcsv.remove_data('CONTENT', 'Class', d_index=1, index=2)
 extcsv.remove_data('CONTENT', 'Category', d_index=0, index=3)
 extcsv.remove_data('CONTENT', 'Category', data=7, index=3, all_occurences=True)
-extcsv.remove_data(
-                   'CONTENT',
+extcsv.remove_data('CONTENT',
                    'Category',
                    data=23424,
                    index=3,
                    all_occurences=True)
-extcsv.remove_data(
-                   'CONTENT',
+extcsv.remove_data('CONTENT',
                    'Category',
                    data=8,
                    index=3,
                    all_occurences=True)
-extcsv.remove_data(
-                   'CONTENT',
+extcsv.remove_data('CONTENT',
                    'Category',
                    data=10,
                    index=3,

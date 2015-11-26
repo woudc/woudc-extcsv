@@ -46,7 +46,6 @@
 # Example 4:
 # Create object from a supplied OrderedDict and write to file
 
-import os
 import logging
 from collections import OrderedDict
 import woudc_extcsv

@@ -46,7 +46,6 @@
 # Create extcsv object
 # Example 2: Create a spectral extcsv object and write it to file
 
-import os
 import logging
 import woudc_extcsv
 

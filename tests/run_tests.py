@@ -47,7 +47,7 @@ import csv
 import unittest
 from StringIO import StringIO
 from woudc_extcsv import Writer, dumps
-from woudc_extcsv import Reader, load, loads
+from woudc_extcsv import load, loads
 
 
 def msg(test_id, test_description):
@@ -61,7 +61,7 @@ def load_test_data_file(filename):
 
     try:
         return load(filename)
-    except IOError as err:
+    except IOError:
         return load('tests/{}'.format(filename))
 
 
@@ -414,10 +414,9 @@ class extcsv_reader(unittest.TestCase):
         self.assertEquals(3, pr_header.index('WindSpeed'),
                           'check ozonesonde profile field order')
         self.assertEquals(
-            len(pr_header)-1,
+            len(pr_header) - 1,
             pr_header.index('SampleTemperature'),
-            'check ozonesonde profile field order'
-            )
+            'check ozonesonde profile field order')
 
     def test_value(self):
         """Test values"""
@@ -501,10 +500,7 @@ class extcsv_reader(unittest.TestCase):
                           'check spectral global daily total value')
         self.assertEquals('1.055E+01',
                           daily_tot_row[
-                                        daily_tot_header.index(
-                                                               'S-Irradiance'
-                                                               )
-                                        ],
+                              daily_tot_header.index('S-Irradiance')],
                           'check spectral global daily total value')
         self.assertEquals('6.440E+02',
                           extcsv_sp.
@@ -649,10 +645,9 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
         self.assertEquals(0, my_daily_header.index('Date'),
                           'check totalozone daily field order in my extcsv')
         self.assertEquals(
-            len(my_daily_header)-1,
+            len(my_daily_header) - 1,
             my_daily_header.index('ColumnSO2'),
-            'check totalozone daily field order in my extcsv'
-            )
+            'check totalozone daily field order in my extcsv')
         my_daily_row = None
         # seek
         for i in range(1, 6):

@@ -46,7 +46,6 @@
 # Example 3:
 # Create extcsv object with template/common table pre-populated
 
-import os
 import logging
 import woudc_extcsv
 

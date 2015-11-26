@@ -47,7 +47,7 @@
 
 import csv
 from StringIO import StringIO
-from woudc_extcsv import Reader, load, loads
+from woudc_extcsv import load
 
 
 # Using data from:

@@ -49,9 +49,7 @@
 # http://woudc.org/archive/Archive-NewFormat/TotalOzone_1.0_1/
 # stn031/dobson/2014/20140401.Dobson.Beck.076.NOAA-CMDL.csv
 
-import os
 import logging
-from collections import OrderedDict
 import woudc_extcsv
 
 
