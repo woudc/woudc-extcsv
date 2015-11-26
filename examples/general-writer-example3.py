@@ -43,7 +43,7 @@
 #
 # =================================================================
 
-# Example 3: 
+# Example 3:
 # Create extcsv object with template/common table pre-populated
 
 import os
@@ -62,11 +62,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 # new extcsv object
-# turn template on to have all common/metadata tables and their fields available
+# turn template on to have all common/metadata
+# tables and their fields available
 extcsv = woudc_extcsv.Writer(template=True)
 
 # add value to common/metadata fields
-extcsv.add_data('CONTENT','WOUDC', field='Class')
+extcsv.add_data('CONTENT', 'WOUDC', field='Class')
 
 # write to file
 woudc_extcsv.dump(extcsv, 'general-extcsv-example3.csv')

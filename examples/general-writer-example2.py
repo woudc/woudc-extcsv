@@ -64,27 +64,72 @@ extcsv = woudc_extcsv.Writer()
 extcsv.filename = 'general-extcsv-example2.csv'
 
 # add data here
-extcsv.add_data('CONTENT','WOUDC,Spectral,1.0,1', field='Class,Category,Level,Form')
-extcsv.add_data('DATA_GENERATION','2005-04-30,EPA_UGA,2.00', field='Date,Agency,Version,ScientificAuthority')
-extcsv.add_data('PLATFORM','STN,388,Shenandoah,USA', field='Type,ID,Name,Country,GAW_ID')
-extcsv.add_data('INSTRUMENT','Brewer,MKIV,137', field='Name,Model,Number')
-extcsv.add_data('LOCATION','38.52,-78.44,1073', field='Latitude,Longitude,Height')
-extcsv.add_data('LOCATION',['Time reported is Solar Time.  Subtract UTCOffset for UTC.', '"Reformatted by the WOUDC"', 'This is a table comment.'], field='comments')
-extcsv.add_data('TIMESTAMP','-05:27:17,2004-01-31,07:28:49', field='UTCOffset,Date,Time')
-extcsv.add_data('GLOBAL_SUMMARY','07:28:49,9.891E-02,1.745E+00,84.36,7.79,117.27,000030,12', field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC')
-extcsv.add_data('GLOBAL','290.0,1.700E-06', field='Wavelength,S-Irradiance,Time')
-extcsv.add_data('GLOBAL','290.5,8.000E-07', field='Wavelength,S-Irradiance,Time')
-extcsv.add_data('GLOBAL','291.0,0.000E+00', field='Wavelength,S-Irradiance,Time')
-extcsv.add_data('GLOBAL','291.5,8.000E-07', field='Wavelength,S-Irradiance,Time')
-extcsv.add_data('TIMESTAMP','-05:27:18,2004-01-31,07:58:48', field='UTCOffset,Date,Time', index=2)
-extcsv.add_data('GLOBAL_SUMMARY','07:58:48,3.617E-01,5.720E+00,79.26,4.92,122.36,000030,12', field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC', index=2)
-extcsv.add_data('GLOBAL','290.0,0.000E+00', field='Wavelength,S-Irradiance,Time', index=2)
-extcsv.add_data('GLOBAL','290.5,9.000E-07', field='Wavelength,S-Irradiance,Time', index=2)
-extcsv.add_data('GLOBAL','291.0,0.000E+00', field='Wavelength,S-Irradiance,Time', index=2)
-extcsv.add_data('GLOBAL','291.5,4.100E-06', field='Wavelength,S-Irradiance,Time', index=2)
-extcsv.add_data('GLOBAL_DAILY_SUMMARY','1.794E+02,1.387E+03', field='IntACGIH,IntCIE')
+extcsv.add_data('CONTENT',
+                'WOUDC,Spectral,1.0,1',
+                field='Class,Category,Level,Form')
+extcsv.add_data('DATA_GENERATION',
+                '2005-04-30,EPA_UGA,2.00',
+                field='Date,Agency,Version,ScientificAuthority')
+extcsv.add_data('PLATFORM',
+                'STN,388,Shenandoah,USA',
+                field='Type,ID,Name,Country,GAW_ID')
+extcsv.add_data('INSTRUMENT', 'Brewer,MKIV,137', field='Name,Model,Number')
+extcsv.add_data('LOCATION',
+                '38.52,-78.44,1073',
+                field='Latitude,Longitude,Height')
+extcsv.add_data('LOCATION',
+                ['Time reported is Solar Time.  Subtract UTCOffset for UTC.',
+                 '"Reformatted by the WOUDC"',
+                 'This is a table comment.'],
+                field='comments')
+extcsv.add_data('TIMESTAMP',
+                '-05:27:17,2004-01-31,07:28:49',
+                field='UTCOffset,Date,Time')
+extcsv.add_data('GLOBAL_SUMMARY',
+                '07:28:49,9.891E-02,1.745E+00,84.36,7.79,117.27,000030,12',
+                field='Time,IntACGIH,\
+IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC')
+extcsv.add_data('GLOBAL',
+                '290.0,1.700E-06',
+                field='Wavelength,S-Irradiance,Time')
+extcsv.add_data('GLOBAL',
+                '290.5,8.000E-07',
+                field='Wavelength,S-Irradiance,Time')
+extcsv.add_data('GLOBAL',
+                '291.0,0.000E+00',
+                field='Wavelength,S-Irradiance,Time')
+extcsv.add_data('GLOBAL',
+                '291.5,8.000E-07',
+                field='Wavelength,S-Irradiance,Time')
+extcsv.add_data('TIMESTAMP',
+                '-05:27:18,2004-01-31,07:58:48',
+                field='UTCOffset,Date,Time', index=2)
+extcsv.add_data('GLOBAL_SUMMARY',
+                '07:58:48,3.617E-01,5.720E+00,79.26,4.92,122.36,000030,12',
+                field='Time,IntACGIH,IntCIE,\
+ZenAngle,MuValue,AzimAngle,Flag,TempC',
+                index=2)
+extcsv.add_data('GLOBAL',
+                '290.0,0.000E+00',
+                field='Wavelength,S-Irradiance,Time',
+                index=2)
+extcsv.add_data('GLOBAL',
+                '290.5,9.000E-07',
+                field='Wavelength,S-Irradiance,Time',
+                index=2)
+extcsv.add_data('GLOBAL',
+                '291.0,0.000E+00',
+                field='Wavelength,S-Irradiance,Time',
+                index=2)
+extcsv.add_data('GLOBAL',
+                '291.5,4.100E-06',
+                field='Wavelength,S-Irradiance,Time',
+                index=2)
+extcsv.add_data('GLOBAL_DAILY_SUMMARY',
+                '1.794E+02,1.387E+03',
+                field='IntACGIH,IntCIE')
 
-extcsv.add_field('GLOBAL_DAILY_SUMMsfsfARY', 'IntACGIH,IntCIE')
+extcsv.add_field('GLOBAL_DAILY_SUMMARY', 'IntACGIH,IntCIE')
 
 extcsv.add_comment('This is a spectral file')
 extcsv.add_comment('This is a file comment.')

@@ -43,7 +43,7 @@
 #
 # =================================================================
 
-# Example 1: 
+# Example 1:
 # Create extcsv object using various methods
 
 import os
@@ -85,16 +85,24 @@ extcsv.add_data('CONTENT', 'Value1', field='Class')
 # add data, horizontal/multiple
 extcsv.add_data('CONTENT', 'a,b,c')
 
-extcsv.add_data('CONTENT','d,e,f')
+extcsv.add_data('CONTENT', 'd,e,f')
 
 extcsv.add_field('CONTENT', 'Class,Category,Level', index=2)
-extcsv.add_data('CONTENT','d,e,f', index=2)
-extcsv.add_data('CONTENT','g,h,i', index=2, field='Category')
-extcsv.add_data('CONTENT',[1,2,3,4,5], index=2, field='Category')
-extcsv.add_data('CONTENT',['sfsf,sdfsf',7,8,9,10], index=2, field='Category')
-extcsv.add_data('CONTENT',['sfsf,sdfsf',7,8,9,10, 7, 8, 8], index=3, field='Category')
-extcsv.add_data('CONTENT','a,b', index=4, field='Category,field2,field3')
-extcsv.add_data('PLATFORM','value', index=1, field='Class')
+extcsv.add_data('CONTENT', 'd,e,f', index=2)
+extcsv.add_data('CONTENT', 'g,h,i', index=2, field='Category')
+extcsv.add_data('CONTENT', [1, 2, 3, 4, 5], index=2, field='Category')
+extcsv.add_data(
+               'CONTENT',
+               ['sfsf,sdfsf', 7, 8, 9, 10],
+               index=2,
+               field='Category')
+extcsv.add_data(
+                'CONTENT',
+                ['sfsf,sdfsf', 7, 8, 9, 10, 7, 8, 8],
+                index=3,
+                field='Category')
+extcsv.add_data('CONTENT', 'a,b', index=4, field='Category,field2,field3')
+extcsv.add_data('PLATFORM', 'value', index=1, field='Class')
 
 # remove data
 extcsv.remove_table('CONTENT')
@@ -104,16 +112,31 @@ extcsv.remove_data('CONTENT', 'Class', data='e', index=2)
 extcsv.remove_data('CONTENT', 'Class', d_index=1, index=2)
 extcsv.remove_data('CONTENT', 'Category', d_index=0, index=3)
 extcsv.remove_data('CONTENT', 'Category', data=7, index=3, all_occurences=True)
-extcsv.remove_data('CONTENT', 'Category', data=23424, index=3, all_occurences=True)
-extcsv.remove_data('CONTENT', 'Category', data=8, index=3, all_occurences=True)
-extcsv.remove_data('CONTENT', 'Category', data=10, index=3, all_occurences=True)
+extcsv.remove_data(
+                   'CONTENT',
+                   'Category',
+                   data=23424,
+                   index=3,
+                   all_occurences=True)
+extcsv.remove_data(
+                   'CONTENT',
+                   'Category',
+                   data=8,
+                   index=3,
+                   all_occurences=True)
+extcsv.remove_data(
+                   'CONTENT',
+                   'Category',
+                   data=10,
+                   index=3,
+                   all_occurences=True)
 
 
 # clear file
 # extcsv.clear_file()
 
 extcsv.clear_table('CONTENT', index=3)
-extcsv.add_data('CONTENT','new_value', index=3, field='Category')
+extcsv.add_data('CONTENT', 'new_value', index=3, field='Category')
 extcsv.clear_field('CONTENT', index=3, field='Category')
 
 # take a look at a table
@@ -129,8 +152,9 @@ extcsv.filename = 'general-extcsv-example1.csv'
 
 '''
 Write to file.
-By default, the extcsv object will be validated for common/metadata tables and fields.
-This file is missing some metadata tables and fields, thus file will not serialize. 
+By default, the extcsv object will be validated for common/metadata
+tables and fields. This file is missing some metadata tables and fields,
+thus file will not serialize.
 Violations will be printed to standard out and logged.
 '''
 woudc_extcsv.dump(extcsv)
