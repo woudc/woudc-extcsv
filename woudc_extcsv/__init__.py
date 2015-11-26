@@ -43,15 +43,15 @@
 #
 # =================================================================
 
-__version__ = '0.1.0'
-
-from collections import OrderedDict
 import csv
 import logging
 import os
 import re
 from sets import Set
 from StringIO import StringIO
+from collections import OrderedDict
+
+__version__ = '0.1.0'
 
 LOGGER = logging.getLogger(__name__)
 
@@ -705,7 +705,7 @@ class Writer(object):
             for comment in self.file_comments:
                 mem_file.write('* %s%s' % (comment, os.linesep))
             mem_file.write('%s' % os.linesep)
-        for table, fields in self.extcsv_ds.iteritems():
+        for table, fields in self.extcsv_ds.items():
             mem_file.write('#%s%s' % (table[0: table.index('$')], os.linesep))
             t_comments = fields['comments']
             row = fields.keys()[1:]
@@ -763,11 +763,15 @@ def _violation_lookup(code, rpl_str=None):
         2: '{Table name: $$$ is not from approved list.}',
         3: '{Missing required field name: $$$.}',
         4: '{Field name: $$$, is not from approved list.}',
-        5: '{Improper delimiter found (";" or ":" or "$" or "%"), corrected to "," (comma).}',
+        5: '{Improper delimiter found (";" or ":" or "$" or "%"),\
+        corrected to "," (comma).}',
         6: '{Unknown delimiter found.  Delimiter must be "," (comma).}',
-        8: '{Remarks - cannot be between TABLE names and Field names nor between Field names and values of field.}',
-        9: '{Cannot identify data, possibly a remark, but no asterisk (*) used.}',
-        140: '{Incorrectly formatted table: $$$. Table does not contain exactly 3 lines.}'
+        8: '{Remarks - cannot be between TABLE names and Field names nor\
+        between Field names and values of field.}',
+        9: '{Cannot identify data, possibly a remark, \
+        but no asterisk (*) used.}',
+        140: '{Incorrectly formatted table: $$$. \
+        Table does not contain exactly 3 lines.}'
     }
 
     if sep in rpl_str:
