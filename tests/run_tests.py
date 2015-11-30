@@ -79,7 +79,7 @@ class extcsv_writer(unittest.TestCase):
     def setUp(self):
         """setup test fixtures, etc."""
 
-        print (msg(self.id(), self.shortDescription()))
+        print(msg(self.id(), self.shortDescription()))
 
     def tearDown(self):
         """return to pristine state"""
@@ -340,7 +340,7 @@ class extcsv_reader(unittest.TestCase):
     def setUp(self):
         """setup test fixtures, etc."""
 
-        print (msg(self.id(), self.shortDescription()))
+        print(msg(self.id(), self.shortDescription()))
 
     def tearDown(self):
         """return to pristine state"""
