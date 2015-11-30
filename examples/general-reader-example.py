@@ -127,59 +127,59 @@ extcsv_to = load('../tests/data/20061201.brewer.mkiv.153.imd.csv')
 # access all tables
 # multiple occurance of tables are indexed as per order of occurance
 tables = extcsv_to.sections.keys()
-print ('All tables:')
-print (tables)
-print ('')
+print('All tables:')
+print(tables)
+print('')
 # get fields for a talbe
 CONTENT = extcsv_to.sections['CONTENT'].keys()
-print ('CONTENT fields:')
-print (CONTENT)
-print ('')
+print('CONTENT fields:')
+print(CONTENT)
+print('')
 # get field value
 CONTENT_Category = extcsv_to.sections['CONTENT']['Category']
-print ('CONTENT.Category value:')
-print (CONTENT_Category)
-print ('')
+print('CONTENT.Category value:')
+print(CONTENT_Category)
+print('')
 DATA_GENERATION_Agency = extcsv_to.sections['DATA_GENERATION']['Agency']
-print ('DATA_GENERATION.Agency value:')
-print (DATA_GENERATION_Agency)
-print ('')
+print('DATA_GENERATION.Agency value:')
+print(DATA_GENERATION_Agency)
+print('')
 # second TIMESTAMP
 TIMESTAMP2_Date = extcsv_to.sections['TIMESTAMP2']['Date']
-print ('TIMESTAMP2.Date value:')
-print (TIMESTAMP2_Date)
-print ('')
+print('TIMESTAMP2.Date value:')
+print(TIMESTAMP2_Date)
+print('')
 # get profile/payload table values; these are tables with multiple rows
 # in the case of TotalOzone, the profile table is DAILY
 DAILY_raw = extcsv_to.sections['DAILY']['_raw']
-print ('DAILY table and content:')
-print (DAILY_raw)
+print('DAILY table and content:')
+print(DAILY_raw)
 DAILY = StringIO(DAILY_raw)
 DAILY_rows = csv.reader(DAILY)
 DAILY_header = DAILY_rows.next()
-print ('DAILY fields:')
-print (DAILY_header)
-print ('')
+print('DAILY fields:')
+print(DAILY_header)
+print('')
 # get first row of values
 DAILY_row_1 = DAILY_rows.next()
-print ('DAILY row 1 values:')
-print (DAILY_row_1)
-print ('')
+print('DAILY row 1 values:')
+print(DAILY_row_1)
+print('')
 # get second row of values
 DAILY_row_2 = DAILY_rows.next()
-print ('DAILY row 2 values:')
-print (DAILY_row_2)
-print ('')
+print('DAILY row 2 values:')
+print(DAILY_row_2)
+print('')
 # get secon row WLCode'
 DAILY_row_2_WLCode = DAILY_row_2[DAILY_header.index('WLCode')]
-print ('DAILY row 2 WLCode values:')
-print (DAILY_row_2_WLCode)
-print ('')
+print('DAILY row 2 WLCode values:')
+print(DAILY_row_2_WLCode)
+print('')
 # get all ColumnO3
 DAILY = StringIO(DAILY_raw)
 DAILY_rows = csv.reader(DAILY)
 DAILY_header = DAILY_rows.next()
-print ('All DAILY ColumnO3 values:')
+print('All DAILY ColumnO3 values:')
 for row in DAILY_rows:
     DAILY_ColumnO3 = row[DAILY_header.index('ColumnO3')]
-    print (DAILY_ColumnO3)
+    print(DAILY_ColumnO3)
