@@ -1,18 +1,18 @@
-# WMO WOUDC extended CSV library
+# WMO WOUDC Extended CSV library
 
 Python package providing read/write support of the WOUDC Extended CSV format.
 
 ## Installation
 
 
-## Requirements
+### Requirements
 
 * Python 2.6 and above.
 
-## Dependencies
+### Dependencies
 
 
-## Installing the Package
+### Installing the Package
 
 ```bash
 git clone http://gitlab.ssc.etg.gc.ca/woudc/woudc-extcsv.git && cd woudc-extcsv
@@ -38,7 +38,7 @@ cd foo
 # start dev
 ```
 
-### Running tests
+### Running Tests
 
 ```bash
 # via distutils
