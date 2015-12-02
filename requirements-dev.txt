@@ -2,3 +2,4 @@ coverage
 pep8
 pyflakes
 pylint
+pypandoc

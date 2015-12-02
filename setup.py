@@ -53,11 +53,18 @@ KEYWORDS = [
     'uv',
     'ultra-violet',
     'WMO',
-    'Extended CSB'
+    'Extended CSV'
 ]
 
 DESCRIPTION = '''Python package providing read/write support of the
 WOUDC Extended CSV format.'''
+
+try:
+    import pypandoc
+    LONG_DESCRIPTION = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    with open('README.md') as f:
+        LONG_DESCRIPTION = f.read()
 
 CONTACT = 'Meteorological Service of Canada'
 
@@ -111,7 +118,7 @@ setup(
     name='woudc-extcsv',
     version=woudc_extcsv.__version__,
     description=DESCRIPTION.strip(),
-    long_description=open('README.md').read(),
+    long_description=LONG_DESCRIPTION,
     license='MIT',
     platforms='all',
     keywords=' '.join(KEYWORDS),
