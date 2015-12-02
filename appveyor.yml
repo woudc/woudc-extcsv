@@ -1,0 +1,23 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
+
+install:
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - pip.exe install -r requirements-dev.txt
+  - python setup.py install
+
+build: off
+
+test_script:
+  - python setup.py test
+
+on_success:
+  - coverage.exe run --source woudc_extcsv setup.py test
+  - coverage.exe report -m

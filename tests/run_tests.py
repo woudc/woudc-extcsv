@@ -73,7 +73,7 @@ def get_data(extcsv, table, field, index=1):
     return extcsv.extcsv_ds[table_t][field]
 
 
-class extcsv_writer(unittest.TestCase):
+class WriterTest(unittest.TestCase):
     """Test suite for Writer"""
 
     def setUp(self):
@@ -334,7 +334,7 @@ class extcsv_writer(unittest.TestCase):
                          'unexpected value found')
 
 
-class extcsv_reader(unittest.TestCase):
+class ReaderTest(unittest.TestCase):
     """Test suite for Reader"""
 
     def setUp(self):
