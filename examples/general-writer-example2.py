@@ -60,7 +60,6 @@ logging.basicConfig(filename='example2.log',
 
 # new extcsv object
 extcsv = woudc_extcsv.Writer()
-extcsv.filename = 'general-extcsv-example2.csv'
 
 # add data here
 extcsv.add_data('CONTENT',
@@ -135,4 +134,4 @@ extcsv.add_comment('This is a file comment.')
 
 
 # write out file to disk
-woudc_extcsv.dump(extcsv)
+woudc_extcsv.dump(extcsv, 'general-extcsv-example2.csv')

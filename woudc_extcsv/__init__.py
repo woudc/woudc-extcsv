@@ -269,7 +269,6 @@ class Writer(object):
         :returns: Writer object
         """
 
-        self._filename = None
         self._file_comments = []
         self._extcsv_ds = OrderedDict()
         # init object with requested data structure
@@ -291,26 +290,6 @@ class Writer(object):
             self.add_field('INSTRUMENT', 'Name,Model,Number')
             self.add_field('LOCATION', 'Latitude,Longitude,Height')
             self.add_field('TIMESTAMP', 'UTCOffset,Date,Time')
-
-    @property
-    def filename(self):
-        """
-        Get filename
-
-        :returns: this objects's file name
-        """
-
-        return self._filename
-
-    @filename.setter
-    def filename(self, value):
-        """
-        Set filename
-
-        :param value: name of file
-        """
-
-        self._filename = value
 
     @property
     def file_comments(self):
