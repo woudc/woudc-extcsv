@@ -141,9 +141,6 @@ extcsv.add_comment('Comment1')
 extcsv.add_comment('Comment2')
 extcsv.add_comment('Comment3')
 
-# Give the file a name
-extcsv.filename = 'general-extcsv-example1.csv'
-
 '''
 Write to file.
 By default, the extcsv object will be validated for common/metadata
@@ -151,4 +148,4 @@ tables and fields. This file is missing some metadata tables and fields,
 thus file will not serialize.
 Violations will be printed to standard out and logged.
 '''
-woudc_extcsv.dump(extcsv)
+woudc_extcsv.dump(extcsv, 'general-extcsv-example1.csv')
