@@ -59,7 +59,7 @@ ecsv.add_data('LOCATION',
                 '31.63,130.6,283')
 
 # Add new table
-ecsv.add_table('TIMESTAMP', 'This table stores temporal data.')
+ecsv.add_table('TIMESTAMP')
 # Add fields
 ecsv.add_field('TIMESTAMP', 'UTCOffset,Date,Time')
 # Add data
@@ -96,8 +96,7 @@ ecsvs = woudc_extcsv.dumps(ecsv)
 # Write to file
 # validate (check if all common tables and their fields are present), if so dump to file
 # if not, print violations
-ecsv.filename = 'spectral-sample.csv'
-woudc_extcsv.dump(ecsv)
+woudc_extcsv.dump(ecsv, 'spectral-sample.csv')
 ```
 
 ### Convenience Functions
