@@ -46,8 +46,7 @@
 import csv
 import unittest
 from StringIO import StringIO
-from woudc_extcsv import Writer, dumps
-from woudc_extcsv import load, loads
+from woudc_extcsv import dump, dumps, load, loads, Writer
 
 
 def msg(test_id, test_description):
@@ -85,6 +84,12 @@ class WriterTest(unittest.TestCase):
         """return to pristine state"""
 
         pass
+
+    def test_dump_file(self):
+        """Test file dumping"""
+
+        with self.assertRaises(TypeError):
+            dump()
 
     def test_add_table_1(self):
         """Test adding new table"""
@@ -346,6 +351,12 @@ class ReaderTest(unittest.TestCase):
         """return to pristine state"""
 
         pass
+
+    def test_load_file(self):
+        """Test file loading"""
+
+        with self.assertRaises(TypeError):
+            load()
 
     def test_table_presence(self):
         """Test if table exits"""
@@ -672,6 +683,10 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
         self.assertEquals('23',
                           my_daily_row[my_daily_header.index('UTC_Mean')],
                           'check totalozone daily value in my extcsv')
+
+        with self.assertRaises(TypeError):
+            extcsv_s = dump(extcsv)
+
 # main
 if __name__ == '__main__':
     unittest.main()

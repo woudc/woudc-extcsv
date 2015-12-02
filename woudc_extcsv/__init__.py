@@ -853,7 +853,7 @@ def loads(strbuf):
     return Reader(strbuf)
 
 
-def dump(extcsv_obj, filename=None):
+def dump(extcsv_obj, filename):
     """
     Dump Extended CSV object to file
 
@@ -861,8 +861,6 @@ def dump(extcsv_obj, filename=None):
     :param filename: filename
     :returns: void, writes file to disk
     """
-    if filename is None:
-        filename = extcsv_obj.filename
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
     with open(filename, 'wb') as ff:
         ff.write(_dump(extcsv_obj))
