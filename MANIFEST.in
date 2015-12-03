@@ -1,0 +1,3 @@
+recursive-include woudc_extcsv *.csv
+include LICENSE.md
+include README.md
