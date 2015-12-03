@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/woudc/woudc-extcsv.png?branch=master)](https://travis-ci.org/woudc/woudc-extcsv) [![Build status](https://ci.appveyor.com/api/projects/status/02koln2pe4ap5kvd/branch/master?svg=true)](https://ci.appveyor.com/project/tomkralidis/woudc-extcsv/branch/master)
+[![Downloads this month on PyPI](https://img.shields.io/pypi/dm/woudc-extcsv.svg)](http://pypi.python.org/pypi/woudc-extcsv)
+[![Latest release](https://img.shields.io/pypi/v/woudc-extcsv.svg)](http://pypi.python.org/pypi/woudc-extcsv)
+[![License](https://img.shields.io/github/license/woudc/woudc-extcsv.svg)](https://github.com/woudc/woudc-extcsv)
 
 # WOUDC Extended CSV library
 
