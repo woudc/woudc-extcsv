@@ -50,15 +50,15 @@ ecsv.add_comment('This is another file level comment.')
 
 # Add metadata
 ecsv.add_data('CONTENT', 
-                'WOUDC,Spectral,1.0,1')
+              'WOUDC,Spectral,1.0,1')
 ecsv.add_data('DATA_GENERATION',
-                '2002-05-29,JMA,1.0')
+              '2002-05-29,JMA,1.0')
 ecsv.add_data('PLATFORM',
-                'STN,7,Kagoshima,JPN,47827')
+              'STN,7,Kagoshima,JPN,47827')
 ecsv.add_data('INSTRUMENT',
-                'Brewer,MKII,059')
+              'Brewer,MKII,059')
 ecsv.add_data('LOCATION',
-                '31.63,130.6,283')
+              '31.63,130.6,283')
 
 # Add new table
 ecsv.add_table('TIMESTAMP')
@@ -72,25 +72,25 @@ ecsv.add_data('TIMESTAMP', '06:38:47', field='Time')
 
 # Add new table, fields, and data at the same time
 ecsv.add_data('GLOBAL_SUMMARY',
-                '06:38:47,7.117E-04,8.980E-03,94.12,99.99,114.64,001000,999',
-                field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC')
+              '06:38:47,7.117E-04,8.980E-03,94.12,99.99,114.64,001000,999',
+              field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC')
 ecsv.add_data('GLOBAL',
-                '290.0,0.000E+00',
-                field='Wavelength,S-Irradiance,Time')
+              '290.0,0.000E+00',
+              field='Wavelength,S-Irradiance,Time')
 ecsv.add_data('GLOBAL',
-                '290.5,0.000E+00')
+              '290.5,0.000E+00')
 ecsv.add_data('GLOBAL',
-                '291.0,0.000E+00')
+              '291.0,0.000E+00')
 # Add table for new groupings
 ecsv.add_data('TIMESTAMP',
-                '+08:38:46,1991-01-01,07:38:46',
-                field='UTCOffset,Date,Time',
-                index=2)
+              '+08:38:46,1991-01-01,07:38:46',
+              field='UTCOffset,Date,Time',
+              index=2)
 
 ecsv.add_data('GLOBAL_SUMMARY',
-                '07:38:46,2.376E-02,3.984E-01,82.92,6.75,122.69,100000,999',
-                field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC',
-                index=2, table_comment='This is a table level comment.')
+              '07:38:46,2.376E-02,3.984E-01,82.92,6.75,122.69,100000,999',
+              field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC',
+              index=2, table_comment='This is a table level comment.')
 
 # Write to string
 ecsvs = woudc_extcsv.dumps(ecsv)
