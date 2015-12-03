@@ -53,7 +53,7 @@ KEYWORDS = [
     'uv',
     'ultra-violet',
     'WMO',
-    'Extended CSB'
+    'Extended CSV'
 ]
 
 DESCRIPTION = '''Python package providing read/write support of the
