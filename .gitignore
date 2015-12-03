@@ -1,4 +1,6 @@
 .coverage
 *.pyc
 build
+dist
 woudc_extcsv.egg-info
+MANIFEST
