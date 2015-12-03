@@ -453,7 +453,7 @@ class Writer(object):
                     data_index += 1
                     try:
                         field = self.extcsv_ds[table_n].keys()[data_index]
-                    except IndexError, err:
+                    except IndexError as err:
                         msg = 'number of data values exceed field count'
                         LOGGER.error(msg)
                     self.extcsv_ds[table_n][field].append(str(data))
@@ -818,7 +818,7 @@ def table_configuration_lookup(dataset, level='n/a', form='n/a',
                     all_tb.append(str(tb))
                     if all([inc != '', inc != u'n/a']):
                         all_tb.append(str(inc))
-    except Exception, err:
+    except Exception as err:
         msg = str(err)
         LOGGER.error(msg)
 

@@ -98,9 +98,9 @@ class WriterTest(unittest.TestCase):
         extcsv.add_table('CONTENT', 'basic metadata, index 1')
         self.assertTrue('CONTENT$1' in extcsv.extcsv_ds.keys(),
                         'table not found')
-        self.assertEquals('basic metadata, index 1',
-                          get_data(extcsv, 'CONTENT', 'comments')[0],
-                          'invalid table comment')
+        self.assertEqual('basic metadata, index 1',
+                         get_data(extcsv, 'CONTENT', 'comments')[0],
+                         'invalid table comment')
 
     def test_add_table_2(self):
         """Test adding new table at a specific index"""
@@ -126,14 +126,14 @@ class WriterTest(unittest.TestCase):
                         'table 3 not found')
         self.assertTrue('CONTENT$4' in extcsv.extcsv_ds.keys(),
                         'table 4 not found')
-        self.assertEquals(0, extcsv.extcsv_ds.keys().index('CONTENT$1'),
-                          'table 1 index mismatch')
-        self.assertEquals(1, extcsv.extcsv_ds.keys().index('CONTENT$2'),
-                          'table 2 index mismatch')
-        self.assertEquals(2, extcsv.extcsv_ds.keys().index('CONTENT$3'),
-                          'table 3 index mismatch')
-        self.assertEquals(3, extcsv.extcsv_ds.keys().index('CONTENT$4'),
-                          'table 4 index mismatch')
+        self.assertEqual(0, extcsv.extcsv_ds.keys().index('CONTENT$1'),
+                         'table 1 index mismatch')
+        self.assertEqual(1, extcsv.extcsv_ds.keys().index('CONTENT$2'),
+                         'table 2 index mismatch')
+        self.assertEqual(2, extcsv.extcsv_ds.keys().index('CONTENT$3'),
+                         'table 3 index mismatch')
+        self.assertEqual(3, extcsv.extcsv_ds.keys().index('CONTENT$4'),
+                         'table 4 index mismatch')
 
     def test_add_field_1(self):
         """Test adding new field to table"""
@@ -165,10 +165,10 @@ class WriterTest(unittest.TestCase):
         extcsv = Writer()
         extcsv.add_field('CONTENT', 'Class,Category,Level')
         keys = extcsv.extcsv_ds['CONTENT$1'].keys()
-        self.assertEquals(0, keys.index('comments'), 'index 0 mismatch')
-        self.assertEquals(1, keys.index('Class'), 'index 1 mismatch')
-        self.assertEquals(2, keys.index('Category'), 'index 2 mismatch')
-        self.assertEquals(3, keys.index('Level'), 'index 3 mismatch')
+        self.assertEqual(0, keys.index('comments'), 'index 0 mismatch')
+        self.assertEqual(1, keys.index('Class'), 'index 1 mismatch')
+        self.assertEqual(2, keys.index('Category'), 'index 2 mismatch')
+        self.assertEqual(3, keys.index('Level'), 'index 3 mismatch')
 
     def test_add_value_1(self):
         """Test adding new value to existing table.field, veritically"""
@@ -213,15 +213,15 @@ class WriterTest(unittest.TestCase):
         extcsv.add_data('GLOBAL', '290.0', index=2, field='Wavelength')
         extcsv.add_data('GLOBAL', '07:28:49', index=3, field='Time')
         extcsv.add_data('GLOBAL', '1.700E-06', field='S-Irradiance')
-        self.assertEquals(['290.0'],
-                          get_data(extcsv, 'GLOBAL', 'Wavelength', index=2),
-                          'expected specific value')
-        self.assertEquals(['07:28:49'],
-                          get_data(extcsv, 'GLOBAL', 'Time', index=3),
-                          'expected specific value')
-        self.assertEquals(['1.700E-06'],
-                          get_data(extcsv, 'GLOBAL', 'S-Irradiance'),
-                          'expected specific value')
+        self.assertEqual(['290.0'],
+                         get_data(extcsv, 'GLOBAL', 'Wavelength', index=2),
+                         'expected specific value')
+        self.assertEqual(['07:28:49'],
+                         get_data(extcsv, 'GLOBAL', 'Time', index=3),
+                         'expected specific value')
+        self.assertEqual(['1.700E-06'],
+                         get_data(extcsv, 'GLOBAL', 'S-Irradiance'),
+                         'expected specific value')
 
     def test_add_value_4(self):
         """Test insert order when adding multiple values to a field"""
@@ -233,23 +233,23 @@ class WriterTest(unittest.TestCase):
         extcsv.add_data('GLOBAL', '290.5,8.000E-07', field=field_val)
         extcsv.add_data('GLOBAL', '291.0,0.000E+00', field=field_val)
         extcsv.add_data('GLOBAL', '291.5,8.000E-07', field=field_val)
-        self.assertEquals(['290.0', '290.5', '291.0', '291.5'],
-                          get_data(extcsv, 'GLOBAL', 'Wavelength'),
-                          'expected specific value')
-        self.assertEquals(['1.700E-06', '8.000E-07', '0.000E+00', '8.000E-07'],
-                          get_data(extcsv, 'GLOBAL', 'S-Irradiance'),
-                          'expected specific value')
-        self.assertEquals([], get_data(extcsv, 'GLOBAL', 'Time'),
-                          'expected specific value')
+        self.assertEqual(['290.0', '290.5', '291.0', '291.5'],
+                         get_data(extcsv, 'GLOBAL', 'Wavelength'),
+                         'expected specific value')
+        self.assertEqual(['1.700E-06', '8.000E-07', '0.000E+00', '8.000E-07'],
+                         get_data(extcsv, 'GLOBAL', 'S-Irradiance'),
+                         'expected specific value')
+        self.assertEqual([], get_data(extcsv, 'GLOBAL', 'Time'),
+                         'expected specific value')
 
     def test_add_value_5(self):
         """Test adding list of values"""
         extcsv = Writer()
         extcsv.add_data('CONTENT', 'WOUDC', field='Class')
         extcsv.add_data('CONTENT', ['v1,v2', 7, 8, 9, 10], field='Class')
-        self.assertEquals(['WOUDC', 'v1,v2', 7, 8, 9, 10],
-                          get_data(extcsv, 'CONTENT', 'Class'),
-                          'expected specific value')
+        self.assertEqual(['WOUDC', 'v1,v2', 7, 8, 9, 10],
+                         get_data(extcsv, 'CONTENT', 'Class'),
+                         'expected specific value')
 
     def test_remove_table(self):
         """Test removing table"""
@@ -280,12 +280,12 @@ class WriterTest(unittest.TestCase):
                         'unexpected field found')
         self.assertTrue('Fields1' not in extcsv.extcsv_ds['TABLE$1'].keys(),
                         'unexpected field found')
-        self.assertEquals(['comments', 'Field2', 'Field3'],
-                          extcsv.extcsv_ds['TABLE$1'].keys(),
-                          'expected specific value')
-        self.assertEquals(['comments', 'Field1', 'Field3'],
-                          extcsv.extcsv_ds['TABLE$2'].keys(),
-                          'expected specific value')
+        self.assertEqual(['comments', 'Field2', 'Field3'],
+                         extcsv.extcsv_ds['TABLE$1'].keys(),
+                         'expected specific value')
+        self.assertEqual(['comments', 'Field1', 'Field3'],
+                         extcsv.extcsv_ds['TABLE$2'].keys(),
+                         'expected specific value')
 
     def test_remove_value_first(self):
         """Test remove first occurence value"""
@@ -295,15 +295,15 @@ class WriterTest(unittest.TestCase):
         extcsv.add_data('TABLE', ['v1', 'v2', 'v3', 'v2'], field='Field1',
                         index=2)
         extcsv.remove_data('TABLE', 'Field1', 'v1')
-        self.assertEquals('v2', get_data(extcsv, 'TABLE', 'Field1')[0],
-                          'expected specific value')
-        self.assertEquals(['v2', 'v1', 'v1', 'v2', 'v1'],
-                          get_data(extcsv, 'TABLE', 'Field1'),
-                          'expected specific value')
+        self.assertEqual('v2', get_data(extcsv, 'TABLE', 'Field1')[0],
+                         'expected specific value')
+        self.assertEqual(['v2', 'v1', 'v1', 'v2', 'v1'],
+                         get_data(extcsv, 'TABLE', 'Field1'),
+                         'expected specific value')
         extcsv.remove_data('TABLE', 'Field1', 'v2', index=2)
-        self.assertEquals('v1', get_data(extcsv, 'TABLE',
-                                         'Field1', index=2)[0],
-                          'expected specific value')
+        self.assertEqual('v1', get_data(extcsv, 'TABLE',
+                                        'Field1', index=2)[0],
+                         'expected specific value')
 
     def test_remove_value_by_index(self):
         """Test remove value by index"""
@@ -313,15 +313,15 @@ class WriterTest(unittest.TestCase):
         extcsv.add_data('TABLE', ['v1', 'v2', 'v3', 'v2'], field='Field1',
                         index=2)
         extcsv.remove_data('TABLE', 'Field1', 'v1', d_index=3)
-        self.assertEquals('v2', get_data(extcsv, 'TABLE', 'Field1')[3],
-                          'expected specific value')
-        self.assertEquals(['v1', 'v2', 'v1', 'v2', 'v1'],
-                          get_data(extcsv, 'TABLE', 'Field1'),
-                          'expected specific value')
+        self.assertEqual('v2', get_data(extcsv, 'TABLE', 'Field1')[3],
+                         'expected specific value')
+        self.assertEqual(['v1', 'v2', 'v1', 'v2', 'v1'],
+                         get_data(extcsv, 'TABLE', 'Field1'),
+                         'expected specific value')
         extcsv.remove_data('TABLE', 'Field1', 'v2', index=2, d_index=3)
-        self.assertEquals('v3', get_data(extcsv, 'TABLE', 'Field1',
-                                         index=2)[2],
-                          'expected specific value')
+        self.assertEqual('v3', get_data(extcsv, 'TABLE', 'Field1',
+                                        index=2)[2],
+                         'expected specific value')
 
     def test_remove_value_all_occurences(self):
         """Test remove all occurences of value"""
@@ -420,37 +420,36 @@ class ReaderTest(unittest.TestCase):
         pr_header = pr_rows.next()
         self.assertTrue('O3PartialPressure' in pr_header,
                         'check ozonesonde profile field presence')
-        self.assertEquals(0, pr_header.index('Pressure'),
-                          'check ozonesonde profile field order')
-        self.assertEquals(3, pr_header.index('WindSpeed'),
-                          'check ozonesonde profile field order')
-        self.assertEquals(
-            len(pr_header) - 1,
-            pr_header.index('SampleTemperature'),
-            'check ozonesonde profile field order')
+        self.assertEqual(0, pr_header.index('Pressure'),
+                         'check ozonesonde profile field order')
+        self.assertEqual(3, pr_header.index('WindSpeed'),
+                         'check ozonesonde profile field order')
+        self.assertEqual(len(pr_header) - 1,
+                         pr_header.index('SampleTemperature'),
+                         'check ozonesonde profile field order')
 
     def test_value(self):
         """Test values"""
 
         extcsv_to =\
             load_test_data_file('data/20061201.brewer.mkiv.153.imd.csv')
-        self.assertEquals('WOUDC', extcsv_to.sections['CONTENT']['Class'],
-                          'check totalozone value')
-        self.assertEquals('', extcsv_to.sections['PLATFORM']['GAW_ID'],
-                          'check totalozone value')
-        self.assertEquals('11.45', extcsv_to.sections['LOCATION']['Longitude'],
-                          'check totalozone value')
-        self.assertEquals('+00:00:00',
-                          extcsv_to.sections['TIMESTAMP']['UTCOffset'],
-                          'check totalozone value')
-        self.assertEquals('2006-12-01',
-                          extcsv_to.sections['TIMESTAMP']['Date'],
-                          'check totalozone value')
-        self.assertEquals('2006-12-31',
-                          extcsv_to.sections['TIMESTAMP2']['Date'],
-                          'check totalozone value')
-        self.assertEquals('21.4', extcsv_to.sections['MONTHLY']['StdDevO3'],
-                          'check totalozone value')
+        self.assertEqual('WOUDC', extcsv_to.sections['CONTENT']['Class'],
+                         'check totalozone value')
+        self.assertEqual('', extcsv_to.sections['PLATFORM']['GAW_ID'],
+                         'check totalozone value')
+        self.assertEqual('11.45', extcsv_to.sections['LOCATION']['Longitude'],
+                         'check totalozone value')
+        self.assertEqual('+00:00:00',
+                         extcsv_to.sections['TIMESTAMP']['UTCOffset'],
+                         'check totalozone value')
+        self.assertEqual('2006-12-01',
+                         extcsv_to.sections['TIMESTAMP']['Date'],
+                         'check totalozone value')
+        self.assertEqual('2006-12-31',
+                         extcsv_to.sections['TIMESTAMP2']['Date'],
+                         'check totalozone value')
+        self.assertEqual('21.4', extcsv_to.sections['MONTHLY']['StdDevO3'],
+                         'check totalozone value')
         to_daily = StringIO(extcsv_to.sections['DAILY']['_raw'])
         daily_rows = csv.reader(to_daily)
         daily_header = daily_rows.next()
@@ -458,26 +457,26 @@ class ReaderTest(unittest.TestCase):
         # seek
         for i in range(1, 11):
             daily_row = daily_rows.next()
-        self.assertEquals('219', daily_row[daily_header.index('ColumnO3')],
-                          'check totalozone daily value')
-        self.assertEquals('0', daily_row[daily_header.index('ObsCode')],
-                          'check totalozone daily value')
-        self.assertEquals('', daily_row[daily_header.index('UTC_Begin')],
-                          'check totalozone daily value')
+        self.assertEqual('219', daily_row[daily_header.index('ColumnO3')],
+                         'check totalozone daily value')
+        self.assertEqual('0', daily_row[daily_header.index('ObsCode')],
+                         'check totalozone daily value')
+        self.assertEqual('', daily_row[daily_header.index('UTC_Begin')],
+                         'check totalozone daily value')
         # seek
         for i in range(1, 11):
             daily_row = daily_rows.next()
-        self.assertEquals('259', daily_row[daily_header.index('ColumnO3')],
-                          'check totalozone daily value')
+        self.assertEqual('259', daily_row[daily_header.index('ColumnO3')],
+                         'check totalozone daily value')
 
         extcsv_sp =\
             load_test_data_file('data/20040109.brewer.mkiv.144.epa_uga.csv')
-        self.assertEquals('2.291E+00',
-                          extcsv_sp.sections['GLOBAL_SUMMARY']['IntCIE'],
-                          'check spectral value')
-        self.assertEquals('000000',
-                          extcsv_sp.sections['GLOBAL_SUMMARY']['Flag'],
-                          'check spectral value')
+        self.assertEqual('2.291E+00',
+                         extcsv_sp.sections['GLOBAL_SUMMARY']['IntCIE'],
+                         'check spectral value')
+        self.assertEqual('000000',
+                         extcsv_sp.sections['GLOBAL_SUMMARY']['Flag'],
+                         'check spectral value')
         sp_global = StringIO(extcsv_sp.sections['GLOBAL9']['_raw'])
         global_rows = csv.reader(sp_global)
         global_header = global_rows.next()
@@ -485,18 +484,18 @@ class ReaderTest(unittest.TestCase):
         # seek
         for i in range(1, 53):
             global_row = global_rows.next()
-        self.assertEquals('2.026E-01',
-                          global_row[global_header.index('S-Irradiance')],
-                          'check spectral global value')
-        self.assertEquals('315.5',
-                          global_row[global_header.index('Wavelength')],
-                          'check spectral global value')
-        self.assertEquals('000020',
-                          extcsv_sp.sections['GLOBAL_SUMMARY24']['Flag'],
-                          'check spectral value')
-        self.assertEquals('000020',
-                          extcsv_sp.sections['GLOBAL_SUMMARY24']['Flag'],
-                          'check spectral value')
+        self.assertEqual('2.026E-01',
+                         global_row[global_header.index('S-Irradiance')],
+                         'check spectral global value')
+        self.assertEqual('315.5',
+                         global_row[global_header.index('Wavelength')],
+                         'check spectral global value')
+        self.assertEqual('000020',
+                         extcsv_sp.sections['GLOBAL_SUMMARY24']['Flag'],
+                         'check spectral value')
+        self.assertEqual('000020',
+                         extcsv_sp.sections['GLOBAL_SUMMARY24']['Flag'],
+                         'check spectral value')
 
         sp_daily_tot =\
             StringIO(extcsv_sp.sections['GLOBAL_DAILY_TOTALS']['_raw'])
@@ -506,33 +505,33 @@ class ReaderTest(unittest.TestCase):
         # seek
         for i in range(1, 145):
             daily_tot_row = daily_tot_rows.next()
-        self.assertEquals('361.5',
-                          daily_tot_row[daily_tot_header.index('Wavelength')],
-                          'check spectral global daily total value')
-        self.assertEquals('1.055E+01',
-                          daily_tot_row[
-                              daily_tot_header.index('S-Irradiance')],
-                          'check spectral global daily total value')
-        self.assertEquals('6.440E+02',
-                          extcsv_sp.
-                          sections['GLOBAL_DAILY_SUMMARY']['IntACGIH'],
-                          'check spectral global daily summary value')
+        self.assertEqual('361.5',
+                         daily_tot_row[daily_tot_header.index('Wavelength')],
+                         'check spectral global daily total value')
+        self.assertEqual('1.055E+01',
+                         daily_tot_row[
+                             daily_tot_header.index('S-Irradiance')],
+                         'check spectral global daily total value')
+        self.assertEqual('6.440E+02',
+                         extcsv_sp.
+                         sections['GLOBAL_DAILY_SUMMARY']['IntACGIH'],
+                         'check spectral global daily summary value')
 
         extcsv_oz =\
             load_test_data_file('data/20151021.ecc.6a.6a28340.smna.csv')
-        self.assertEquals('6a',
-                          extcsv_oz.sections['INSTRUMENT']['Model'],
-                          'check ozonesonde value')
-        self.assertEquals('323.75',
-                          extcsv_oz.sections['FLIGHT_SUMMARY']['SondeTotalO3'],
-                          'check ozonesonde value')
-        self.assertEquals('-0.99',
-                          extcsv_oz.
-                          sections['FLIGHT_SUMMARY']['CorrectionFactor'],
-                          'check ozonesonde value')
-        self.assertEquals('131',
-                          extcsv_oz.sections['FLIGHT_SUMMARY']['Number'],
-                          'check ozonesonde value')
+        self.assertEqual('6a',
+                         extcsv_oz.sections['INSTRUMENT']['Model'],
+                         'check ozonesonde value')
+        self.assertEqual('323.75',
+                         extcsv_oz.sections['FLIGHT_SUMMARY']['SondeTotalO3'],
+                         'check ozonesonde value')
+        self.assertEqual('-0.99',
+                         extcsv_oz.
+                         sections['FLIGHT_SUMMARY']['CorrectionFactor'],
+                         'check ozonesonde value')
+        self.assertEqual('131',
+                         extcsv_oz.sections['FLIGHT_SUMMARY']['Number'],
+                         'check ozonesonde value')
         oz_profile = StringIO(extcsv_oz.sections['PROFILE']['_raw'])
         profile_rows = csv.reader(oz_profile)
         profile_header = profile_rows.next()
@@ -540,12 +539,12 @@ class ReaderTest(unittest.TestCase):
         # seek
         for i in range(1, 598):
             profile_row = profile_rows.next()
-        self.assertEquals('85.4',
-                          profile_row[profile_header.index('Pressure')],
-                          'check ozonesonde profile value')
-        self.assertEquals('255',
-                          profile_row[profile_header.index('WindDirection')],
-                          'check ozonesonde profile value')
+        self.assertEqual('85.4',
+                         profile_row[profile_header.index('Pressure')],
+                         'check ozonesonde profile value')
+        self.assertEqual('255',
+                         profile_row[profile_header.index('WindDirection')],
+                         'check ozonesonde profile value')
 
     def test_writer_reader(self):
         """
@@ -632,16 +631,16 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
                         'check totalozone  field in my extcsv')
 
         # check values
-        self.assertEquals('19.533',
-                          my_extcsv_to.sections['LOCATION']['Latitude'],
-                          'check totalozone value in my extcsv')
-        self.assertEquals('NOAA-CMDL',
-                          my_extcsv_to.sections['DATA_GENERATION']['Agency'],
-                          'check totalozone value in my extcsv')
-        self.assertEquals('1', my_extcsv_to.sections['CONTENT']['Form'],
-                          'check totalozone value in my extcsv')
-        self.assertEquals('23', my_extcsv_to.sections['MONTHLY']['Npts'],
-                          'check totalozone value in my extcsv')
+        self.assertEqual('19.533',
+                         my_extcsv_to.sections['LOCATION']['Latitude'],
+                         'check totalozone value in my extcsv')
+        self.assertEqual('NOAA-CMDL',
+                         my_extcsv_to.sections['DATA_GENERATION']['Agency'],
+                         'check totalozone value in my extcsv')
+        self.assertEqual('1', my_extcsv_to.sections['CONTENT']['Form'],
+                         'check totalozone value in my extcsv')
+        self.assertEqual('23', my_extcsv_to.sections['MONTHLY']['Npts'],
+                         'check totalozone value in my extcsv')
         my_to_daily = StringIO(my_extcsv_to.sections['DAILY']['_raw'])
         my_daily_rows = csv.reader(my_to_daily)
         my_daily_header = my_daily_rows.next()
@@ -653,36 +652,35 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
                         'check totalozone daily field in my extcsv')
         self.assertTrue('ColumnSO2' in my_daily_header,
                         'check totalozone daily field in my extcsv')
-        self.assertEquals(0, my_daily_header.index('Date'),
-                          'check totalozone daily field order in my extcsv')
-        self.assertEquals(
-            len(my_daily_header) - 1,
-            my_daily_header.index('ColumnSO2'),
-            'check totalozone daily field order in my extcsv')
+        self.assertEqual(0, my_daily_header.index('Date'),
+                         'check totalozone daily field order in my extcsv')
+        self.assertEqual(len(my_daily_header) - 1,
+                         my_daily_header.index('ColumnSO2'),
+                         'check totalozone daily field order in my extcsv')
         my_daily_row = None
         # seek
         for i in range(1, 6):
             my_daily_row = my_daily_rows.next()
-        self.assertEquals('274',
-                          my_daily_row[my_daily_header.index('ColumnO3')],
-                          'check totalozone daily value in my extcsv')
-        self.assertEquals('',
-                          my_daily_row[my_daily_header.index('StdDevO3')],
-                          'check totalozone daily value in my extcsv')
-        self.assertEquals('',
-                          my_daily_row[my_daily_header.index('UTC_Begin')],
-                          'check totalozone daily value in my extcsv')
-        self.assertEquals('21',
-                          my_daily_row[my_daily_header.index('UTC_Mean')],
-                          'check totalozone daily value in my extcsv')
+        self.assertEqual('274',
+                         my_daily_row[my_daily_header.index('ColumnO3')],
+                         'check totalozone daily value in my extcsv')
+        self.assertEqual('',
+                         my_daily_row[my_daily_header.index('StdDevO3')],
+                         'check totalozone daily value in my extcsv')
+        self.assertEqual('',
+                         my_daily_row[my_daily_header.index('UTC_Begin')],
+                         'check totalozone daily value in my extcsv')
+        self.assertEqual('21',
+                         my_daily_row[my_daily_header.index('UTC_Mean')],
+                         'check totalozone daily value in my extcsv')
         for i in range(1, 18):
             my_daily_row = my_daily_rows.next()
-        self.assertEquals('291',
-                          my_daily_row[my_daily_header.index('ColumnO3')],
-                          'check totalozone daily value in my extcsv')
-        self.assertEquals('23',
-                          my_daily_row[my_daily_header.index('UTC_Mean')],
-                          'check totalozone daily value in my extcsv')
+        self.assertEqual('291',
+                         my_daily_row[my_daily_header.index('ColumnO3')],
+                         'check totalozone daily value in my extcsv')
+        self.assertEqual('23',
+                         my_daily_row[my_daily_header.index('UTC_Mean')],
+                         'check totalozone daily value in my extcsv')
 
         with self.assertRaises(TypeError):
             extcsv_s = dump(extcsv)

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/woudc/woudc-extcsv.png?branch=master)](https://travis-ci.org/woudc/woudc-extcsv) [![Build status](https://ci.appveyor.com/api/projects/status/02koln2pe4ap5kvd/branch/master?svg=true)](https://ci.appveyor.com/project/tomkralidis/woudc-extcsv/branch/master)
+
 # WOUDC Extended CSV library
 
 Python package providing read/write support of the
@@ -7,7 +9,7 @@ Python package providing read/write support of the
 
 ### Requirements
 
-woudc-extcsv requires Python 2.6 or greater. woudc-extcsv works with Python 3.
+woudc-extcsv requires Python 2.7.
 
 ### Dependencies
 
