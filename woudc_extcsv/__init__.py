@@ -250,10 +250,8 @@ class Reader(object):
 
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
-            msg = \
-                'Unable to parse extended CSV file. Due to: %s' % \
-                ','.join(self.errors)
-            raise WOUDCExtCSVReaderError(msg)
+            msg = 'Unable to parse extended CSV file'
+            raise WOUDCExtCSVReaderError(msg, self.errors)
 
     def __eq__(self, other):
         """
@@ -268,7 +266,11 @@ class Reader(object):
 
 class WOUDCExtCSVReaderError(Exception):
     """WOUDC extended CSV reader error"""
-    pass
+
+    def __init__(self, message, errors):
+        """provide an error message and error stack"""
+        super(WOUDCExtCSVReaderError, self).__init__(message)
+        self.errors = errors
 
 
 class Writer(object):
@@ -752,23 +754,23 @@ def _violation_lookup(code, rpl_str=None):
     """
 
     violations_map = {
-        0: '{Malformed CSV block detected.}',
-        1: '{Missing required table name: $$$.}',
-        2: '{Table name: $$$ is not from approved list.}',
-        3: '{Missing required field name: $$$.}',
-        4: '{Field name: $$$, is not from approved list.}',
-        5: '{Improper delimiter found (";" or ":" or "$" or "%"),\
-        corrected to "," (comma).}',
-        7: '{Number of values is greater than number of fields in table: $$$}',
-        6: '{Unknown delimiter found.  Delimiter must be "," (comma).}',
-        8: '{Remarks - cannot be between TABLE names and Field names nor \
-        between Field names and values of field.}',
-        9: '{Cannot identify data, possibly a remark, \
-        but no asterisk (*) used.}',
-        21: '{Improper separator for observation time(s) is used.\
-        Separator for time must be \'-\' (hypen)}',
-        140: '{Incorrectly formatted table: $$$. \
-        Table does not contain exactly 3 lines.}'
+        0: 'Malformed CSV block detected',
+        1: 'Missing required table name: $$$',
+        2: 'Table name: $$$ is not from approved list',
+        3: 'Missing required field name: $$$',
+        4: 'Field name: $$$, is not from approved list',
+        5: 'Improper delimiter found (";" or ":" or "$" or "%") '
+           'corrected to "," (comma)',
+        6: 'Unknown delimiter found.  Delimiter must be "," (comma)',
+        7: 'Number of values is greater than number of fields in table: $$$',
+        8: 'Remarks - cannot be between TABLE names and Field names nor '
+           'between Field names and values of field',
+        9: 'Cannot identify data, possibly a remark, '
+           'but no asterisk (*) used',
+        21: 'Improper separator for observation time(s) is used. '
+            'Separator for time must be \'-\' (hyphen)',
+        140: 'Incorrectly formatted table: $$$. '
+             'Table does not contain exactly 3 lines.'
     }
     if rpl_str is not None:
         if sep in rpl_str:
