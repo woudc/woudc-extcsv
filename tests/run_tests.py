@@ -46,7 +46,13 @@
 import csv
 import unittest
 from StringIO import StringIO
-from woudc_extcsv import dump, dumps, load, loads, Writer
+from woudc_extcsv import \
+    dump,\
+    dumps,\
+    load,\
+    loads,\
+    Writer,\
+    WOUDCExtCSVReaderError
 
 
 def msg(test_id, test_description):
@@ -684,6 +690,18 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
 
         with self.assertRaises(TypeError):
             extcsv_s = dump(extcsv)
+
+    def test_reader_error(self):
+        """Test if reader error is thrown
+        for malformed extcsv
+        """
+
+        with self.assertRaises(WOUDCExtCSVReaderError):
+            extcsv_to =\
+                load_test_data_file(
+                    'data/20061201.brewer.mkiv.153.imd-bad.csv'
+                )
+
 
 # main
 if __name__ == '__main__':
