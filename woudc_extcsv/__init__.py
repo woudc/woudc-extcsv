@@ -88,6 +88,7 @@ class Reader(object):
             'GLOBAL_DAILY_TOTALS'
         ]
 
+
         self.sections = {}
         self.metadata_tables = []
         self.data_tables = []
@@ -233,6 +234,20 @@ class Reader(object):
             if line.startswith('*'):  # comment detected,
                 comments_list.append(line.strip('\n'))
         self.comments[table] = comments_list
+
+        # check for required table presence
+        if 'CONTENT' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'CONTENT'))
+        if 'DATA_GENERATION' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'DATA_GENERATION'))
+        if 'INSTRUMENT' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'INSTRUMENT'))
+        if 'PLATFORM' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'PLATFORM'))
+        if 'LOCATION' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'LOCATION'))
+        if 'TIMESTAMP' not in self.metadata_tables:
+            self.errors.append(_violation_lookup(1, 'TIMESTAMP'))
 
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
