@@ -46,13 +46,8 @@
 import csv
 import unittest
 from StringIO import StringIO
-from woudc_extcsv import \
-    dump,\
-    dumps,\
-    load,\
-    loads,\
-    Writer,\
-    WOUDCExtCSVReaderError
+from woudc_extcsv import (dump, dumps, load, loads, Reader,
+                          WOUDCExtCSVReaderError, Writer)
 
 
 def msg(test_id, test_description):
@@ -697,10 +692,11 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
         """
 
         with self.assertRaises(WOUDCExtCSVReaderError):
-            extcsv_to =\
-                load_test_data_file(
-                    'data/20061201.brewer.mkiv.153.imd-bad.csv'
-                )
+            extcsv_to = load_test_data_file(
+                'data/20061201.brewer.mkiv.153.imd-bad.csv'
+            )
+            self.assertIsInstance(extcsv_to, Reader,
+                                  'validate instance type')
 
 
 # main
