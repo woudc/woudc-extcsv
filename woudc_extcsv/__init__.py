@@ -756,9 +756,9 @@ def _violation_lookup(code, rpl_str=None):
         140: '{Incorrectly formatted table: $$$. \
         Table does not contain exactly 3 lines.}'
     }
-
-    if sep in rpl_str:
-        rpl_str = rpl_str[:rpl_str.index(sep)]
+    if rpl_str is not None:
+        if sep in rpl_str:
+            rpl_str = rpl_str[:rpl_str.index(sep)]
 
     if rpl_str is not None:
         msg = violations_map[code].replace('$$$', rpl_str)
