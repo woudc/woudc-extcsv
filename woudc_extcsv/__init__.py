@@ -88,7 +88,6 @@ class Reader(object):
             'GLOBAL_DAILY_TOTALS'
         ]
 
-
         self.sections = {}
         self.metadata_tables = []
         self.data_tables = []
