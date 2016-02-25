@@ -107,33 +107,24 @@ class Reader(object):
         for line in c:
             if all([line.strip() != '', line.strip() != os.linesep,
                     line[0] != '*']):
-                self.errors.append(9)
+                self.errors.append(_violation_lookup(9))
         self.table_count = {}
         for b in blocks:
             # determine delimiter
             if '::' in b:
                 b.replace('::', ',')
-                self.errors.append(5)
             if ';' in b:
                 b.replace(';', ',')
-                self.errors.append(5)
             if '$' in b:
                 b.replace('$', ',')
-                self.errors.append(5)
             if '%' in b:
                 b.replace('%', ',')
-                self.errors.append(5)
-            if any(['|' in b, '/' in b, '\\' in b]):
-                msg = 'invalid delimiter'
-                LOGGER.error(msg)
-                self.errors.append(6)
             try:
                 s = StringIO(b.strip())
                 c = csv.reader(s)
                 header = (c.next()[0]).strip()
             except Exception as err:
-                msg = 'Extended CSV malformed'
-                LOGGER.error(msg)
+                self.errors.append(_violation_lookup(0))
             if header not in header_fields:  # metadata
                 if header not in self.sections:
                     self.sections[header] = {}
@@ -148,37 +139,34 @@ class Reader(object):
                 self.sections[header]['_raw'] = b.strip()
                 try:
                     fields = c.next()
-                    # archive fix start
-                    fields = filter(lambda a: a != '', fields)
-                    # archive fix end
                     if len(fields[0]) > 0:
                         if fields[0][0] == '*':
-                            self.errors.append(8)
+                            self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no fields' % header
                     LOGGER.info(msg)
-                    self.errors.append(140)
+                    self.errors.append(_violation_lookup(140, header))
                 values = None
                 try:
                     values = c.next()
                     if len(values[0]) > 0:
                         if values[0][0] == '*':
-                            self.errors.append(8)
+                            self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no values' % header
                     LOGGER.info(msg)
-                    self.errors.append(140)
+                    self.errors.append(_violation_lookup(140, header))
                     continue
                 try:
                     anything_more = (c.next()[0]).strip()
                     if all([anything_more is not None, anything_more != '',
                             anything_more != os.linesep,
                             '*' not in anything_more]):
-                        self.errors.append(140)
+                        self.errors.append(_violation_lookup(140, header))
                 except Exception as err:
                     LOGGER.warning(err)
                 if len(values) > len(fields):
-                    self.errors.append(3)
+                    self.errors.append(_violation_lookup(7, header))
                     continue
                 i = 0
                 for field in fields:
@@ -202,7 +190,7 @@ class Reader(object):
                             w.writerow(row)
                         else:
                             if columns[0].lower() == 'time':
-                                self.errors.append(21)
+                                self.errors.append(_violation_lookup(21))
                 if header not in self.sections:
                     self.all_tables.append(header)
                     self.data_tables.append(header)
@@ -246,6 +234,13 @@ class Reader(object):
                 comments_list.append(line.strip('\n'))
         self.comments[table] = comments_list
 
+        if len(self.errors) != 0:
+            self.errors = list(set(self.errors))
+            msg = \
+                'Unable to parse extended CSV file. Due to: %s' % \
+                ','.join(self.errors)
+            raise WOUDCExtCSVReaderError(msg)
+
     def __eq__(self, other):
         """
         equals builtin
@@ -255,6 +250,11 @@ class Reader(object):
         """
 
         return self.__dict__ == other.__dict__
+
+
+class WOUDCExtCSVReaderError(Exception):
+    """WOUDC extended CSV reader error"""
+    pass
 
 
 class Writer(object):
@@ -738,17 +738,21 @@ def _violation_lookup(code, rpl_str=None):
     """
 
     violations_map = {
+        0: '{Malformed CSV block detected.}',
         1: '{Missing required table name: $$$.}',
         2: '{Table name: $$$ is not from approved list.}',
         3: '{Missing required field name: $$$.}',
         4: '{Field name: $$$, is not from approved list.}',
         5: '{Improper delimiter found (";" or ":" or "$" or "%"),\
         corrected to "," (comma).}',
+        7: '{Number of values is greater than number of fields in table: $$$}',
         6: '{Unknown delimiter found.  Delimiter must be "," (comma).}',
-        8: '{Remarks - cannot be between TABLE names and Field names nor\
+        8: '{Remarks - cannot be between TABLE names and Field names nor \
         between Field names and values of field.}',
         9: '{Cannot identify data, possibly a remark, \
         but no asterisk (*) used.}',
+        21: '{Improper separator for observation time(s) is used.\
+        Separator for time must be \'-\' (hypen)}',
         140: '{Incorrectly formatted table: $$$. \
         Table does not contain exactly 3 lines.}'
     }
