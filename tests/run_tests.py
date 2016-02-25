@@ -697,8 +697,7 @@ UTC_Begin,UTC_End,UTC_Mean,nObs,mMu,ColumnSO2')
         """
 
         with self.assertRaises(WOUDCExtCSVReaderError):
-            extcsv_to =\
-                load_test_data_file(
+            load_test_data_file(
                     'data/20061201.brewer.mkiv.153.imd-bad.csv'
                 )
 
