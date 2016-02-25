@@ -118,6 +118,19 @@ ecsv = woudc_extcsv.dump('file.csv')
 ecsv = woudc_extcsv.dumps(my_ecsv_string)
 ```
 
+### Error Handling
+
+```pyhon
+from woudc_extcsv import loads, WOUDCExtCSVReaderError
+
+try:
+    loads('bad content!')
+except WOUDCExtCSVReaderError as err:
+    print(err.message)
+    for error in err.errors:
+         print(error)
+```
+
 ## Examples
 
 See the `examples/` directory for sample scripts.
