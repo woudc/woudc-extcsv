@@ -6,7 +6,7 @@ python:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y pandoc
+  - sudo apt-get install -y pandoc devscripts debhelper python-setuptools
 
 install:
   - pip install -r requirements-dev.txt
@@ -19,3 +19,4 @@ script:
 after_success:
   - coverage run --source woudc_extcsv setup.py test
   - coverage report -m
+  - debuild -b -uc -us

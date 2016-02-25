@@ -1,0 +1,16 @@
+Source: woudc-extcsv
+Section: python
+Priority: optional
+Maintainer: WOUDC <ec.woudc.ec@canada.ca>
+Build-Depends: debhelper (>= 9), python, python-setuptools
+Standards-Version: 3.9.5
+X-Python-Version: >= 2.7
+Vcs-Git: https://github.com/woudc/woudc-extcsv.git
+
+Package: woudc-extcsv
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-pkg-resources
+Homepage: http://woudc.org
+Description: WMO WOUDC format reader/writer
+ woudc-extcsv is a Python package providing read/write support of the
+ WOUDC Extended CSV format.
