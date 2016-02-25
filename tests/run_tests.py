@@ -360,7 +360,7 @@ class ReaderTest(unittest.TestCase):
             load()
 
     def test_table_presence(self):
-        """Test if table exits"""
+        """Test if table exists"""
 
         extcsv_to =\
             load_test_data_file('data/20061201.brewer.mkiv.153.imd.csv')
