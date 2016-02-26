@@ -1,3 +1,11 @@
+woudc-extcsv (0.1.2) unstable; urgency=low
+
+  * table level presence checks
+  * updated exception handling
+  * debian packaging support
+
+ -- WOUDC <ec.woudc.ec@canada.ca>  Fri, 26 Feb 2016 07:59:51 -0500
+
 woudc-extcsv (0.1.1) unstable; urgency=low
 
   * Initial release

@@ -51,7 +51,7 @@ from sets import Set
 from StringIO import StringIO
 from collections import OrderedDict
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 LOGGER = logging.getLogger(__name__)
 
