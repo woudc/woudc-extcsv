@@ -804,7 +804,7 @@ def table_configuration_lookup(dataset, level='n/a', form='n/a',
     }
     try:
         with open(TABLE_CONFIGURATION) as out_file:
-            csv_reader = csv.reader(out_file, delimiter='|')
+            csv_reader = csv.reader(out_file)
             for row in csv_reader:
                 rule = {
                     'table': None,
