@@ -189,7 +189,7 @@ woudc_extcsv code conventions are as per
 
 ```bash
 # code should always pass the following
-find -type f -name "*.py" | xargs flake8 --ignore=E402
+find -type f -name "*.py" | xargs flake8
 ```
 
 ## Issues

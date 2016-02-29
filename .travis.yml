@@ -14,7 +14,7 @@ install:
 
 script:
   - python setup.py test
-  - find -type f -name "*.py" | grep -v docs | xargs flake8 --ignore=E402
+  - find -type f -name "*.py" xargs | flake8
 
 after_success:
   - coverage run --source woudc_extcsv setup.py test
