@@ -731,6 +731,7 @@ class Writer(object):
 
         return mem_file
 
+
 # table name and index separator
 sep = '$'
 
