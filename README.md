@@ -111,7 +111,7 @@ import woudc_extcsv
 # load from file into Reader object
 ecsv = woudc_extcsv.load('file.csv')
 # load from string into Reader object
-ecsv = woudc_extcsv.load(my_ecsv_string)
+ecsv = woudc_extcsv.loads(my_ecsv_string)
 # dump to file from Writer object
 ecsv = woudc_extcsv.dump('file.csv')
 # dump to string from Writer object
