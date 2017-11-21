@@ -43,7 +43,7 @@
 #
 # =================================================================
 
-import csv
+import unicodecsv as csv
 import logging
 import os
 import re
@@ -980,13 +980,13 @@ def metadata_validator(file_content):
     LOGGER.debug('Checking Content Category and Level.')
     category = reader.sections['CONTENT']['Category']
     level = reader.sections['CONTENT']['Level']
-    if category != 'UmkehrN14' and level != '1.0':
+    if category != 'UmkehrN14' and level != '1.0' and level != '1':
         raise ExtCSVValidatorException('Level for category %s must be 1.0' % category) # noqa
 
-    if category == 'UmkehrN14' and 'N14_VALUES' in reader.sections and level != '1.0': # noqa
+    if category == 'UmkehrN14' and 'N14_VALUES' in reader.sections and level != '1.0' and level != '1': # noqa
         raise ExtCSVValidatorException('Level for category UmkehrN14 with table N14_VALUES must be 1.0') # noqa
 
-    if category == 'UmkehrN14' and 'C_PROFILE' in reader.sections and level != '2.0': # noqa
+    if category == 'UmkehrN14' and 'C_PROFILE' in reader.sections and level != '2.0' and level != '2': # noqa
         raise ExtCSVValidatorException('Level for category UmkehrN14 with table C_PROFILE must be 2.0') # noqa
 
     LOGGER.info('Content Category and Level are valid.')
@@ -1098,6 +1098,7 @@ def metadata_validator(file_content):
     LOGGER.debug('Resolving Instrument information.')
     inst_name = reader.sections['INSTRUMENT']['Name'].lower()
     inst_model = reader.sections['INSTRUMENT']['Model']
+    inst_model_upper = inst_model.upper()
     inst_name_params = {'property_name': 'instrument_name', 'property_value': inst_name} # noqa
     inst_model_params = {'property_name': 'instrument_model', 'property_value': inst_model} # noqa
     data = client.get_data('instruments', **inst_name_params)
@@ -1116,8 +1117,14 @@ def metadata_validator(file_content):
 
     data = client.get_data('instruments', **inst_model_params)
     if data is None:
-        LOGGER.info('Failed to located Instrument model.')
-        raise ExtCSVValidatorException('Instrument Model is not in database. Please verify that it is correct.\nNote: If the instrument model is valid, this file will be rejected and then manually processed into the database.') # noqa
+        inst_model_params['property_value'] = inst_model_upper
+        data = client.get_data('instruments', **inst_model_params)
+        if data is None:
+            inst_model_params['property_value'] = inst_model.title()
+            data = client.get_data('instruments', **inst_model_params)
+            if data is None:
+                LOGGER.info('Failed to located Instrument model.')
+                raise ExtCSVValidatorException('Instrument Model is not in database. Please verify that it is correct.\nNote: If the instrument model is valid, this file will be rejected and then manually processed into the database.') # noqa
 
     LOGGER.info('Instrument verification passed.')
     # Check for trailing commas in payload
