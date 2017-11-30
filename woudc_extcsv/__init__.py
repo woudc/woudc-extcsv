@@ -1005,7 +1005,11 @@ def metadata_validator(file_content):
     f_ID = reader.sections['PLATFORM']['ID']
     f_name = reader.sections['PLATFORM']['Name']
     f_country = reader.sections['PLATFORM']['Country']
-    f_gaw_id = reader.sections['PLATFORM']['GAW_ID']
+    f_gaw_id = None
+    try:
+        f_gaw_id = reader.sections['PLATFORM']['GAW_ID']
+    except Exception, err:
+        warnings.warn('GAW_ID field is spelled incorrectly.')
     f_agency = reader.sections['DATA_GENERATION']['Agency']
     f_lat = float(reader.sections['LOCATION']['Latitude'])
     f_lon = float(reader.sections['LOCATION']['Longitude'])
