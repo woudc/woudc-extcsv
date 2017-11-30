@@ -873,7 +873,7 @@ Please remove them before submitting.' in str(err))
 
         contents = get_file_string('tests/data/UV617FEB.woudc')
         val = metadata_validator(contents)
-        self.assertEqual(True, val)
+        self.assertTrue(val)
 
 # main
 if __name__ == '__main__':
