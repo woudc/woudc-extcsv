@@ -47,7 +47,7 @@ import csv
 import unittest
 from StringIO import StringIO
 from woudc_extcsv import (dump, dumps, load, loads, Reader,
-                          WOUDCExtCSVReaderError, Writer, metadata_validator)
+                          WOUDCExtCSVReaderError, Writer)
 
 
 def msg(test_id, test_description):
@@ -724,20 +724,18 @@ class ValidatorTest(unittest.TestCase):
         """Test that bad platform names are resolved using platform ID"""
 
         contents = get_file_string('tests/data/UV617FEB-bad-platform.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Platform name of Sapporo does not \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Platform name of Sapporo does not \
 match database. Please change it to Lauder')
        
     def test_bad_platform_id(self):
         """Test that bad platform IDs are resolved using platform name"""
 
         contents = get_file_string('tests/data/UV617FEB-bad-platform-id.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Platform ID of 024 does not match \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Platform ID of 024 does not match \
 database. Please change it to 256')
   
     def test_bad_platform_country(self):
@@ -745,21 +743,19 @@ database. Please change it to 256')
 
         contents =\
         get_file_string('tests/data/UV617FEB-bad-platform-country.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Platform country of New Zealand \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Platform country of New Zealand \
 does not match database. Please change it to NZL')
 
     def test_bad_agency(self):
         """Test that platform info is used to resolve bad agencies"""
 
         contents = get_file_string('tests/data/UV617FEB-bad-agency.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertTrue('The following agencies match the given \
-platform name and/or ID:' in str(err))
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue('The following agencies match the given \
+platform name and/or ID:' in ''.join(dict['errors']))
 
     def test_different_agency(self):
         """Test that a valid (but wrong) agency is distinct
@@ -768,31 +764,28 @@ platform name and/or ID:' in str(err))
 
         contents =\
         get_file_string('tests/data/UV617FEB-different-agency.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertTrue('Agency and Platform information do not \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue('Agency and Platform information do not \
 match. These agencies are valid for this \
-platform:' in str(err))
+platform:' in ''.join(dict['errors']))
 
     def test_agency_name(self):
         """Test that agency names are resolved to acronyms"""
 
         contents = get_file_string('tests/data/UV617FEB-agency-name.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Please use the Agency \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Please use the Agency \
 acronym of NIWA-LAU.')
   
     def test_bad_location(self):
         """Test that locations off by >= 1 degree are caught"""
 
         contents = get_file_string('tests/data/UV617FEB-bad-location.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Location Latitude of -46.038 does \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Location Latitude of -46.038 does \
 not match database. Please change it to -45.0379981995.')
 
     def test_bad_instrument_name(self):
@@ -802,11 +795,10 @@ not match database. Please change it to -45.0379981995.')
 
         contents =\
         get_file_string('tests/data/UV617FEB-bad-instrument-name.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertTrue('Instrument Name is not in database. \
-Please verify that it is correct.' in str(err))
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue('Instrument Name is not in database. \
+Please verify that it is correct.' ''.join(dict['errors']))
 
     def test_bad_instrument_model(self):
         """Test that unknown instrument model produces
@@ -815,11 +807,10 @@ Please verify that it is correct.' in str(err))
 
         contents =\
         get_file_string('tests/data/UV617FEB-bad-instrument-model.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertTrue('Instrument Model is not in database. \
-Please verify that it is correct.' in str(err))
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue('Instrument Model is not in database. \
+Please verify that it is correct.' in ''.join(dict['errors']))
 
     def test_no_agency_matches(self):
         """Test that bad agency and platform information produces
@@ -827,10 +818,9 @@ Please verify that it is correct.' in str(err))
         """
 
         contents = get_file_string('tests/data/UV617FEB-no-match.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Agency acronym of ZZZZZZ not \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Agency acronym of ZZZZZZ not \
 found in the woudc database. If this is a new agency, \
 please notify WOUDC')
 
@@ -839,10 +829,9 @@ please notify WOUDC')
 
         contents =\
         get_file_string('tests/data/UV617FEB-no-platform-match.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Could not find a record for \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Could not find a record for \
 either the platform name or ID. If this is a new \
 station, please notify WOUDC.')
 
@@ -851,29 +840,30 @@ station, please notify WOUDC.')
 
         contents =\
         get_file_string('tests/data/UV617FEB-bad-content-level.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertEqual(str(err), 'Level for category Spectral \
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertEqual(''.join(dict['errors']), 'Level for category Spectral \
 must be 1.0')
+            
 
     def test_trailing_commas(self):
         """Test that trailing commas are detected"""
 
         contents =\
         get_file_string('tests/data/UV617FEB-trailing-commas.woudc')
-        try:
-            metadata_validator(contents)
-        except Exception, err:
-            self.assertTrue('This file has extra trailing commas. \
-Please remove them before submitting.' in str(err))
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue('This file has extra trailing commas. \
+Please remove them before submitting.' in ''.join(dict['errors']))
+            
 
     def test_good_file(self):
         """Test that a good file passes validation"""
 
         contents = get_file_string('tests/data/UV617FEB.woudc')
-        val = metadata_validator(contents)
-        self.assertTrue(val)
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue(dict['status'])
 
 # main
 if __name__ == '__main__':
