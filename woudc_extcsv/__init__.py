@@ -267,8 +267,8 @@ class Reader(object):
     def metadata_validator(self):
         """
         Robust validator to check metadata against values
-        in WOUDC database. Throws errors or warnings
-        depending on severity of violation.
+        in WOUDC database. Returns a dictionary of 
+        errors or warnings depending on severity of violation.
 
         :returns: Dictionary of the form:
                   {'status' : True if validation passed,
