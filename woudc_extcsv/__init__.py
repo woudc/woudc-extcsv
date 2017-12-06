@@ -326,7 +326,7 @@ found: \n %s' % '\n'.join(violations))
         LOGGER.debug('Resolving Agency and Platform information.')
         f_type = self.sections['PLATFORM']['Type']
         f_ID = self.sections['PLATFORM']['ID']
-        f_name = self.sections['PLATFORM']['Name']
+        f_name = self.sections['PLATFORM']['Name'].encode('utf-8')
         f_country = self.sections['PLATFORM']['Country']
         f_gaw_id = None
         try:
@@ -397,10 +397,10 @@ to %s' % (f_type, properties['platform_type']))
 of %s does not match database. Please change it \
 to %s' % (f_country, properties['country_code']))
                         return error_dict
-                    if properties['platform_name'] != f_name:
+                    if properties['platform_name'].encode('utf-8') != f_name:
                         error_dict['errors'].append('Platform name \
 of %s does not match database. Please change it \
-to %s' % (f_name, properties['platform_name']))
+to %s' % (f_name, properties['platform_name'].encode('utf-8')))
                         return error_dict
                     if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1: # noqa
                         error_dict['errors'].append('Location Longitude \
