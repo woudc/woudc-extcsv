@@ -1204,6 +1204,13 @@ def _dump(extcsv_obj):
         raise RuntimeError(msg)
 
 
+class ExtCSVValidatorException(Exception):
+    """
+    ExtCSV Validator Exception stub.
+    """
+    pass
+
+
 def global_validate(dict, category=None, level=None, form=None):
     """
     Validate extcsv for common/metadata tables and fields.
