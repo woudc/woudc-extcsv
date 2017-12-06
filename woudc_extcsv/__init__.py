@@ -267,7 +267,7 @@ class Reader(object):
     def metadata_validator(self):
         """
         Robust validator to check metadata against values
-        in WOUDC database. Returns a dictionary of 
+        in WOUDC database. Returns a dictionary of
         errors or warnings depending on severity of violation.
 
         :returns: Dictionary of the form:
@@ -277,20 +277,16 @@ class Reader(object):
                    'errors': a list of errors.
                   }
         """
-        # -------------------------------------------
-        # Once error messages are finalized, make the
-        # strings multi-line to comply with PEP8
-        # -------------------------------------------
+        error_dict = {'status': False, 'warnings': [], 'errors': []}
 
-        error_dict = {'status' : False, 'warnings' : [], 'errors' : []}
-        
         client = WoudcClient()
 
         # Attempt basic validation
         LOGGER.debug('Attempting basic table validation.')
         error, violations = global_validate(self.sections)
         if error:
-            error_dict['errors'].append('The following violations were found: \n %s' % '\n'.join(violations))
+            error_dict['errors'].append('The following violations were \
+found: \n %s' % '\n'.join(violations))
             return error_dict
 
         LOGGER.info('Basic table validation passed.')
@@ -300,15 +296,18 @@ class Reader(object):
         category = self.sections['CONTENT']['Category']
         level = self.sections['CONTENT']['Level']
         if category != 'UmkehrN14' and level != '1.0' and level != '1':
-            error_dict['errors'].append('Level for category %s must be 1.0' % category)
+            error_dict['errors'].append('Level for category %s must \
+be 1.0' % category)
             return error_dict
 
         if category == 'UmkehrN14' and 'N14_VALUES' in self.sections and level != '1.0' and level != '1': # noqa
-            error_dict['errors'].append('Level for category UmkehrN14 with table N14_VALUES must be 1.0')
+            error_dict['errors'].append('Level for category UmkehrN14 \
+with table N14_VALUES must be 1.0')
             return error_dict
 
         if category == 'UmkehrN14' and 'C_PROFILE' in self.sections and level != '2.0' and level != '2': # noqa
-            error_dict['errors'].append('Level for category UmkehrN14 with table N14_VALUES must be 1.0')
+            error_dict['errors'].append('Level for category UmkehrN14 \
+with table N14_VALUES must be 1.0')
             return error_dict
 
         LOGGER.info('Content Category and Level are valid.')
@@ -317,7 +316,8 @@ class Reader(object):
         LOGGER.debug('Attempting specific table validation for category %s and level %s.' % (category, level)) # noqa
         error, violations = global_validate(self.sections, category, '1' if level == '1.0' else '2', '1') # noqa
         if error:
-            error_dict['errors'].append('The following violations were found: \n %s' % '\n'.join(violations))
+            error_dict['errors'].append('The following violations were \
+found: \n %s' % '\n'.join(violations))
             return error_dict
 
         LOGGER.info('Further table validation passed.')
@@ -331,13 +331,14 @@ class Reader(object):
         f_gaw_id = None
         try:
             f_gaw_id = self.sections['PLATFORM']['GAW_ID']
-        except Exception, err:
-            error_dict['warnings'].append('GAW_ID field is spelled incorrectly.')
+        except Exception:
+            error_dict['warnings'].append('GAW_ID field is \
+spelled incorrectly.')
         f_agency = self.sections['DATA_GENERATION']['Agency']
         f_lat = float(self.sections['LOCATION']['Latitude'])
         f_lon = float(self.sections['LOCATION']['Longitude'])
 
-        agency_params = {'property_name': 'acronym', 'property_value': f_agency}
+        agency_params = {'property_name': 'acronym', 'property_value': f_agency} # noqa
         platform_id_params = {'property_name' : 'platform_id', 'property_value' : f_ID} # noqa
         platform_name_params = {'property_name' : 'platform_name', 'property_value' : f_name} # noqa
         if client.get_data('stations', **agency_params) is None:
@@ -360,16 +361,20 @@ class Reader(object):
 
                 if acronym_set != Set():
                     LOGGER.info('Possible Agency matches found.')
-                    error_dict['errors'].append('The following agencies match the given platform name and/or ID: %s' % ','.join(list(acronym_set)))
+                    error_dict['errors'].append('The following agencies \
+match the given platform name and/or ID: %s' % ','.join(list(acronym_set)))
                     return error_dict
 
                 LOGGER.info('No Agency matches found.')
-                error_dict['errors'].append('Agency acronym of %s not found in the woudc database. If this is a new agency, please notify WOUDC' % f_agency)
+                error_dict['errors'].append('Agency acronym of %s not \
+found in the woudc database. If this is a new agency, \
+please notify WOUDC' % f_agency)
                 return error_dict
             else:
                 LOGGER.info('Agency name used instead of acronym.')
                 acronym = data['features'][0]['properties']['acronym']
-                error_dict['errors'].append('Please use the Agency acronym of %s.' % acronym) # noqa
+                error_dict['errors'].append('Please use the \
+Agency acronym of %s.' % acronym) # noqa
                 return error_dict
 
         LOGGER.info('Successfully validated Agency.')
@@ -383,22 +388,34 @@ class Reader(object):
                 a_set.add(properties['acronym'])
                 if properties['acronym'] == f_agency:
                     if properties['platform_type'] != f_type:
-                        error_dict['errors'].append('Platform type of %s does not match database. Please change it to %s' % (f_type, properties['platform_type'])) # noqa
+                        error_dict['errors'].append('Platform type \
+of %s does not match database. Please change it \
+to %s' % (f_type, properties['platform_type']))
                         return error_dict
                     if properties['country_code'] != f_country:
-                        error_dict['errors'].append('Platform country of %s does not match database. Please change it to %s' % (f_country, properties['country_code'])) # noqa
+                        error_dict['errors'].append('Platform country \
+of %s does not match database. Please change it \
+to %s' % (f_country, properties['country_code']))
                         return error_dict
                     if properties['platform_name'] != f_name:
-                        error_dict['errors'].append('Platform name of %s does not match database. Please change it to %s' % (f_name, properties['platform_name'])) # noqa
+                        error_dict['errors'].append('Platform name \
+of %s does not match database. Please change it \
+to %s' % (f_name, properties['platform_name']))
                         return error_dict
-                    if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1:
-                        error_dict['errors'].append('Location Longitude of %s does not match database. Please change it to %s.' % (f_lon, row['geometry']['coordinates'][0])) # noqa
+                    if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1: # noqa
+                        error_dict['errors'].append('Location Longitude \
+of %s does not match database. Please change it \
+to %s.' % (f_lon, row['geometry']['coordinates'][0]))
                         return error_dict
-                    if abs(float(row['geometry']['coordinates'][1]) - f_lat) >= 1:
-                        error_dict['errors'].append('Location Latitude of %s does not match database. Please change it to %s.' % (f_lat, row['geometry']['coordinates'][1])) # noqa
+                    if abs(float(row['geometry']['coordinates'][1]) - f_lat) >= 1: # noqa
+                        error_dict['errors'].append('Location Latitude \
+of %s does not match database. Please change it \
+to %s.' % (f_lat, row['geometry']['coordinates'][1]))
                         return error_dict
                     if properties['gaw_id'] != f_gaw_id:
-                        error_dict['warnings'].append('Platform GAW_ID of %s does not match database. Please change it to %s' % (f_gaw_id, properties['gaw_id'])) # noqa
+                        error_dict['warnings'].append('Platform GAW_ID \
+of %s does not match database. Please change it \
+to %s' % (f_gaw_id, properties['gaw_id']))
                     LOGGER.info('Successfully validated platform.')
                     flag = True
         if not flag:
@@ -409,31 +426,47 @@ class Reader(object):
                     a_set.add(properties['acronym'])
                     if properties['acronym'] == f_agency:
                         if properties['platform_type'] != f_type:
-                            error_dict['errors'].append('Platform type of %s does not match database. Please change it to %s' % (f_type, properties['platform_type'])) # noqa
+                            error_dict['errors'].append('Platform type \
+of %s does not match database. Please change it \
+to %s' % (f_type, properties['platform_type']))
                             return error_dict
                         if properties['country_code'] != f_country:
-                            error_dict['errors'].append('Platform country of %s does not match database. Please change it to %s' % (f_country, properties['country_code'])) # noqa
+                            error_dict['errors'].append('Platform country \
+of %s does not match database. Please change it \
+to %s' % (f_country, properties['country_code']))
                             return error_dict
                         if properties['platform_id'] != f_ID:
-                            error_dict['errors'].append('Platform ID of %s does not match database. Please change it to %s' % (f_ID, properties['platform_id'])) # noqa
+                            error_dict['errors'].append('Platform ID \
+of %s does not match database. Please change it \
+to %s' % (f_ID, properties['platform_id']))
                             return error_dict
                         if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1: # noqa
-                            error_dict['errors'].append('Location Longitude of %s does not match database. Please change it to %s.' % (f_lon, row['geometry']['coordinates'][0])) # noqa
+                            error_dict['errors'].append('Location Longitude \
+of %s does not match database. Please change it \
+to %s.' % (f_lon, row['geometry']['coordinates'][0]))
                             return error_dict
                         if abs(float(row['geometry']['coordinates'][1]) - f_lat) >= 1: # noqa
-                            error_dict['errors'].append('Location Latitude of %s does not match database. Please change it to %s.' % (f_lat, row['geometry']['coordinates'][1])) # noqa
+                            error_dict['errors'].append('Location Latitude \
+of %s does not match database. Please change it \
+to %s.' % (f_lat, row['geometry']['coordinates'][1]))
                             return error_dict
                         if properties['gaw_id'] != f_gaw_id:
-                            error_dict['warnings'].append('Platform GAW_ID of %s does not match database. Please change it to %s' % (f_gaw_id, properties['gaw_id'])) # noqa
+                            error_dict['warnings'].append('Platform GAW_ID \
+of %s does not match database. Please change it \
+to %s' % (f_gaw_id, properties['gaw_id']))
                         LOGGER.info('Successfully validated platform.')
                         flag = True
             if not flag:
                 LOGGER.info('Failed to validate platform.')
                 if len(a_set) > 0:
-                    error_dict['errors'].append('Agency and Platform information do not match. These agencies are valid for this platform: %s' % (','.join(list(a_set)))) # noqa
+                    error_dict['errors'].append('Agency and Platform \
+information do not match. These agencies are valid for this \
+platform: %s' % (','.join(list(a_set))))
                     return error_dict
                 else:
-                    error_dict['errors'].append('Could not find a record for either the platform name or ID. If this is a new station, please notify WOUDC.') # noqa
+                    error_dict['errors'].append('Could not find a record \
+for either the platform name or ID. If this is a new station, \
+please notify WOUDC.')
                     return error_dict
 
         # Check existence of instrument Name and model
@@ -446,7 +479,9 @@ class Reader(object):
         data = client.get_data('instruments', **inst_name_params)
         if data is None:
             LOGGER.info('Failed to located Instrument name.')
-            error_dict['errors'].append('Instrument Name is not in database. Please verify that it is correct.\nNote: If the instrument name is valid, this file will be rejected and then manually processed into the database.') # noqa
+            error_dict['errors'].append('Instrument Name is not in database. \
+Please verify that it is correct.\nNote: If the instrument name is valid, \
+this file will be rejected and then manually processed into the database.')
             return error_dict
         else:
             # Check if a new uri needs to be generated
@@ -456,7 +491,9 @@ class Reader(object):
                 if properties['contributor_id'] == f_agency and properties['data_category'] == category and properties['data_level'] == float(level): # noqa
                     found = True
             if not found:
-                error_dict['warnings'].append('This is a new instrument class/data_category/data_level for this agency.\nThe file will be rejected and then manually processed into the database.') # noqa
+                error_dict['warnings'].append('This is a new instrument \
+class/data_category/data_level for this agency.\nThe \
+file will be rejected and then manually processed into the database.')
 
         data = client.get_data('instruments', **inst_model_params)
         if data is None:
@@ -467,7 +504,10 @@ class Reader(object):
                 data = client.get_data('instruments', **inst_model_params)
                 if data is None:
                     LOGGER.info('Failed to located Instrument model.')
-                    error_dict['errors'].append('Instrument Model is not in database. Please verify that it is correct.\nNote: If the instrument model is valid, this file will be rejected and then manually processed into the database.') # noqa
+                    error_dict['errors'].append('Instrument Model \
+is not in database. Please verify that it is correct.\nNote: If \
+the instrument model is valid, this file will be rejected and then \
+manually processed into the database.')
                     return error_dict
 
         LOGGER.info('Instrument verification passed.')
@@ -480,18 +520,22 @@ class Reader(object):
 
         for payload_table in payload_tables:
             payload_lines = self.sections[payload_table]['_raw'].split('\n')
-            header_len = len(payload_lines[0].strip().strip(',').split(',')) - 1
+            header_len = len(payload_lines[0].strip().strip(',').split(',')) - 1 # noqa
             fewer_commas = False
             for line in payload_lines:
                 if line.count(',') > header_len:
                     LOGGER.info('Found trailing commas.')
-                    error_dict['errors'].append('This file has extra trailing commas. Please remove them before submitting.\nFirst line in file with trailing commas:\n%s' % line) # noqa
+                    error_dict['errors'].append('This file has extra \
+trailing commas. Please remove them before submitting.\nFirst line in \
+file with trailing commas:\n%s' % line)
                     return error_dict
                 if line.count(',') < header_len and line.strip() != '':
                     fewer_commas = True
 
         if fewer_commas:
-            error_dict['warnings'].append('Some lines in this file have fewer commas than there are headers.\nPlease consider adding in extra commas for readability.') # noqa
+            error_dict['warnings'].append('Some lines in this file have \
+fewer commas than there are headers.\nPlease consider adding in extra \
+commas for readability.')
         LOGGER.info('No trailing commas found.')
         LOGGER.info('This file passed validation.')
         error_dict['status'] = True
@@ -1158,6 +1202,7 @@ def _dump(extcsv_obj):
         msg = 'Extended CSV cannot be serialized %s' % err
         LOGGER.error(msg)
         raise RuntimeError(msg)
+
 
 def global_validate(dict, category=None, level=None, form=None):
     """
