@@ -72,8 +72,9 @@ def get_data(extcsv, table, field, index=1):
     table_t = '%s%s%s' % (table, sep, index)
     return extcsv.extcsv_ds[table_t][field]
 
+
 def get_file_string(file_path):
-    """helper function, to open test file and return 
+    """helper function, to open test file and return
        string of file contents
     """
 
@@ -728,7 +729,7 @@ class ValidatorTest(unittest.TestCase):
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Platform name of Sapporo does not \
 match database. Please change it to Lauder')
-       
+
     def test_bad_platform_id(self):
         """Test that bad platform IDs are resolved using platform name"""
 
@@ -737,12 +738,12 @@ match database. Please change it to Lauder')
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Platform ID of 024 does not match \
 database. Please change it to 256')
-  
+
     def test_bad_platform_country(self):
         """Test that country names are resolved to country codes"""
 
         contents =\
-        get_file_string('tests/data/UV617FEB-bad-platform-country.woudc')
+            get_file_string('tests/data/UV617FEB-bad-platform-country.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Platform country of New Zealand \
@@ -763,7 +764,7 @@ platform name and/or ID:' in ''.join(dict['errors']))
         """
 
         contents =\
-        get_file_string('tests/data/UV617FEB-different-agency.woudc')
+            get_file_string('tests/data/UV617FEB-different-agency.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue('Agency and Platform information do not \
@@ -778,7 +779,7 @@ platform:' in ''.join(dict['errors']))
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Please use the Agency \
 acronym of NIWA-LAU.')
-  
+
     def test_bad_location(self):
         """Test that locations off by >= 1 degree are caught"""
 
@@ -794,7 +795,7 @@ not match database. Please change it to -45.0379981995.')
         """
 
         contents =\
-        get_file_string('tests/data/UV617FEB-bad-instrument-name.woudc')
+            get_file_string('tests/data/UV617FEB-bad-instrument-name.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue('Instrument Name is not in database. \
@@ -806,7 +807,7 @@ Please verify that it is correct.' ''.join(dict['errors']))
         """
 
         contents =\
-        get_file_string('tests/data/UV617FEB-bad-instrument-model.woudc')
+            get_file_string('tests/data/UV617FEB-bad-instrument-model.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue('Instrument Model is not in database. \
@@ -828,7 +829,7 @@ please notify WOUDC')
         """Test that a bad platform name and ID produces no matches"""
 
         contents =\
-        get_file_string('tests/data/UV617FEB-no-platform-match.woudc')
+            get_file_string('tests/data/UV617FEB-no-platform-match.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Could not find a record for \
@@ -839,23 +840,21 @@ station, please notify WOUDC.')
         """Test that content level has to be 1.0 or 2.0"""
 
         contents =\
-        get_file_string('tests/data/UV617FEB-bad-content-level.woudc')
+            get_file_string('tests/data/UV617FEB-bad-content-level.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertEqual(''.join(dict['errors']), 'Level for category Spectral \
 must be 1.0')
-            
 
     def test_trailing_commas(self):
         """Test that trailing commas are detected"""
 
         contents =\
-        get_file_string('tests/data/UV617FEB-trailing-commas.woudc')
+            get_file_string('tests/data/UV617FEB-trailing-commas.woudc')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue('This file has extra trailing commas. \
 Please remove them before submitting.' in ''.join(dict['errors']))
-            
 
     def test_good_file(self):
         """Test that a good file passes validation"""
@@ -864,6 +863,7 @@ Please remove them before submitting.' in ''.join(dict['errors']))
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue(dict['status'])
+
 
 # main
 if __name__ == '__main__':
