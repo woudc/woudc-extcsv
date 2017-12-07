@@ -52,7 +52,7 @@ from StringIO import StringIO
 from collections import OrderedDict
 from pywoudc import WoudcClient
 
-__version__ = '0.1.3'
+__version__ = '0.2.0'
 
 LOGGER = logging.getLogger(__name__)
 
