@@ -47,7 +47,6 @@ import os
 import io
 import re
 from setuptools import Command, find_packages, setup
-import woudc_extcsv
 
 # set dependencies
 with open('requirements.txt') as ff:
