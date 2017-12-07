@@ -95,12 +95,14 @@ class PyTest(Command):
         errno = subprocess.call([sys.executable, 'tests/run_tests.py'])
         raise SystemExit(errno)
 
+
 def read(filename, encoding='utf-8'):
     """read file contents"""
     full_path = os.path.join(os.path.dirname(__file__), filename)
     with io.open(full_path, encoding=encoding) as fh:
         contents = fh.read().strip()
     return contents
+
 
 def get_package_version():
     """get version from top-level package init"""
@@ -110,6 +112,7 @@ def get_package_version():
     if version_match:
         return version_match.group(1)
     raise RuntimeError('Unable to find version string.')
+
 
 setup(
     name='woudc-extcsv',
