@@ -44,8 +44,13 @@
 # =================================================================
 
 import os
-from distutils.core import setup, Command
-import woudc_extcsv
+import io
+import re
+from setuptools import Command, find_packages, setup
+
+# set dependencies
+with open('requirements.txt') as ff:
+    INSTALL_REQUIRES = [line.strip() for line in ff]
 
 KEYWORDS = [
     'woudc',
@@ -62,7 +67,7 @@ WOUDC Extended CSV format.'''
 try:
     import pypandoc
     LONG_DESCRIPTION = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
+except(IOError, ImportError, OSError):
     with open('README.md') as f:
         LONG_DESCRIPTION = f.read()
 
@@ -91,33 +96,27 @@ class PyTest(Command):
         raise SystemExit(errno)
 
 
-# from https://wiki.python.org/moin/Distutils/Cookbook/AutoPackageDiscovery
-def is_package(path):
-    """decipher whether path is a Python package"""
-    return (
-        os.path.isdir(path) and
-        os.path.isfile(os.path.join(path, '__init__.py'))
-    )
+def read(filename, encoding='utf-8'):
+    """read file contents"""
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with io.open(full_path, encoding=encoding) as fh:
+        contents = fh.read().strip()
+    return contents
 
 
-def find_packages(path, base=''):
-    """Find all packages in path"""
-    packages = {}
-    for item in os.listdir(path):
-        dirp = os.path.join(path, item)
-        if is_package(dirp):
-            if base:
-                module_name = "%(base)s.%(item)s" % vars()
-            else:
-                module_name = item
-            packages[module_name] = dirp
-            packages.update(find_packages(dirp, module_name))
-    return packages
+def get_package_version():
+    """get version from top-level package init"""
+    version_file = read('woudc_extcsv/__init__.py')
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError('Unable to find version string.')
 
 
 setup(
     name='woudc-extcsv',
-    version=woudc_extcsv.__version__,
+    version=get_package_version(),
     description=DESCRIPTION.strip(),
     long_description=LONG_DESCRIPTION,
     license='MIT',
@@ -128,6 +127,7 @@ setup(
     maintainer=CONTACT,
     maintainer_email=EMAIL,
     url=URL,
+    install_requires=INSTALL_REQUIRES,
     packages=find_packages('.'),
     package_data={'woudc_extcsv': ['table_configuration.csv']},
     scripts=SCRIPTS,
