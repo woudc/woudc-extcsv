@@ -61,8 +61,8 @@ KEYWORDS = [
     'Extended CSV'
 ]
 
-DESCRIPTION = '''Python package providing read/write support of the
-WOUDC Extended CSV format.'''
+DESCRIPTION = ('Python package providing read/write support of the '
+               'WOUDC Extended CSV format.')
 
 try:
     import pypandoc
