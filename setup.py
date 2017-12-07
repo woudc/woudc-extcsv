@@ -44,7 +44,7 @@
 # =================================================================
 
 import os
-from distutils.core import setup, Command
+from setuptools import Command, find_packages, setup
 import woudc_extcsv
 
 # set dependencies
@@ -93,31 +93,6 @@ class PyTest(Command):
         import sys
         errno = subprocess.call([sys.executable, 'tests/run_tests.py'])
         raise SystemExit(errno)
-
-
-# from https://wiki.python.org/moin/Distutils/Cookbook/AutoPackageDiscovery
-def is_package(path):
-    """decipher whether path is a Python package"""
-    return (
-        os.path.isdir(path) and
-        os.path.isfile(os.path.join(path, '__init__.py'))
-    )
-
-
-def find_packages(path, base=''):
-    """Find all packages in path"""
-    packages = {}
-    for item in os.listdir(path):
-        dirp = os.path.join(path, item)
-        if is_package(dirp):
-            if base:
-                module_name = "%(base)s.%(item)s" % vars()
-            else:
-                module_name = item
-            packages[module_name] = dirp
-            packages.update(find_packages(dirp, module_name))
-    return packages
-
 
 setup(
     name='woudc-extcsv',
