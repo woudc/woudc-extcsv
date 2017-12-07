@@ -12,11 +12,12 @@ Python package providing read/write support of the
 
 ### Requirements
 
-woudc-extcsv requires Python 2.7.
+woudc-extcsv requires Python 2.7 and unicodecsv.
 
 ### Dependencies
 
-None.
+See `requirements.txt`
+- unicodecsv
 
 ### Installing the Package
 
