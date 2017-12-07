@@ -47,6 +47,10 @@ import os
 from distutils.core import setup, Command
 import woudc_extcsv
 
+# set dependencies
+with open('requirements.txt') as ff:
+    INSTALL_REQUIRES = [line.strip() for line in ff]
+
 KEYWORDS = [
     'woudc',
     'ozone',
@@ -128,6 +132,7 @@ setup(
     maintainer=CONTACT,
     maintainer_email=EMAIL,
     url=URL,
+    install_requires=INSTALL_REQUIRES,
     packages=find_packages('.'),
     package_data={'woudc_extcsv': ['table_configuration.csv']},
     scripts=SCRIPTS,
