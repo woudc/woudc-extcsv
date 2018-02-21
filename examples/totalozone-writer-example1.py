@@ -46,7 +46,7 @@
 # TotalOzone example 1
 # Create a totalozone extcsv object and write it to file
 # Using data from:
-# http://woudc.org/archive/Archive-NewFormat/TotalOzone_1.0_1/
+# https://woudc.org/archive/Archive-NewFormat/TotalOzone_1.0_1/
 # stn031/dobson/2014/20140401.Dobson.Beck.076.NOAA-CMDL.csv
 
 import logging

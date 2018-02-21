@@ -6,7 +6,7 @@
 # WOUDC Extended CSV library
 
 Python package providing read/write support of the
-[WOUDC](http://woudc.org) Extended CSV format.
+[WOUDC](https://woudc.org) Extended CSV format.
 
 ## Installation
 

@@ -51,7 +51,7 @@ from woudc_extcsv import load
 
 
 # Using data from:
-# http://woudc.org/archive/Archive-NewFormat/TotalOzone_1.0_1/
+# https://woudc.org/archive/Archive-NewFormat/TotalOzone_1.0_1/
 # stn031/dobson/2014/20140401.Dobson.Beck.076.NOAA-CMDL.csv
 # Content copied below
 '''
