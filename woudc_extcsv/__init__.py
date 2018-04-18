@@ -47,6 +47,7 @@ import unicodecsv as csv
 import logging
 import os
 import re
+import io
 from sets import Set
 from StringIO import StringIO
 from collections import OrderedDict
@@ -251,7 +252,7 @@ class Reader(object):
 
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
-            msg = 'Unable to parse extended CSV file'
+            msg = 'Unable to parse extended CSV file\n'
             raise WOUDCExtCSVReaderError(msg, self.errors)
 
     def __eq__(self, other):
@@ -1137,8 +1138,15 @@ def load(filename):
     :returns: Extended CSV data structure
     """
 
-    with open(filename) as ff:
-        return Reader(ff.read())
+    try:
+        with io.open(filename, 'r', encoding='utf-8') as ff:
+            return Reader(ff.read())
+    except UnicodeDecodeError:
+        try:
+            with io.open(filename, 'r', encoding='latin1') as ff:
+                return Reader(ff.read().encode('utf-8'))
+        except Exception as err:
+            raise err
 
 
 def loads(strbuf):

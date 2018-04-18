@@ -44,6 +44,7 @@
 # =================================================================
 
 import csv
+import io
 import unittest
 from StringIO import StringIO
 from woudc_extcsv import (dump, dumps, load, loads, Reader,
@@ -77,9 +78,15 @@ def get_file_string(file_path):
     """helper function, to open test file and return
        string of file contents
     """
-
-    with open(file_path, 'r') as f:
-        return f.read()
+    try:
+        with io.open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except UnicodeDecodeError:
+        try:
+            with io.open(file_path, 'r', encoding='latin1') as f:
+                return f.read().encode('utf-8')
+        except Exception as err:
+            raise err
 
 
 class WriterTest(unittest.TestCase):
@@ -860,6 +867,14 @@ Please remove them before submitting.' in ''.join(dict['errors']))
         """Test that a good file passes validation"""
 
         contents = get_file_string('tests/data/UV617FEB.woudc')
+        reader = loads(contents)
+        dict = reader.metadata_validator()
+        self.assertTrue(dict['status'])
+
+    def test_non_ascii_file(self):
+        """Test that a non_ascii file passes validation"""
+
+        contents = get_file_string('tests/data/test-non-ascii.TO1')
         reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue(dict['status'])
