@@ -65,11 +65,13 @@ TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def __init__(self, content):
+    def __init__(self, content, parse_tables=False):
         """
         Parse WOUDC Extended CSV into internal data structure
 
         :param content: string buffer of content
+        :param parse_tables: if True multi-row tables will be parsed into
+            a list for each column, otherwise will be left as raw strings
         """
 
         header_fields = [
@@ -183,13 +185,20 @@ class Reader(object):
             else:  # payload
                 buf = StringIO(None)
                 w = csv.writer(buf)
+                table = {}
                 columns = None
                 for row in c:
                     if columns is None:
                         columns = row
+                        if parse_tables:
+                            table = { col: [] for col in row }
                     if all([row != '', row is not None, row != []]):
                         if '*' not in row[0]:
                             w.writerow(row)
+                            # Extend the list representing each table column
+                            if row != columns and parse_tables:
+                                for col, datapoint in zip(columns, row):
+                                    table[col].append(datapoint)
                         else:
                             if columns[0].lower() == 'time':
                                 self.errors.append(_violation_lookup(21))
@@ -200,9 +209,9 @@ class Reader(object):
                 else:
                     self.table_count[header] = self.table_count[header] + 1
                     header = '%s%s' % (header, self.table_count[header])
-                    self.sections[header] = {}
                     self.data_tables.append(header)
-                self.sections[header] = {'_raw': buf.getvalue()}
+                table['_raw'] = buf.getvalue()
+                self.sections[header] = table
         # objectify comments found in file
         # preserve order of occurence
         hash_detected = False
@@ -1130,34 +1139,38 @@ def table_configuration_lookup(dataset, level='n/a', form='n/a',
 
 # module level entry points / helper functions
 
-def load(filename):
+def load(filename, parse_tables=False):
     """
     Load Extended CSV from file
 
     :param filename: filename
+    :param parse_tables: if True multi-row tables will be parsed into
+        a list for each column, otherwise will be left as raw strings
     :returns: Extended CSV data structure
     """
 
     try:
         with io.open(filename, 'r', encoding='utf-8') as ff:
-            return Reader(ff.read())
+            return Reader(ff.read(), parse_tables)
     except UnicodeDecodeError:
         try:
             with io.open(filename, 'r', encoding='latin1') as ff:
-                return Reader(ff.read().encode('utf-8'))
+                return Reader(ff.read().encode('utf-8'), parse_tables)
         except Exception as err:
             raise err
 
 
-def loads(strbuf):
+def loads(strbuf, parse_tables=False):
     """
     Load Extended CSV from string
 
     :param strbuf: string representation of Extended CSV
+    :param parse_tables: if True multi-row tables will be parsed into
+        a list for each column, otherwise will be left as raw strings
     :returns: Extended CSV data structure
     """
 
-    return Reader(strbuf)
+    return Reader(strbuf, parse_tables)
 
 
 def dump(extcsv_obj, filename):
