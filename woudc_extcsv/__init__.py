@@ -351,19 +351,19 @@ spelled incorrectly.')
         agency_params = {'property_name': 'acronym', 'property_value': f_agency} # noqa
         platform_id_params = {'property_name' : 'platform_id', 'property_value' : f_ID} # noqa
         platform_name_params = {'property_name' : 'platform_name', 'property_value' : f_name} # noqa
-        if client.get_data('stations', filters=agency_params) is None:
+        if client.get_data('stations', **agency_params) is None:
             agency_params['property_name'] = 'contributor_name'
-            data = client.get_data('stations', filters=agency_params)
+            data = client.get_data('stations', **agency_params)
             if data is None:
                 acronym_set = Set()
                 LOGGER.debug('Resolving Agency through platform ID.')
-                data = client.get_data('stations', filters=platform_id_params)
+                data = client.get_data('stations', **platform_id_params)
                 if data is not None:
                     for row in data['features']:
                         properties = row['properties']
                         acronym_set.add(properties['acronym'])
                 LOGGER.debug('Resolving Agency through platform name.')
-                data = client.get_data('stations', filters=platform_name_params)
+                data = client.get_data('stations', **platform_name_params)
                 if data is not None:
                     for row in data['features']:
                         properties = row['properties']
@@ -389,7 +389,7 @@ Agency acronym of %s.' % acronym) # noqa
 
         LOGGER.info('Successfully validated Agency.')
         LOGGER.debug('Resolving platform information.')
-        data = client.get_data('stations', filters=platform_id_params)
+        data = client.get_data('stations', **platform_id_params)
         flag = False
         a_set = Set()
         if data is not None:
@@ -429,7 +429,7 @@ to %s' % (f_gaw_id, properties['gaw_id']))
                     LOGGER.info('Successfully validated platform.')
                     flag = True
         if not flag:
-            data = client.get_data('stations', filters=platform_name_params)
+            data = client.get_data('stations', **platform_name_params)
             if data is not None:
                 for row in data['features']:
                     properties = row['properties']
@@ -486,7 +486,7 @@ please notify WOUDC.')
         inst_model_upper = inst_model.upper()
         inst_name_params = {'property_name': 'instrument_name', 'property_value': inst_name} # noqa
         inst_model_params = {'property_name': 'instrument_model', 'property_value': inst_model} # noqa
-        data = client.get_data('instruments', filters=inst_name_params)
+        data = client.get_data('instruments', **inst_name_params)
         if data is None:
             LOGGER.info('Failed to located Instrument name.')
             error_dict['errors'].append('Instrument Name is not in database. \
@@ -505,13 +505,13 @@ this file will be rejected and then manually processed into the database.')
 class/data_category/data_level for this agency.\nThe \
 file will be rejected and then manually processed into the database.')
 
-        data = client.get_data('instruments', filters=inst_model_params)
+        data = client.get_data('instruments', **inst_model_params)
         if data is None:
             inst_model_params['property_value'] = inst_model_upper
-            data = client.get_data('instruments', filters=inst_model_params)
+            data = client.get_data('instruments', **inst_model_params)
             if data is None:
                 inst_model_params['property_value'] = inst_model.title()
-                data = client.get_data('instruments', filters=inst_model_params)
+                data = client.get_data('instruments', **inst_model_params)
                 if data is None:
                     LOGGER.info('Failed to located Instrument model.')
                     error_dict['errors'].append('Instrument Model \

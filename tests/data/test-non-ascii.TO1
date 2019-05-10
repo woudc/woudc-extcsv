@@ -19,7 +19,7 @@ Date,Agency,Version,ScientificAuthority
 
 #PLATFORM
 Type,ID,Name,Country,GAW_ID
-STN,436,La Réunion,REU
+STN,436,La Réunion,FRA
 
 #INSTRUMENT
 Name,Model,Number

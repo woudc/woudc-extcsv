@@ -1,2 +1,2 @@
 unicodecsv
-pywoudc
+pywoudc==0.1.9
