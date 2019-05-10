@@ -191,7 +191,7 @@ class Reader(object):
                     if columns is None:
                         columns = row
                         if parse_tables:
-                            table = { col: [] for col in row }
+                            table = {col: [] for col in row}
                     if all([row != '', row is not None, row != []]):
                         if '*' not in row[0]:
                             w.writerow(row)
