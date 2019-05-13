@@ -15,6 +15,7 @@ install:
   - conda create -q -n appveyor-tests python=%PYTHON_VERSION% --yes
   - activate appveyor-tests
   - conda install --file requirements-dev.txt --yes
+  - conda install -c conda-forge pyproj
   - python setup.py install
 
 build: off
