@@ -1,7 +1,7 @@
 environment:
   matrix:
     - PYTHON: "C:\\Python27"
-      MINICONDA: "C:\Miniconda"
+      MINICONDA: "C:\\Miniconda"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "32"
 
