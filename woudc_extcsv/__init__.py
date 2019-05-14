@@ -195,8 +195,12 @@ class Reader(object):
                     if all([row != '', row is not None, row != []]):
                         if '*' not in row[0]:
                             w.writerow(row)
-                            # Extend the list representing each table column
+                            # Extend the table dictionary if this row is a
+                            # data row.
                             if row != columns and parse_tables:
+                                # Fill in omitted columns with null strings.
+                                unlisted_size = len(columns) - len(row)
+                                row.extend([''] * unlisted_size)
                                 for col, datapoint in zip(columns, row):
                                     table[col].append(datapoint)
                         else:
@@ -261,8 +265,9 @@ class Reader(object):
 
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
+            error_text = '; '.join(map(str, self.errors))
             msg = 'Unable to parse extended CSV file\n'
-            raise WOUDCExtCSVReaderError(msg, self.errors)
+            raise WOUDCExtCSVReaderError(msg + error_text, self.errors)
 
     def __eq__(self, other):
         """
