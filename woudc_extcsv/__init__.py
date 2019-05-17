@@ -65,13 +65,14 @@ TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def __init__(self, content, parse_tables=False):
+    def __init__(self, content, parse_tables=False, encoding='utf-8'):
         """
         Parse WOUDC Extended CSV into internal data structure
 
         :param content: string buffer of content
         :param parse_tables: if True multi-row tables will be parsed into
             a list for each column, otherwise will be left as raw strings
+        :param encoding: the encoding scheme with which content is encoded
         """
 
         meta_fields = [
@@ -123,7 +124,7 @@ class Reader(object):
                 b.replace('%', ',')
             try:
                 s = StringIO(b.strip())
-                c = csv.reader(s)
+                c = csv.reader(s, encoding=encoding)
                 header = (c.next()[0]).strip()
             except Exception as err:
                 self.errors.append(_violation_lookup(0))
@@ -1155,15 +1156,14 @@ def load(filename, parse_tables=False):
     :returns: Extended CSV data structure
     """
 
-    try:
-        with io.open(filename, 'r', encoding='utf-8') as ff:
-            return Reader(ff.read(), parse_tables)
-    except UnicodeDecodeError:
+    with io.open(filename, 'rb') as ff:
+        content = ff.read()
         try:
-            with io.open(filename, 'r', encoding='latin1') as ff:
-                return Reader(ff.read().encode('utf-8'), parse_tables)
-        except Exception as err:
-            raise err
+            return Reader(content, parse_tables, encoding='utf-8')
+        except UnicodeDecodeError:
+            LOGGER.info('Unable to read %s with utf8 encoding: '
+                        'attempting to read with latin1 encoding.' % filename)
+            return Reader(content, parse_tables, encoding='latin1')
 
 
 def loads(strbuf, parse_tables=False):
