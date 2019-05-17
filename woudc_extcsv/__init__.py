@@ -87,6 +87,7 @@ class Reader(object):
             'FLIGHT_SUMMARY',
             'GLOBAL_SUMMARY',
             'DAILY_SUMMARY',
+            'GLOBAL_DAILY_SUMMARY',
             'OZONE_SUMMARY',
             'AUXILIARY_DATA'
         ]
@@ -188,11 +189,19 @@ class Reader(object):
                 w = csv.writer(buf)
                 table = {}
                 columns = None
+                try:
+                    columns = c.next()
+                    if len(columns) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(columns[0]) > 0 and columns[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
+                    if parse_table:
+                        table = {col: [] for col in columns}
+                except StopIteration:
+                    msg = 'Extended CSV table %s has no fields' % header
+                    LOGGER.info(msg)
+                    self.errors.append(_violation_lookup(140, header))
                 for row in c:
-                    if columns is None:
-                        columns = row
-                        if parse_tables:
-                            table = {col: [] for col in row}
                     if all([row != '', row is not None, row != []]):
                         if '*' not in row[0]:
                             w.writerow(row)
@@ -1062,7 +1071,8 @@ def _violation_lookup(code, rpl_str=None):
            'between Field names and values of field',
         9: 'Cannot identify data, possibly a remark, '
            'but no asterisk (*) used',
-        10: 'Empty rows within a table are disallowed',
+        10: 'Empty rows within a table are not allowed between TABLE names '
+            'and Field names nor between Field names and values of field',
         21: 'Improper separator for observation time(s) is used. '
             'Separator for time must be \'-\' (hyphen)',
         140: 'Incorrectly formatted table: $$$. '
