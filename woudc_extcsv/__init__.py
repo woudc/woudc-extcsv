@@ -195,8 +195,9 @@ class Reader(object):
                         self.errors.append(_violation_lookup(10))
                     elif len(columns[0]) > 0 and columns[0][0] == '*':
                         self.errors.append(_violation_lookup(8))
-                    if parse_table:
+                    if parse_tables:
                         table = {col: [] for col in columns}
+                    w.writerow(columns)
                 except StopIteration:
                     msg = 'Extended CSV table %s has no fields' % header
                     LOGGER.info(msg)
