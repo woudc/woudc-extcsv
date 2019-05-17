@@ -74,22 +74,20 @@ class Reader(object):
             a list for each column, otherwise will be left as raw strings
         """
 
-        header_fields = [
-            'PROFILE',
-            'DAILY',
-            'GLOBAL',
-            'DIFFUSE',
-            # 'MONTHLY',
-            'OZONE_PROFILE',
-            'N14_VALUES',
-            'C_PROFILE',
-            'OBSERVATIONS',
-            'PUMP_CORRECTION',
-            'SIMULTANEOUS',
+        meta_fields = [
+            'CONTENT',
+            'DATA_GENERATION',
+            'PLATFORM',
+            'INSTRUMENT',
+            'LOCATION',
+            'TIMESTAMP',
+            'MONTHLY',
+            'VEHICLE',
+            'FLIGHT_SUMMARY',
+            'GLOBAL_SUMMARY',
             'DAILY_SUMMARY',
-            'DAILY_SUMMARY_NSF',
-            'SAOZ_DATA_V2',
-            'GLOBAL_DAILY_TOTALS'
+            'OZONE_SUMMARY',
+            'AUXILIARY_DATA'
         ]
 
         self.sections = {}
@@ -129,7 +127,7 @@ class Reader(object):
                 header = (c.next()[0]).strip()
             except Exception as err:
                 self.errors.append(_violation_lookup(0))
-            if header not in header_fields:  # metadata
+            if header in meta_fields:  # metadata
                 if header not in self.sections:
                     self.sections[header] = {}
                     self.metadata_tables.append(header)
@@ -143,9 +141,10 @@ class Reader(object):
                 self.sections[header]['_raw'] = b.strip()
                 try:
                     fields = c.next()
-                    if len(fields[0]) > 0:
-                        if fields[0][0] == '*':
-                            self.errors.append(_violation_lookup(8))
+                    if len(fields) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(fields[0]) > 0 and fields[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no fields' % header
                     LOGGER.info(msg)
@@ -153,9 +152,10 @@ class Reader(object):
                 values = None
                 try:
                     values = c.next()
-                    if len(values[0]) > 0:
-                        if values[0][0] == '*':
-                            self.errors.append(_violation_lookup(8))
+                    if len(values) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(values[0]) > 0 and values[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no values' % header
                     LOGGER.info(msg)
@@ -179,7 +179,7 @@ class Reader(object):
                         self.sections[header][field] = (values[i]).strip()
                         i += 1
                     except (KeyError, IndexError):
-                        self.sections[header][field] = None
+                        self.sections[header][field] = ''
                         msg = 'corrupt format section %s skipping' % header
                         LOGGER.debug(msg)
             else:  # payload
@@ -1061,6 +1061,7 @@ def _violation_lookup(code, rpl_str=None):
            'between Field names and values of field',
         9: 'Cannot identify data, possibly a remark, '
            'but no asterisk (*) used',
+        10: 'Empty rows within a table are disallowed',
         21: 'Improper separator for observation time(s) is used. '
             'Separator for time must be \'-\' (hyphen)',
         140: 'Incorrectly formatted table: $$$. '
