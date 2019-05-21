@@ -65,6 +65,40 @@ TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
+    def decompose_extcsv(self, raw):
+        """
+        Identify tables within ExtCSV file contents, returning an iterable
+        of pairs in which the first value is the table's name and the second
+        value is the table's body.
+
+        Robust against the divider character # appearing within comments or
+        table data.
+
+        :param contents: the untouched contents of an ExtCSV file.
+        """
+
+        # Split on # characters, at the start of a line, and any following
+        # sequence of capital letters and underscores.
+        blocks = re.split('(?<=[\A\n])#([A-Z_]+)', raw)
+        if len(blocks) < 2:
+            LOGGER.error('No tables found.')
+
+        # Discard (but check) any comment at the top of the file.
+        lead_comment = blocks.pop(0)
+        c = StringIO(lead_comment.strip())
+        for line in c:
+            if all([line.strip() != '', line.strip() != os.linesep,
+                    line[0] != '*']):
+                self.errors.append(_violation_lookup(9))
+
+        headers = []
+        content = []
+        for i in range(0, len(blocks), 2):
+            headers.append(blocks[i])
+            content.append(blocks[i + 1].strip())
+
+        return zip(headers, content)
+
     def __init__(self, content, parse_tables=False, encoding='utf-8'):
         """
         Parse WOUDC Extended CSV into internal data structure
@@ -101,32 +135,21 @@ class Reader(object):
         self.errors = []
 
         LOGGER.info('processing Extended CSV')
-        blocks = re.split('#', content)
-        if len(blocks) == 0:
-            msg = 'no tables found'
-            LOGGER.error(msg)
-        # get rid of first element of cruft
-        head_comment = blocks.pop(0)
-        c = StringIO(head_comment.strip())
-        for line in c:
-            if all([line.strip() != '', line.strip() != os.linesep,
-                    line[0] != '*']):
-                self.errors.append(_violation_lookup(9))
+        blocks = self.decompose_extcsv(content)
         self.table_count = {}
-        for b in blocks:
+        for header, body in blocks:
             # determine delimiter
-            if '::' in b:
-                b.replace('::', ',')
-            if ';' in b:
-                b.replace(';', ',')
-            if '$' in b:
-                b.replace('$', ',')
-            if '%' in b:
-                b.replace('%', ',')
+            if '::' in body:
+                body.replace('::', ',')
+            if ';' in body:
+                body.replace(';', ',')
+            if '$' in body:
+                body.replace('$', ',')
+            if '%' in body:
+                body.replace('%', ',')
             try:
-                s = StringIO(b.strip())
+                s = StringIO(body)
                 c = csv.reader(s, encoding=encoding)
-                header = (c.next()[0]).strip()
             except Exception as err:
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
@@ -140,7 +163,7 @@ class Reader(object):
                     header = '%s%s' % (header, self.table_count[header])
                     self.sections[header] = {}
                     self.metadata_tables.append(header)
-                self.sections[header]['_raw'] = b.strip()
+                self.sections[header]['_raw'] = body
                 try:
                     fields = c.next()
                     if len(fields) == 0:
@@ -208,7 +231,7 @@ class Reader(object):
                             w.writerow(row)
                             # Extend the table dictionary if this row is a
                             # data row.
-                            if row != columns and parse_tables:
+                            if parse_tables:
                                 # Fill in omitted columns with null strings.
                                 unlisted_size = len(columns) - len(row)
                                 row.extend([''] * unlisted_size)
@@ -277,8 +300,8 @@ class Reader(object):
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
             error_text = '; '.join(map(str, self.errors))
-            msg = 'Unable to parse extended CSV file\n'
-            raise WOUDCExtCSVReaderError(msg + error_text, self.errors)
+            msg = 'Unable to parse extended CSV file.'
+            raise WOUDCExtCSVReaderError(msg + ' ' + error_text, self.errors)
 
     def __eq__(self, other):
         """
