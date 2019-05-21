@@ -65,29 +65,31 @@ TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def __init__(self, content):
+    def __init__(self, content, parse_tables=False, encoding='utf-8'):
         """
         Parse WOUDC Extended CSV into internal data structure
 
         :param content: string buffer of content
+        :param parse_tables: if True multi-row tables will be parsed into
+            a list for each column, otherwise will be left as raw strings
+        :param encoding: the encoding scheme with which content is encoded
         """
 
-        header_fields = [
-            'PROFILE',
-            'DAILY',
-            'GLOBAL',
-            'DIFFUSE',
-            # 'MONTHLY',
-            'OZONE_PROFILE',
-            'N14_VALUES',
-            'C_PROFILE',
-            'OBSERVATIONS',
-            'PUMP_CORRECTION',
-            'SIMULTANEOUS',
+        meta_fields = [
+            'CONTENT',
+            'DATA_GENERATION',
+            'PLATFORM',
+            'INSTRUMENT',
+            'LOCATION',
+            'TIMESTAMP',
+            'MONTHLY',
+            'VEHICLE',
+            'FLIGHT_SUMMARY',
+            'GLOBAL_SUMMARY',
             'DAILY_SUMMARY',
-            'DAILY_SUMMARY_NSF',
-            'SAOZ_DATA_V2',
-            'GLOBAL_DAILY_TOTALS'
+            'GLOBAL_DAILY_SUMMARY',
+            'OZONE_SUMMARY',
+            'AUXILIARY_DATA'
         ]
 
         self.sections = {}
@@ -123,11 +125,11 @@ class Reader(object):
                 b.replace('%', ',')
             try:
                 s = StringIO(b.strip())
-                c = csv.reader(s)
+                c = csv.reader(s, encoding=encoding)
                 header = (c.next()[0]).strip()
             except Exception as err:
                 self.errors.append(_violation_lookup(0))
-            if header not in header_fields:  # metadata
+            if header in meta_fields:  # metadata
                 if header not in self.sections:
                     self.sections[header] = {}
                     self.metadata_tables.append(header)
@@ -141,9 +143,10 @@ class Reader(object):
                 self.sections[header]['_raw'] = b.strip()
                 try:
                     fields = c.next()
-                    if len(fields[0]) > 0:
-                        if fields[0][0] == '*':
-                            self.errors.append(_violation_lookup(8))
+                    if len(fields) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(fields[0]) > 0 and fields[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no fields' % header
                     LOGGER.info(msg)
@@ -151,9 +154,10 @@ class Reader(object):
                 values = None
                 try:
                     values = c.next()
-                    if len(values[0]) > 0:
-                        if values[0][0] == '*':
-                            self.errors.append(_violation_lookup(8))
+                    if len(values) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(values[0]) > 0 and values[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
                 except StopIteration:
                     msg = 'Extended CSV table %s has no values' % header
                     LOGGER.info(msg)
@@ -177,19 +181,39 @@ class Reader(object):
                         self.sections[header][field] = (values[i]).strip()
                         i += 1
                     except (KeyError, IndexError):
-                        self.sections[header][field] = None
+                        self.sections[header][field] = ''
                         msg = 'corrupt format section %s skipping' % header
                         LOGGER.debug(msg)
             else:  # payload
                 buf = StringIO(None)
                 w = csv.writer(buf)
+                table = {}
                 columns = None
+                try:
+                    columns = c.next()
+                    if len(columns) == 0:
+                        self.errors.append(_violation_lookup(10))
+                    elif len(columns[0]) > 0 and columns[0][0] == '*':
+                        self.errors.append(_violation_lookup(8))
+                    if parse_tables:
+                        table = {col: [] for col in columns}
+                    w.writerow(columns)
+                except StopIteration:
+                    msg = 'Extended CSV table %s has no fields' % header
+                    LOGGER.info(msg)
+                    self.errors.append(_violation_lookup(140, header))
                 for row in c:
-                    if columns is None:
-                        columns = row
                     if all([row != '', row is not None, row != []]):
                         if '*' not in row[0]:
                             w.writerow(row)
+                            # Extend the table dictionary if this row is a
+                            # data row.
+                            if row != columns and parse_tables:
+                                # Fill in omitted columns with null strings.
+                                unlisted_size = len(columns) - len(row)
+                                row.extend([''] * unlisted_size)
+                                for col, datapoint in zip(columns, row):
+                                    table[col].append(datapoint)
                         else:
                             if columns[0].lower() == 'time':
                                 self.errors.append(_violation_lookup(21))
@@ -200,9 +224,9 @@ class Reader(object):
                 else:
                     self.table_count[header] = self.table_count[header] + 1
                     header = '%s%s' % (header, self.table_count[header])
-                    self.sections[header] = {}
                     self.data_tables.append(header)
-                self.sections[header] = {'_raw': buf.getvalue()}
+                table['_raw'] = buf.getvalue()
+                self.sections[header] = table
         # objectify comments found in file
         # preserve order of occurence
         hash_detected = False
@@ -252,8 +276,9 @@ class Reader(object):
 
         if len(self.errors) != 0:
             self.errors = list(set(self.errors))
+            error_text = '; '.join(map(str, self.errors))
             msg = 'Unable to parse extended CSV file\n'
-            raise WOUDCExtCSVReaderError(msg, self.errors)
+            raise WOUDCExtCSVReaderError(msg + error_text, self.errors)
 
     def __eq__(self, other):
         """
@@ -1047,6 +1072,8 @@ def _violation_lookup(code, rpl_str=None):
            'between Field names and values of field',
         9: 'Cannot identify data, possibly a remark, '
            'but no asterisk (*) used',
+        10: 'Empty rows within a table are not allowed between TABLE names '
+            'and Field names nor between Field names and values of field',
         21: 'Improper separator for observation time(s) is used. '
             'Separator for time must be \'-\' (hyphen)',
         140: 'Incorrectly formatted table: $$$. '
@@ -1130,34 +1157,37 @@ def table_configuration_lookup(dataset, level='n/a', form='n/a',
 
 # module level entry points / helper functions
 
-def load(filename):
+def load(filename, parse_tables=False):
     """
     Load Extended CSV from file
 
     :param filename: filename
+    :param parse_tables: if True multi-row tables will be parsed into
+        a list for each column, otherwise will be left as raw strings
     :returns: Extended CSV data structure
     """
 
-    try:
-        with io.open(filename, 'r', encoding='utf-8') as ff:
-            return Reader(ff.read())
-    except UnicodeDecodeError:
+    with io.open(filename, 'rb') as ff:
+        content = ff.read()
         try:
-            with io.open(filename, 'r', encoding='latin1') as ff:
-                return Reader(ff.read().encode('utf-8'))
-        except Exception as err:
-            raise err
+            return Reader(content, parse_tables, encoding='utf-8')
+        except UnicodeDecodeError:
+            LOGGER.info('Unable to read %s with utf8 encoding: '
+                        'attempting to read with latin1 encoding.' % filename)
+            return Reader(content, parse_tables, encoding='latin1')
 
 
-def loads(strbuf):
+def loads(strbuf, parse_tables=False):
     """
     Load Extended CSV from string
 
     :param strbuf: string representation of Extended CSV
+    :param parse_tables: if True multi-row tables will be parsed into
+        a list for each column, otherwise will be left as raw strings
     :returns: Extended CSV data structure
     """
 
-    return Reader(strbuf)
+    return Reader(strbuf, parse_tables)
 
 
 def dump(extcsv_obj, filename):

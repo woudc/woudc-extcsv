@@ -1,7 +1,8 @@
 environment:
   matrix:
     - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
+      MINICONDA: "C:\\Miniconda"
+      PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
 
 #    - PYTHON: "C:\\Python27-x64"
@@ -9,8 +10,12 @@ environment:
 #      PYTHON_ARCH: "64"
 
 install:
-  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
-  - pip.exe install -r requirements-dev.txt
+  - set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%
+  - conda update -q conda --yes
+  - conda create -q -n appveyor-tests python=%PYTHON_VERSION% --yes
+  - activate appveyor-tests
+  - conda install --file requirements-dev.txt --yes
+  - conda install -c conda-forge pyproj --yes
   - python setup.py install
 
 build: off
