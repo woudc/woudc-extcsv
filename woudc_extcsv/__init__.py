@@ -65,40 +65,6 @@ TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def decompose_extcsv(self, raw):
-        """
-        Identify tables within ExtCSV file contents, returning an iterable
-        of pairs in which the first value is the table's name and the second
-        value is the table's body.
-
-        Robust against the divider character # appearing within comments or
-        table data.
-
-        :param contents: the untouched contents of an ExtCSV file.
-        """
-
-        # Split on # characters, at the start of a line, and any following
-        # sequence of capital letters and underscores.
-        blocks = re.split('(?<=[\A\n])#([A-Z_]+)', raw)
-        if len(blocks) < 2:
-            LOGGER.error('No tables found.')
-
-        # Discard (but check) any comment at the top of the file.
-        lead_comment = blocks.pop(0)
-        c = StringIO(lead_comment.strip())
-        for line in c:
-            if all([line.strip() != '', line.strip() != os.linesep,
-                    line[0] != '*']):
-                self.errors.append(_violation_lookup(9))
-
-        headers = []
-        content = []
-        for i in range(0, len(blocks), 2):
-            headers.append(blocks[i])
-            content.append(blocks[i + 1].strip())
-
-        return zip(headers, content)
-
     def __init__(self, content, parse_tables=False, encoding='utf-8'):
         """
         Parse WOUDC Extended CSV into internal data structure
@@ -312,6 +278,40 @@ class Reader(object):
         """
 
         return self.__dict__ == other.__dict__
+
+    def decompose_extcsv(self, raw):
+        """
+        Identify tables within ExtCSV file contents, returning an iterable
+        of pairs in which the first value is the table's name and the second
+        value is the table's body.
+
+        Robust against the divider character # appearing within comments or
+        table data.
+
+        :param contents: the untouched contents of an ExtCSV file.
+        """
+
+        # Split on # characters, at the start of a line, and any following
+        # sequence of capital letters and underscores.
+        blocks = re.split('(?<![ \w])#([A-Z_]+)', raw)
+        if len(blocks) < 2:
+            LOGGER.error('No tables found.')
+
+        # Discard (but check) any comment at the top of the file.
+        lead_comment = blocks.pop(0)
+        c = StringIO(lead_comment.strip())
+        for line in c:
+            if all([line.strip() != '', line.strip() != os.linesep,
+                    line[0] != '*']):
+                self.errors.append(_violation_lookup(9))
+
+        headers = []
+        content = []
+        for i in range(0, len(blocks), 2):
+            headers.append(blocks[i])
+            content.append(blocks[i + 1].strip())
+
+        return zip(headers, content)
 
     def metadata_validator(self):
         """
@@ -1200,17 +1200,18 @@ def load(filename, parse_tables=False):
             return Reader(content, parse_tables, encoding='latin1')
 
 
-def loads(strbuf, parse_tables=False):
+def loads(strbuf, parse_tables=False, encoding='utf-8'):
     """
     Load Extended CSV from string
 
     :param strbuf: string representation of Extended CSV
     :param parse_tables: if True multi-row tables will be parsed into
         a list for each column, otherwise will be left as raw strings
+    :param encoding: the encoding scheme with which content is encoded
     :returns: Extended CSV data structure
     """
 
-    return Reader(strbuf, parse_tables)
+    return Reader(strbuf, parse_tables=parse_tables, encoding=encoding)
 
 
 def dump(extcsv_obj, filename):
