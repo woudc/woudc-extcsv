@@ -36,8 +36,8 @@ easy_install woudc-extcsv
 ```python
 from woudc_extcsv import Reader
 # read from file
-with open('file.csv') as ff:
-    ecsv = Reader(ff.read())
+with open('file.csv', 'rb') as ff:
+    ecsv = Reader(ff.read(), encoding='utf-8')
 # read from string
 ecsv = Reader(my_ecsv_string)
 ```
