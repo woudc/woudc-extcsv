@@ -76,17 +76,10 @@ def get_data(extcsv, table, field, index=1):
 
 def get_file_string(file_path):
     """helper function, to open test file and return
-       string of file contents
+       unicode string of file contents
     """
-    try:
-        with io.open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    except UnicodeDecodeError:
-        try:
-            with io.open(file_path, 'r', encoding='latin1') as f:
-                return f.read().encode('utf-8')
-        except Exception as err:
-            raise err
+    with io.open(file_path, 'rb') as f:
+        return f.read()
 
 
 class WriterTest(unittest.TestCase):
@@ -875,7 +868,7 @@ Please remove them before submitting.' in ''.join(dict['errors']))
         """Test that a non_ascii file passes validation"""
 
         contents = get_file_string('tests/data/test-non-ascii.TO1')
-        reader = loads(contents)
+        reader = loads(contents, encoding='latin1')
         dict = reader.metadata_validator()
         self.assertTrue(dict['status'])
 
