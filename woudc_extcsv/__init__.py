@@ -293,7 +293,7 @@ class Reader(object):
 
         # Split on # characters, at the start of a line, and any following
         # sequence of capital letters and underscores.
-        blocks = re.split(r'(?<![ \w\d])#([A-Z0-9_]+)', raw)
+        blocks = re.split(r'(?<![ \w\d])#([A-Z][A-Z0-9_]*)', raw)
         if len(blocks) < 2:
             LOGGER.error('No tables found.')
 
