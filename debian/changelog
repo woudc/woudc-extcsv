@@ -1,3 +1,10 @@
+woudc-extcsv (0.2.2) unstable; urgency=low
+
+  * add support for opening non-ascii files
+  * add support for multi-row table parsing
+
+ -- Tom Kralidis <tom.kralidis@canada.ca>  Tue, 04 Jun 2019 18:40:42 +0000
+
 woudc-extcsv (0.2.1) unstable; urgency=low
 
   * add file validation
