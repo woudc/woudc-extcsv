@@ -64,12 +64,8 @@ KEYWORDS = [
 DESCRIPTION = ('Python package providing read/write support of the '
                'WOUDC Extended CSV format.')
 
-try:
-    import pypandoc
-    LONG_DESCRIPTION = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError, OSError):
-    with open('README.md') as f:
-        LONG_DESCRIPTION = f.read()
+with open('README.md') as f:
+    LONG_DESCRIPTION = f.read()
 
 CONTACT = 'Meteorological Service of Canada'
 
@@ -119,6 +115,7 @@ setup(
     version=get_package_version(),
     description=DESCRIPTION.strip(),
     long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     license='MIT',
     platforms='all',
     keywords=' '.join(KEYWORDS),
