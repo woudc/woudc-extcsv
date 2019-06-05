@@ -60,11 +60,15 @@ try:
     from StringIO import StringIO
     import unicodecsv as csv
     LOGGER.info('Loaded Python 2 modules')
+
+    kwargs_used = {'csv': ['encoding'], 'open': ['mode']}
 except ImportError:
     # Since Python 2 failed, must be running Python 3.
     from io import StringIO
     import csv
     LOGGER.info('Loaded Python 3 modules')
+
+    kwargs_used = {'csv': [], 'open': ['encoding']}
 
 
 __version__ = '0.2.2'
@@ -127,7 +131,7 @@ class Reader(object):
                 body.replace('%', ',')
             try:
                 s = StringIO(body)
-                c = csv.reader(s, encoding=encoding)
+                c = csv.reader(s, **kw_restrict('csv', encoding=encoding))
             except Exception as err:
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
@@ -1071,6 +1075,16 @@ class Writer(object):
         return mem_file
 
 
+def kw_restrict(module, **kwargs):
+    """
+    Returns a dictionary of keyword arguments in <kwargs> which are listed
+    in the <kwargs_used> global dictionary under the entry for <module>.
+    Can be used to change the keyword behaviour between different Python
+    or package versions.
+    """
+    return {k: kwargs[k] for k in kwargs.keys() if k in kwargs_used[module]}
+
+
 # table name and index separator
 sep = '$'
 
@@ -1202,13 +1216,17 @@ def load(filename, parse_tables=False):
     :returns: Extended CSV data structure
     """
 
-    with io.open(filename, 'rb') as ff:
-        content = ff.read()
-        try:
+    try:
+        kwargs = kw_restrict('open', mode='rb', encoding='utf-8')
+        with io.open(filename, **kwargs) as ff:
+            content = ff.read()
             return Reader(content, parse_tables, encoding='utf-8')
-        except UnicodeDecodeError:
-            LOGGER.info('Unable to read %s with utf8 encoding: '
-                        'attempting to read with latin1 encoding.' % filename)
+    except UnicodeError:
+        LOGGER.info('Unable to read %s with utf8 encoding: '
+                    'attempting to read with latin1 encoding.' % filename)
+        kwargs = kw_restrict('open', mode='rb', encoding='latin1')
+        with io.open(filename, **kwargs) as ff:
+            content = ff.read()
             return Reader(content, parse_tables, encoding='latin1')
 
 
