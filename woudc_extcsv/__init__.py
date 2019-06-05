@@ -43,19 +43,31 @@
 #
 # =================================================================
 
-import unicodecsv as csv
+from __future__ import print_function
 import logging
 import os
 import re
 import io
-from sets import Set
-from StringIO import StringIO
+
 from collections import OrderedDict
 from pywoudc import WoudcClient
 
-__version__ = '0.2.2'
 
 LOGGER = logging.getLogger(__name__)
+
+try:
+    # Assume Python 2 is running and attempt to import dependencies.
+    from StringIO import StringIO
+    import unicodecsv as csv
+    LOGGER.info('Loaded Python 2 modules')
+except ImportError:
+    # Since Python 2 failed, must be running Python 3.
+    from io import StringIO
+    import csv
+    LOGGER.info('Loaded Python 3 modules')
+
+
+__version__ = '0.2.2'
 
 __dirpath = os.path.dirname(os.path.realpath(__file__))
 
@@ -394,7 +406,7 @@ spelled incorrectly.')
             agency_params['filters'] = {'contributor_name': f_agency}
             data = client.get_data('stations', **agency_params)
             if data is None:
-                acronym_set = Set()
+                acronym_set = set()
                 LOGGER.debug('Resolving Agency through platform ID.')
                 data = client.get_data('stations', **platform_id_params)
                 if data is not None:
@@ -408,7 +420,7 @@ spelled incorrectly.')
                         properties = row['properties']
                         acronym_set.add(properties['acronym'])
 
-                if acronym_set != Set():
+                if acronym_set != set():
                     LOGGER.info('Possible Agency matches found.')
                     error_dict['errors'].append('The following agencies \
 match the given platform name and/or ID: %s' % ','.join(list(acronym_set)))
@@ -430,7 +442,7 @@ Agency acronym of %s.' % acronym) # noqa
         LOGGER.debug('Resolving platform information.')
         data = client.get_data('stations', **platform_id_params)
         flag = False
-        a_set = Set()
+        a_set = set()
         if data is not None:
             for row in data['features']:
                 properties = row['properties']
@@ -992,8 +1004,8 @@ class Writer(object):
                 # check required fields
                 fields_in = self.extcsv_ds[table]
                 fields_in = [x.lower() for x in fields_in]
-                a = Set(fields_in)
-                b = Set(fields)
+                a = set(fields_in)
+                b = set(fields)
                 c = a ^ b
                 while len(c) > 0:
                     item = c.pop()
@@ -1301,7 +1313,7 @@ def global_validate(dict, category=None, level=None, form=None):
         if all([table not in dict.keys(),
                 table_required == 'required']):
             if rule['incompatible_table'][1:] not in dict.keys():
-                print rule['incompatible_table']
+                print(rule['incompatible_table'])
                 violations.append(_violation_lookup(1, table))
                 error = True
                 for field in fields:
@@ -1318,8 +1330,8 @@ def global_validate(dict, category=None, level=None, form=None):
                 else:
                     fields_in = [x.lower() for x in fields_in]
                     fields_in.remove('_raw')
-                a = Set(fields_in)
-                b = Set(fields)
+                a = set(fields_in)
+                b = set(fields)
                 c = a ^ b
                 while len(c) > 0:
                     item = c.pop()
