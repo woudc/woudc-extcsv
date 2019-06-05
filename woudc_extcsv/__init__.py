@@ -387,11 +387,11 @@ spelled incorrectly.')
         f_lat = float(self.sections['LOCATION']['Latitude'])
         f_lon = float(self.sections['LOCATION']['Longitude'])
 
-        agency_params = {'property_name': 'acronym', 'property_value': f_agency} # noqa
-        platform_id_params = {'property_name' : 'platform_id', 'property_value' : f_ID} # noqa
-        platform_name_params = {'property_name' : 'platform_name', 'property_value' : f_name} # noqa
+        agency_params = {'filters': {'acronym': f_agency}}
+        platform_id_params = {'filters': {'platform_id': f_ID}}
+        platform_name_params = {'filters': {'platform_name': f_name}}
         if client.get_data('stations', **agency_params) is None:
-            agency_params['property_name'] = 'contributor_name'
+            agency_params['filters'] = {'contributor_name': f_agency}
             data = client.get_data('stations', **agency_params)
             if data is None:
                 acronym_set = Set()
@@ -523,8 +523,8 @@ please notify WOUDC.')
         inst_name = self.sections['INSTRUMENT']['Name'].lower()
         inst_model = self.sections['INSTRUMENT']['Model']
         inst_model_upper = inst_model.upper()
-        inst_name_params = {'property_name': 'instrument_name', 'property_value': inst_name} # noqa
-        inst_model_params = {'property_name': 'instrument_model', 'property_value': inst_model} # noqa
+        inst_name_params = {'filters': {'instrument_name': inst_name}}
+        inst_model_params = {'filters': {'instrument_model': inst_model}}
         data = client.get_data('instruments', **inst_name_params)
         if data is None:
             LOGGER.info('Failed to located Instrument name.')
