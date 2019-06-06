@@ -1,2 +1,2 @@
-unicodecsv
+unicodecsv  # Only required with Python 2
 pywoudc
