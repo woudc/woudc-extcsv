@@ -814,7 +814,7 @@ class Writer(object):
                     try:
                         keys = list(self.extcsv_ds[table_n].keys())
                         field = keys[data_index]
-                    except IndexError as err:
+                    except IndexError:
                         msg = 'number of data values exceed field count'
                         LOGGER.error(msg)
                     self.extcsv_ds[table_n][field].append(str(data))
