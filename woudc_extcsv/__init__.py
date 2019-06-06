@@ -132,7 +132,7 @@ class Reader(object):
             try:
                 s = StringIO(body)
                 c = csv.reader(s, **kw_restrict('csv', encoding=encoding))
-            except Exception as err:
+            except Exception:
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
                 if header not in self.sections:
@@ -147,7 +147,7 @@ class Reader(object):
                     self.metadata_tables.append(header)
                 self.sections[header]['_raw'] = body
                 try:
-                    fields = c.next()
+                    fields = next(c)
                     if len(fields) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(fields[0]) > 0 and fields[0][0] == '*':
@@ -158,7 +158,7 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                 values = None
                 try:
-                    values = c.next()
+                    values = next(c)
                     if len(values) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(values[0]) > 0 and values[0][0] == '*':
@@ -169,13 +169,13 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                     continue
                 try:
-                    anything_more = (c.next()[0]).strip()
+                    anything_more = next(c)[0].strip()
                     if all([anything_more is not None, anything_more != '',
                             anything_more != os.linesep,
                             '*' not in anything_more]):
                         self.errors.append(_violation_lookup(140, header))
-                except Exception as err:
-                    LOGGER.warning(err)
+                except Exception:
+                    pass
                 if len(values) > len(fields):
                     self.errors.append(_violation_lookup(7, header))
                     continue
@@ -195,7 +195,7 @@ class Reader(object):
                 table = {}
                 columns = None
                 try:
-                    columns = c.next()
+                    columns = next(c)
                     if len(columns) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(columns[0]) > 0 and columns[0][0] == '*':
@@ -391,7 +391,7 @@ found: \n %s' % '\n'.join(violations))
         LOGGER.debug('Resolving Agency and Platform information.')
         f_type = self.sections['PLATFORM']['Type']
         f_ID = self.sections['PLATFORM']['ID']
-        f_name = self.sections['PLATFORM']['Name'].encode('utf-8')
+        f_name = self.sections['PLATFORM']['Name']
         f_country = self.sections['PLATFORM']['Country']
         f_gaw_id = None
         try:
@@ -462,10 +462,11 @@ to %s' % (f_type, properties['platform_type']))
 of %s does not match database. Please change it \
 to %s' % (f_country, properties['country_code']))
                         return error_dict
-                    if properties['platform_name'].encode('utf-8') != f_name:
-                        error_dict['errors'].append('Platform name \
-of %s does not match database. Please change it \
-to %s' % (f_name, properties['platform_name'].encode('utf-8')))
+                    if properties['platform_name'] != f_name:
+                        error_dict['errors'].append(
+                            'Platform name of %s does not match database.'
+                            ' Please change it to %s'
+                            % (f_name, properties['platform_name']))
                         return error_dict
                     if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1: # noqa
                         error_dict['errors'].append('Location Longitude \
@@ -739,7 +740,7 @@ class Writer(object):
         else:  # horizontal insert
             str_obj = StringIO(field)
             csv_reader = csv.reader(str_obj, delimiter=delimiter)
-            fields = csv_reader.next()
+            fields = next(csv_reader)
             for field in fields:
                 if field not in self.extcsv_ds[table_n].keys():
                     self.extcsv_ds[table_n][field] = []
@@ -802,7 +803,7 @@ class Writer(object):
             # horizontal insert
             str_obj = StringIO(data)
             csv_reader = csv.reader(str_obj, delimiter=delimiter)
-            data_l = csv_reader.next()
+            data_l = next(csv_reader)
             if len(data_l) > len(self.extcsv_ds[table_n].keys()):
                 msg = 'fields / values mismatch; skipping'
                 LOGGER.error(msg)
@@ -811,7 +812,8 @@ class Writer(object):
                 for data in data_l:
                     data_index += 1
                     try:
-                        field = self.extcsv_ds[table_n].keys()[data_index]
+                        keys = list(self.extcsv_ds[table_n].keys())
+                        field = keys[data_index]
                     except IndexError as err:
                         msg = 'number of data values exceed field count'
                         LOGGER.error(msg)
@@ -1046,9 +1048,9 @@ class Writer(object):
         for table, fields in self.extcsv_ds.items():
             mem_file.write('#%s%s' % (table[0: table.index('$')], os.linesep))
             t_comments = fields['comments']
-            row = fields.keys()[1:]
+            row = list(fields.keys())[1:]
             csv_writer.writerow(row)
-            values = fields.values()[1:]
+            values = list(fields.values())[1:]
             max_len = len(max(values, key=len))
             for i in range(0, max_len):
                 row = []
@@ -1067,7 +1069,7 @@ class Writer(object):
             if len(t_comments) > 0:
                 for comment in t_comments:
                     mem_file.write('* %s%s' % (comment, os.linesep))
-            len1 = self.extcsv_ds.keys().index(table)
+            len1 = list(self.extcsv_ds.keys()).index(table)
             len2 = len(self.extcsv_ds.keys()) - 1
             if len1 != len2:
                 mem_file.write('%s' % os.linesep)
