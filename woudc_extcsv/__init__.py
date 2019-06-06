@@ -61,14 +61,14 @@ try:
     import unicodecsv as csv
     LOGGER.info('Loaded Python 2 modules')
 
-    kwargs_used = {'csv': ['encoding'], 'open': ['mode']}
+    kwargs_used = {'csv': {'encoding': 'utf-8'}, 'open': {'mode': 'rb'}}
 except ImportError:
     # Since Python 2 failed, must be running Python 3.
     from io import StringIO
     import csv
     LOGGER.info('Loaded Python 3 modules')
 
-    kwargs_used = {'csv': [], 'open': ['encoding']}
+    kwargs_used = {'csv': {}, 'open': {'mode': 'r', 'encoding': 'utf-8'}}
 
 
 __version__ = '0.2.2'
@@ -1084,7 +1084,10 @@ def kw_restrict(module, **kwargs):
     Can be used to change the keyword behaviour between different Python
     or package versions.
     """
-    return {k: kwargs[k] for k in kwargs.keys() if k in kwargs_used[module]}
+
+    module_dict = kwargs_used[module]
+    return {k: kwargs[k] if k in kwargs else module_dict[k]
+            for k in module_dict.keys()}
 
 
 # table name and index separator
@@ -1219,14 +1222,14 @@ def load(filename, parse_tables=False):
     """
 
     try:
-        kwargs = kw_restrict('open', mode='rb', encoding='utf-8')
+        kwargs = kw_restrict('open', encoding='utf-8')
         with io.open(filename, **kwargs) as ff:
             content = ff.read()
             return Reader(content, parse_tables, encoding='utf-8')
     except UnicodeError:
         LOGGER.info('Unable to read %s with utf8 encoding: '
                     'attempting to read with latin1 encoding.' % filename)
-        kwargs = kw_restrict('open', mode='rb', encoding='latin1')
+        kwargs = kw_restrict('open', encoding='latin1')
         with io.open(filename, **kwargs) as ff:
             content = ff.read()
             return Reader(content, parse_tables, encoding='latin1')

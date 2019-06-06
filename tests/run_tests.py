@@ -85,11 +85,11 @@ def get_file_string(file_path):
     """
 
     try:
-        kwargs = kw_restrict('open', mode='rb', encoding='utf-8')
+        kwargs = kw_restrict('open', encoding='utf-8')
         with io.open(file_path, **kwargs) as ff:
             return ff.read()
     except UnicodeError:
-        kwargs = kw_restrict('open', mode='rb', encoding='latin1')
+        kwargs = kw_restrict('open', encoding='latin1')
         with io.open(file_path, **kwargs) as ff:
             return ff.read()
 
