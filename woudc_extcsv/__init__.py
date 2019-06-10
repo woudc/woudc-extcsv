@@ -43,32 +43,15 @@
 #
 # =================================================================
 
-from __future__ import print_function
 import logging
+import csv
 import os
 import re
 import io
 
+from io import StringIO
 from collections import OrderedDict
 from pywoudc import WoudcClient
-
-
-LOGGER = logging.getLogger(__name__)
-
-try:
-    # Assume Python 2 is running and attempt to import dependencies.
-    from StringIO import StringIO
-    import unicodecsv as csv
-    LOGGER.info('Loaded Python 2 modules')
-
-    kwargs_used = {'csv': {'encoding': 'utf-8'}, 'open': {'mode': 'rb'}}
-except ImportError:
-    # Since Python 2 failed, must be running Python 3.
-    from io import StringIO
-    import csv
-    LOGGER.info('Loaded Python 3 modules')
-
-    kwargs_used = {'csv': {}, 'open': {'mode': 'r', 'encoding': 'utf-8'}}
 
 
 __version__ = '0.2.2'
@@ -77,18 +60,19 @@ __dirpath = os.path.dirname(os.path.realpath(__file__))
 
 TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def __init__(self, content, parse_tables=False, encoding='utf-8'):
+    def __init__(self, content, parse_tables=False):
         """
         Parse WOUDC Extended CSV into internal data structure
 
         :param content: string buffer of content
         :param parse_tables: if True multi-row tables will be parsed into
             a list for each column, otherwise will be left as raw strings
-        :param encoding: the encoding scheme with which content is encoded
         """
 
         meta_fields = [
@@ -131,7 +115,7 @@ class Reader(object):
                 body.replace('%', ',')
             try:
                 s = StringIO(body)
-                c = csv.reader(s, **kw_restrict('csv', encoding=encoding))
+                c = csv.reader(s)
             except Exception:
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
@@ -1077,19 +1061,6 @@ class Writer(object):
         return mem_file
 
 
-def kw_restrict(module, **kwargs):
-    """
-    Returns a dictionary of keyword arguments in <kwargs> which are listed
-    in the <kwargs_used> global dictionary under the entry for <module>.
-    Can be used to change the keyword behaviour between different Python
-    or package versions.
-    """
-
-    module_dict = kwargs_used[module]
-    return {k: kwargs[k] if k in kwargs else module_dict[k]
-            for k in module_dict.keys()}
-
-
 # table name and index separator
 sep = '$'
 
@@ -1222,31 +1193,28 @@ def load(filename, parse_tables=False):
     """
 
     try:
-        kwargs = kw_restrict('open', encoding='utf-8')
-        with io.open(filename, **kwargs) as ff:
+        with io.open(filename, encoding='utf-8') as ff:
             content = ff.read()
-            return Reader(content, parse_tables, encoding='utf-8')
+            return Reader(content, parse_tables)
     except UnicodeError:
         LOGGER.info('Unable to read %s with utf8 encoding: '
                     'attempting to read with latin1 encoding.' % filename)
-        kwargs = kw_restrict('open', encoding='latin1')
-        with io.open(filename, **kwargs) as ff:
+        with io.open(filename, encoding='latin1') as ff:
             content = ff.read()
-            return Reader(content, parse_tables, encoding='latin1')
+            return Reader(content, parse_tables)
 
 
-def loads(strbuf, parse_tables=False, encoding='utf-8'):
+def loads(strbuf, parse_tables=False):
     """
     Load Extended CSV from string
 
     :param strbuf: string representation of Extended CSV
     :param parse_tables: if True multi-row tables will be parsed into
         a list for each column, otherwise will be left as raw strings
-    :param encoding: the encoding scheme with which content is encoded
     :returns: Extended CSV data structure
     """
 
-    return Reader(strbuf, parse_tables=parse_tables, encoding=encoding)
+    return Reader(strbuf, parse_tables=parse_tables)
 
 
 def dump(extcsv_obj, filename):

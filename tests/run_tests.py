@@ -44,16 +44,12 @@
 # =================================================================
 
 import io
+import csv
 import unittest
-from woudc_extcsv import (dump, dumps, load, loads, kw_restrict,
-                          Reader, WOUDCExtCSVReaderError, Writer)
 
-try:
-    from StringIO import StringIO
-    import unicodecsv as csv
-except ImportError:
-    from io import StringIO
-    import csv
+from io import StringIO
+from woudc_extcsv import (dump, dumps, load, loads,
+                          Reader, WOUDCExtCSVReaderError, Writer)
 
 
 def msg(test_id, test_description):
@@ -85,12 +81,10 @@ def get_file_string(file_path):
     """
 
     try:
-        kwargs = kw_restrict('open', encoding='utf-8')
-        with io.open(file_path, **kwargs) as ff:
+        with io.open(file_path, encoding='utf-8') as ff:
             return ff.read()
     except UnicodeError:
-        kwargs = kw_restrict('open', encoding='latin1')
-        with io.open(file_path, **kwargs) as ff:
+        with io.open(file_path, encoding='latin1') as ff:
             return ff.read()
 
 
@@ -874,7 +868,7 @@ Please remove them before submitting.' in ''.join(dict['errors']))
         """Test that a non_ascii file passes validation"""
 
         contents = get_file_string('tests/data/test-non-ascii.TO1')
-        reader = loads(contents, encoding='latin1')
+        reader = loads(contents)
         dict = reader.metadata_validator()
         self.assertTrue(dict['status'])
 
