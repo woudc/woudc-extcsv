@@ -116,7 +116,8 @@ class Reader(object):
             try:
                 s = StringIO(body)
                 c = csv.reader(s)
-            except Exception:
+            except Exception as err:
+                LOGGER.warning(err)
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
                 if header not in self.sections:
@@ -382,8 +383,9 @@ found: \n %s' % '\n'.join(violations))
         try:
             f_gaw_id = self.sections['PLATFORM']['GAW_ID']
         except Exception:
-            error_dict['warnings'].append('GAW_ID field is \
-spelled incorrectly.')
+            msg = 'GAW_ID field is spelled incorrectly.'
+            LOGGER.warning(message)
+            error_dict['warnings'].append(msg)
         f_agency = self.sections['DATA_GENERATION']['Agency']
         f_lat = float(self.sections['LOCATION']['Latitude'])
         f_lon = float(self.sections['LOCATION']['Longitude'])
