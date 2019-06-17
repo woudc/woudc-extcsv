@@ -43,36 +43,36 @@
 #
 # =================================================================
 
-import unicodecsv as csv
 import logging
+import csv
 import os
 import re
 import io
-from sets import Set
-from StringIO import StringIO
+
+from io import StringIO
 from collections import OrderedDict
 from pywoudc import WoudcClient
 
-__version__ = '0.2.2'
 
-LOGGER = logging.getLogger(__name__)
+__version__ = '0.2.2'
 
 __dirpath = os.path.dirname(os.path.realpath(__file__))
 
 TABLE_CONFIGURATION = os.path.join(__dirpath, 'table_configuration.csv')
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Reader(object):
     """WOUDC Extended CSV reader"""
 
-    def __init__(self, content, parse_tables=False, encoding='utf-8'):
+    def __init__(self, content, parse_tables=False):
         """
         Parse WOUDC Extended CSV into internal data structure
 
         :param content: string buffer of content
         :param parse_tables: if True multi-row tables will be parsed into
             a list for each column, otherwise will be left as raw strings
-        :param encoding: the encoding scheme with which content is encoded
         """
 
         meta_fields = [
@@ -115,8 +115,9 @@ class Reader(object):
                 body.replace('%', ',')
             try:
                 s = StringIO(body)
-                c = csv.reader(s, encoding=encoding)
+                c = csv.reader(s)
             except Exception as err:
+                LOGGER.warning(err)
                 self.errors.append(_violation_lookup(0))
             if header in meta_fields:  # metadata
                 if header not in self.sections:
@@ -131,7 +132,7 @@ class Reader(object):
                     self.metadata_tables.append(header)
                 self.sections[header]['_raw'] = body
                 try:
-                    fields = c.next()
+                    fields = next(c)
                     if len(fields) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(fields[0]) > 0 and fields[0][0] == '*':
@@ -142,7 +143,7 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                 values = None
                 try:
-                    values = c.next()
+                    values = next(c)
                     if len(values) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(values[0]) > 0 and values[0][0] == '*':
@@ -153,7 +154,7 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                     continue
                 try:
-                    anything_more = (c.next()[0]).strip()
+                    anything_more = next(c)[0].strip()
                     if all([anything_more is not None, anything_more != '',
                             anything_more != os.linesep,
                             '*' not in anything_more]):
@@ -179,7 +180,7 @@ class Reader(object):
                 table = {}
                 columns = None
                 try:
-                    columns = c.next()
+                    columns = next(c)
                     if len(columns) == 0:
                         self.errors.append(_violation_lookup(10))
                     elif len(columns[0]) > 0 and columns[0][0] == '*':
@@ -192,7 +193,8 @@ class Reader(object):
                     LOGGER.info(msg)
                     self.errors.append(_violation_lookup(140, header))
                 for row in c:
-                    if all([row != '', row is not None, row != []]):
+                    if all([row != '', row is not None, row != []]) \
+                       and any(map(lambda val: val.strip() != '', row)):
                         if '*' not in row[0]:
                             w.writerow(row)
                             # Extend the table dictionary if this row is a
@@ -375,26 +377,27 @@ found: \n %s' % '\n'.join(violations))
         LOGGER.debug('Resolving Agency and Platform information.')
         f_type = self.sections['PLATFORM']['Type']
         f_ID = self.sections['PLATFORM']['ID']
-        f_name = self.sections['PLATFORM']['Name'].encode('utf-8')
+        f_name = self.sections['PLATFORM']['Name']
         f_country = self.sections['PLATFORM']['Country']
         f_gaw_id = None
         try:
             f_gaw_id = self.sections['PLATFORM']['GAW_ID']
         except Exception:
-            error_dict['warnings'].append('GAW_ID field is \
-spelled incorrectly.')
+            msg = 'GAW_ID field is spelled incorrectly.'
+            LOGGER.warning(msg)
+            error_dict['warnings'].append(msg)
         f_agency = self.sections['DATA_GENERATION']['Agency']
         f_lat = float(self.sections['LOCATION']['Latitude'])
         f_lon = float(self.sections['LOCATION']['Longitude'])
 
-        agency_params = {'property_name': 'acronym', 'property_value': f_agency} # noqa
-        platform_id_params = {'property_name' : 'platform_id', 'property_value' : f_ID} # noqa
-        platform_name_params = {'property_name' : 'platform_name', 'property_value' : f_name} # noqa
+        agency_params = {'filters': {'acronym': f_agency}}
+        platform_id_params = {'filters': {'platform_id': f_ID}}
+        platform_name_params = {'filters': {'platform_name': f_name}}
         if client.get_data('stations', **agency_params) is None:
-            agency_params['property_name'] = 'contributor_name'
+            agency_params['filters'] = {'contributor_name': f_agency}
             data = client.get_data('stations', **agency_params)
             if data is None:
-                acronym_set = Set()
+                acronym_set = set()
                 LOGGER.debug('Resolving Agency through platform ID.')
                 data = client.get_data('stations', **platform_id_params)
                 if data is not None:
@@ -408,7 +411,7 @@ spelled incorrectly.')
                         properties = row['properties']
                         acronym_set.add(properties['acronym'])
 
-                if acronym_set != Set():
+                if acronym_set != set():
                     LOGGER.info('Possible Agency matches found.')
                     error_dict['errors'].append('The following agencies \
 match the given platform name and/or ID: %s' % ','.join(list(acronym_set)))
@@ -430,7 +433,7 @@ Agency acronym of %s.' % acronym) # noqa
         LOGGER.debug('Resolving platform information.')
         data = client.get_data('stations', **platform_id_params)
         flag = False
-        a_set = Set()
+        a_set = set()
         if data is not None:
             for row in data['features']:
                 properties = row['properties']
@@ -446,10 +449,11 @@ to %s' % (f_type, properties['platform_type']))
 of %s does not match database. Please change it \
 to %s' % (f_country, properties['country_code']))
                         return error_dict
-                    if properties['platform_name'].encode('utf-8') != f_name:
-                        error_dict['errors'].append('Platform name \
-of %s does not match database. Please change it \
-to %s' % (f_name, properties['platform_name'].encode('utf-8')))
+                    if properties['platform_name'] != f_name:
+                        error_dict['errors'].append(
+                            'Platform name of %s does not match database.'
+                            ' Please change it to %s'
+                            % (f_name, properties['platform_name']))
                         return error_dict
                     if abs(float(row['geometry']['coordinates'][0]) - f_lon) >= 1: # noqa
                         error_dict['errors'].append('Location Longitude \
@@ -523,8 +527,8 @@ please notify WOUDC.')
         inst_name = self.sections['INSTRUMENT']['Name'].lower()
         inst_model = self.sections['INSTRUMENT']['Model']
         inst_model_upper = inst_model.upper()
-        inst_name_params = {'property_name': 'instrument_name', 'property_value': inst_name} # noqa
-        inst_model_params = {'property_name': 'instrument_model', 'property_value': inst_model} # noqa
+        inst_name_params = {'filters': {'instrument_name': inst_name}}
+        inst_model_params = {'filters': {'instrument_model': inst_model}}
         data = client.get_data('instruments', **inst_name_params)
         if data is None:
             LOGGER.info('Failed to located Instrument name.')
@@ -723,7 +727,7 @@ class Writer(object):
         else:  # horizontal insert
             str_obj = StringIO(field)
             csv_reader = csv.reader(str_obj, delimiter=delimiter)
-            fields = csv_reader.next()
+            fields = next(csv_reader)
             for field in fields:
                 if field not in self.extcsv_ds[table_n].keys():
                     self.extcsv_ds[table_n][field] = []
@@ -786,7 +790,7 @@ class Writer(object):
             # horizontal insert
             str_obj = StringIO(data)
             csv_reader = csv.reader(str_obj, delimiter=delimiter)
-            data_l = csv_reader.next()
+            data_l = next(csv_reader)
             if len(data_l) > len(self.extcsv_ds[table_n].keys()):
                 msg = 'fields / values mismatch; skipping'
                 LOGGER.error(msg)
@@ -795,10 +799,10 @@ class Writer(object):
                 for data in data_l:
                     data_index += 1
                     try:
-                        field = self.extcsv_ds[table_n].keys()[data_index]
+                        keys = list(self.extcsv_ds[table_n].keys())
+                        field = keys[data_index]
                     except IndexError as err:
-                        msg = 'number of data values exceed field count'
-                        LOGGER.error(msg)
+                        LOGGER.error(err)
                     self.extcsv_ds[table_n][field].append(str(data))
         else:
             msg = 'multiple values / single field detected; skipping'
@@ -992,8 +996,8 @@ class Writer(object):
                 # check required fields
                 fields_in = self.extcsv_ds[table]
                 fields_in = [x.lower() for x in fields_in]
-                a = Set(fields_in)
-                b = Set(fields)
+                a = set(fields_in)
+                b = set(fields)
                 c = a ^ b
                 while len(c) > 0:
                     item = c.pop()
@@ -1030,9 +1034,9 @@ class Writer(object):
         for table, fields in self.extcsv_ds.items():
             mem_file.write('#%s%s' % (table[0: table.index('$')], os.linesep))
             t_comments = fields['comments']
-            row = fields.keys()[1:]
+            row = list(fields.keys())[1:]
             csv_writer.writerow(row)
-            values = fields.values()[1:]
+            values = list(fields.values())[1:]
             max_len = len(max(values, key=len))
             for i in range(0, max_len):
                 row = []
@@ -1051,7 +1055,7 @@ class Writer(object):
             if len(t_comments) > 0:
                 for comment in t_comments:
                     mem_file.write('* %s%s' % (comment, os.linesep))
-            len1 = self.extcsv_ds.keys().index(table)
+            len1 = list(self.extcsv_ds.keys()).index(table)
             len2 = len(self.extcsv_ds.keys()) - 1
             if len1 != len2:
                 mem_file.write('%s' % os.linesep)
@@ -1190,28 +1194,31 @@ def load(filename, parse_tables=False):
     :returns: Extended CSV data structure
     """
 
-    with io.open(filename, 'rb') as ff:
-        content = ff.read()
-        try:
-            return Reader(content, parse_tables, encoding='utf-8')
-        except UnicodeDecodeError:
-            LOGGER.info('Unable to read %s with utf8 encoding: '
-                        'attempting to read with latin1 encoding.' % filename)
-            return Reader(content, parse_tables, encoding='latin1')
+    try:
+        with io.open(filename, encoding='utf-8') as ff:
+            content = ff.read()
+            return Reader(content, parse_tables)
+    except UnicodeError as err:
+        LOGGER.warning(err)
+        msg = 'Unable to read %s with utf8 encoding. Attempting to read' \
+              ' with latin1 encoding.' % filename
+        LOGGER.info(msg)
+        with io.open(filename, encoding='latin1') as ff:
+            content = ff.read()
+            return Reader(content, parse_tables)
 
 
-def loads(strbuf, parse_tables=False, encoding='utf-8'):
+def loads(strbuf, parse_tables=False):
     """
     Load Extended CSV from string
 
     :param strbuf: string representation of Extended CSV
     :param parse_tables: if True multi-row tables will be parsed into
         a list for each column, otherwise will be left as raw strings
-    :param encoding: the encoding scheme with which content is encoded
     :returns: Extended CSV data structure
     """
 
-    return Reader(strbuf, parse_tables=parse_tables, encoding=encoding)
+    return Reader(strbuf, parse_tables=parse_tables)
 
 
 def dump(extcsv_obj, filename):
@@ -1301,7 +1308,7 @@ def global_validate(dict, category=None, level=None, form=None):
         if all([table not in dict.keys(),
                 table_required == 'required']):
             if rule['incompatible_table'][1:] not in dict.keys():
-                print rule['incompatible_table']
+                print(rule['incompatible_table'])
                 violations.append(_violation_lookup(1, table))
                 error = True
                 for field in fields:
@@ -1318,8 +1325,8 @@ def global_validate(dict, category=None, level=None, form=None):
                 else:
                     fields_in = [x.lower() for x in fields_in]
                     fields_in.remove('_raw')
-                a = Set(fields_in)
-                b = Set(fields)
+                a = set(fields_in)
+                b = set(fields)
                 c = a ^ b
                 while len(c) > 0:
                     item = c.pop()
