@@ -193,7 +193,7 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                 for row in c:
                     if all([row != '', row is not None, row != []]) \
-                        and not all(map(lambda val: val.strip() == '', row)):
+                       and any(map(lambda val: val.strip() != '', row)):
                         if '*' not in row[0]:
                             w.writerow(row)
                             # Extend the table dictionary if this row is a
