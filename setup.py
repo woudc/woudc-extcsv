@@ -48,33 +48,6 @@ import io
 import re
 from setuptools import Command, find_packages, setup
 
-# set dependencies
-with open('requirements.txt') as ff:
-    INSTALL_REQUIRES = [line.strip() for line in ff]
-
-KEYWORDS = [
-    'woudc',
-    'ozone',
-    'uv',
-    'ultra-violet',
-    'WMO',
-    'Extended CSV'
-]
-
-DESCRIPTION = ('Python package providing read/write support of the '
-               'WOUDC Extended CSV format.')
-
-with open('README.md') as f:
-    LONG_DESCRIPTION = f.read()
-
-CONTACT = 'Meteorological Service of Canada'
-
-EMAIL = 'thinesh.sornalingam@canada.ca'
-
-SCRIPTS = []
-
-URL = 'https://github.com/woudc/woudc-extcsv'
-
 
 class PyTest(Command):
     user_options = []
@@ -108,6 +81,33 @@ def get_package_version():
     if version_match:
         return version_match.group(1)
     raise RuntimeError('Unable to find version string.')
+
+
+# set dependencies
+with open('requirements.txt') as ff:
+    INSTALL_REQUIRES = [line.strip() for line in ff]
+
+KEYWORDS = [
+    'woudc',
+    'ozone',
+    'uv',
+    'ultra-violet',
+    'WMO',
+    'Extended CSV'
+]
+
+DESCRIPTION = ('Python package providing read/write support of the '
+               'WOUDC Extended CSV format.')
+
+LONG_DESCRIPTION = read('README.md')
+
+CONTACT = 'Meteorological Service of Canada'
+
+EMAIL = 'thinesh.sornalingam@canada.ca'
+
+SCRIPTS = []
+
+URL = 'https://github.com/woudc/woudc-extcsv'
 
 
 setup(

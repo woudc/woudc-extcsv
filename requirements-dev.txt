@@ -1,6 +1,5 @@
 Cython
 coverage
 flake8
-pylint
 twine
 wheel
