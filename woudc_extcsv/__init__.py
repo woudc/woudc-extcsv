@@ -159,8 +159,8 @@ class Reader(object):
                             anything_more != os.linesep,
                             '*' not in anything_more]):
                         self.errors.append(_violation_lookup(140, header))
-                except Exception:
-                    pass
+                except Exception as err:
+                    LOGGER.warning(err)
                 if len(values) > len(fields):
                     self.errors.append(_violation_lookup(7, header))
                     continue
