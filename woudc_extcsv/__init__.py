@@ -1199,8 +1199,9 @@ def load(filename, parse_tables=False):
             content = ff.read()
             return Reader(content, parse_tables)
     except UnicodeError as err:
-        msg = 'Unable to read %s with utf8 encoding: %s. Attempting to read' \
-              ' with latin1 encoding.' % (str(err).strip(), filename)
+        LOGGER.warning(err)
+        msg = 'Unable to read %s with utf8 encoding. Attempting to read' \
+              ' with latin1 encoding.' % filename
         LOGGER.info(msg)
         with io.open(filename, encoding='latin1') as ff:
             content = ff.read()
