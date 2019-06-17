@@ -384,7 +384,7 @@ found: \n %s' % '\n'.join(violations))
             f_gaw_id = self.sections['PLATFORM']['GAW_ID']
         except Exception:
             msg = 'GAW_ID field is spelled incorrectly.'
-            LOGGER.warning(message)
+            LOGGER.warning(msg)
             error_dict['warnings'].append(msg)
         f_agency = self.sections['DATA_GENERATION']['Agency']
         f_lat = float(self.sections['LOCATION']['Latitude'])
