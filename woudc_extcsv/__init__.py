@@ -881,7 +881,7 @@ class Writer(object):
         if all([data is not None, all_occurences]):  # remove all
             LOGGER.info('removing all occurences')
             val = filter(lambda a: a != data, self.extcsv_ds[table_n][field])
-            self.extcsv_ds[table_n][field] = val
+            self.extcsv_ds[table_n][field] = list(val)
             msg = 'data %s field %s table %s index %s removed' % \
                   (data, field, table, index)
             LOGGER.info(msg)
@@ -1230,7 +1230,7 @@ def dump(extcsv_obj, filename):
     :returns: void, writes file to disk
     """
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
-    with open(filename, 'wb') as ff:
+    with open(filename, 'w') as ff:
         ff.write(_dump(extcsv_obj))
 
 
