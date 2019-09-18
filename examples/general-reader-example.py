@@ -46,7 +46,7 @@
 # TotalOzone reader example 1
 
 import csv
-from StringIO import StringIO
+from io import StringIO
 from woudc_extcsv import load
 
 
@@ -156,17 +156,17 @@ print('DAILY table and content:')
 print(DAILY_raw)
 DAILY = StringIO(DAILY_raw)
 DAILY_rows = csv.reader(DAILY)
-DAILY_header = DAILY_rows.next()
+DAILY_header = next(DAILY_rows)
 print('DAILY fields:')
 print(DAILY_header)
 print('')
 # get first row of values
-DAILY_row_1 = DAILY_rows.next()
+DAILY_row_1 = next(DAILY_rows)
 print('DAILY row 1 values:')
 print(DAILY_row_1)
 print('')
 # get second row of values
-DAILY_row_2 = DAILY_rows.next()
+DAILY_row_2 = next(DAILY_rows)
 print('DAILY row 2 values:')
 print(DAILY_row_2)
 print('')
@@ -178,7 +178,7 @@ print('')
 # get all ColumnO3
 DAILY = StringIO(DAILY_raw)
 DAILY_rows = csv.reader(DAILY)
-DAILY_header = DAILY_rows.next()
+DAILY_header = next(DAILY_rows)
 print('All DAILY ColumnO3 values:')
 for row in DAILY_rows:
     DAILY_ColumnO3 = row[DAILY_header.index('ColumnO3')]
