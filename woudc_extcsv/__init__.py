@@ -154,11 +154,15 @@ class Reader(object):
                     self.errors.append(_violation_lookup(140, header))
                     continue
                 try:
-                    anything_more = next(c)[0].strip()
-                    if all([anything_more is not None, anything_more != '',
-                            anything_more != os.linesep,
-                            '*' not in anything_more]):
-                        self.errors.append(_violation_lookup(140, header))
+                    anything_more = next(c)
+                    if len(anything_more) > 0:
+                        row_start = anything_more[0].strip()
+                        if all([row_start != '', row_start != os.linesep,
+                                '*' not in row_start]):
+                            self.errors.append(_violation_lookup(140, header))
+                except StopIteration:
+                    msg = 'End of table {} detected'.format(header)
+                    LOGGER.debug(msg)
                 except Exception as err:
                     LOGGER.warning(err)
                 if len(values) > len(fields):
