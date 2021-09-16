@@ -1234,8 +1234,8 @@ def dump(extcsv_obj, filename):
     :returns: void, writes file to disk
     """
     LOGGER.info('Dumping Extended CSV object to file: %s' % filename)
-    with open(filename, 'w') as ff:
-        ff.write(_dump(extcsv_obj))
+    with open(filename, 'wb') as ff:
+        ff.(_dump(extcsv_obj))
 
 
 def dumps(extcsv_obj):
