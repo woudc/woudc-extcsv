@@ -5,19 +5,21 @@
 
 # WOUDC Extended CSV library
 
-Python package providing read/write support of the
+Python package providing read/write support for files of the
 [WOUDC](https://woudc.org) Extended CSV format.
 
 ## Installation
 
 ### Requirements
 
-woudc-extcsv requires Python 3 and [pywoudc](https://github.com/woudc/pywoudc).
+woudc-extcsv requires Python 3 or above. See `requirements.txt`.
 
-### Dependencies
+### Development
 
-See `requirements.txt`
-- [pywoudc](https://github.com/woudc/pywoudc)
+```bash
+# install dev requirements
+pip install -r requirements-dev.txt
+```
 
 ### Installing the Package
 
@@ -69,10 +71,7 @@ ecsv.add_table('TIMESTAMP')
 # Add fields
 ecsv.add_field('TIMESTAMP', 'UTCOffset,Date,Time')
 # Add data
-ecsv.add_data('TIMESTAMP', '+08:38:47', field='UTCOffset')
-# Add more data
-ecsv.add_data('TIMESTAMP', '1991-01-01', field='Date')
-ecsv.add_data('TIMESTAMP', '06:38:47', field='Time')
+ecsv.add_data('TIMESTAMP', '+08:38:47,1991-01-01,06:38:47')
 
 # Add new table, fields, and data at the same time
 ecsv.add_data('GLOBAL_SUMMARY',
@@ -85,6 +84,7 @@ ecsv.add_data('GLOBAL',
               '290.5,0.000E+00')
 ecsv.add_data('GLOBAL',
               '291.0,0.000E+00')
+ecsv.add_table_comment('GLOBAL', 'This is a table level comment', index=1)
 # Add table for new groupings
 ecsv.add_data('TIMESTAMP',
               '+08:38:46,1991-01-01,07:38:46',
@@ -95,7 +95,7 @@ ecsv.add_data('GLOBAL_SUMMARY',
               '07:38:46,2.376E-02,3.984E-01,82.92,6.75,122.69,100000,999',
               field='Time,IntACGIH,IntCIE,ZenAngle,MuValue,AzimAngle,Flag,TempC',
               index=2, table_comment='This is a table level comment.')
-
+ecsv.add_table_comment('GLOBAL_SUMMARY', 'This is another table level comment', index=2)
 # Write to string
 ecsvs = woudc_extcsv.dumps(ecsv)
                 
@@ -114,27 +114,53 @@ ecsv = woudc_extcsv.load('file.csv')
 # load from string into Reader object
 ecsv = woudc_extcsv.loads(my_ecsv_string)
 # dump to file from Writer object
-ecsv = woudc_extcsv.dump('file.csv')
+ecsv = woudc_extcsv.dump(ecsv_writer, 'file.csv')
 # dump to string from Writer object
-ecsv = woudc_extcsv.dumps(my_ecsv_string)
+ecsv = woudc_extcsv.dumps(ecsv_writer)
+```
+
+### ExtendedCSV Objects
+The ExtendedCSV class is a parser class used in the Reader and Writer classes, and can be used to both read and write to an Extended CSV object.
+
+```python
+from woudc_extcsv import ExtendedCSV
+# read from file
+with open('file.csv', 'r') as ff:
+    ecsv = ExtendedCSV(ff.read())
+# read from string
+ecsv = Extended(my_ecsv_string)
+
+# Add a file-level comment
+ecsv.add_comment('This is a file level comment')
+# Add new table to object
+ecsv.init_table('GLOBAL', ['Wavelength', 'S-Irradiance'], line_num)
+# Add another field to the new table
+ecsv.add_field_to_table('GLOBAL', ['Time'])
+# Add data to table
+ecsv.add_values_to_table('GLOBAL', ['290.5', '0.000E+00', ''], line_num)
+# Add a table comment
+ecsv.add_table_comment('GLOBAL', 'This is a table level comment')
+# Remove a table
+ecsv.remove_table('GLOBAL')
+# Validate Extended CSV and collimate the tables
+# Check metadata tables
+ecsv.validate_metadata_tables()
+# Check dataset-specific tables
+ecsv.validate_dataset_tables()
 ```
 
 ### Error Handling
 
-```pyhon
-from woudc_extcsv import loads, WOUDCExtCSVReaderError
+```python
+from woudc_extcsv import ExtendedCSV, NonStandardDataError, MetadataValidationError
 
 try:
-    loads('bad content!')
-except WOUDCExtCSVReaderError as err:
+    ecsv = ExtendedCSV('bad content!')
+except (NonStandardDataError, MetadataValidationError) as err:
     print(err.message)
     for error in err.errors:
          print(error)
 ```
-
-## Examples
-
-See the `examples/` directory for sample scripts.
 
 ## Development
 
