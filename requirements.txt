@@ -1,1 +1,2 @@
-pywoudc
+jsonschema
+pyyaml

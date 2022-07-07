@@ -18,7 +18,7 @@
 # those files. Users are asked to read the 3rd Party Licenses
 # referenced with those assets.
 #
-# Copyright (c) 2015 Government of Canada
+# Copyright (c) 2022 Government of Canada
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -126,7 +126,10 @@ setup(
     url=URL,
     install_requires=INSTALL_REQUIRES,
     packages=find_packages('.'),
-    package_data={'woudc_extcsv': ['table_configuration.csv']},
+    package_data={
+        'woudc_extcsv': ['tables-schema.json', 'tables-backfilling.yml',
+                         'errors-backfilling.csv']
+    },
     scripts=SCRIPTS,
     classifiers=[
         'Development Status :: 4 - Beta',
