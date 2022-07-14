@@ -1270,7 +1270,10 @@ class ExtendedCSV(object):
         fieldline = self.line_num('CONTENT') + 1
         for field in [('Category', str), ('Level', float), ('Form', int)]:
             field_name, type_converter = field
-            key = str(type_converter(self.extcsv['CONTENT'][field_name]))
+            try:
+                key = str(type_converter(self.extcsv['CONTENT'][field_name]))
+            except ValueError:
+                key = str(self.extcsv['CONTENT'][field_name])
 
             if key in curr_dict:
                 curr_dict = curr_dict[key]

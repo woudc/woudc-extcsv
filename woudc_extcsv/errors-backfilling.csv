@@ -53,11 +53,11 @@ Error Code,Error Type,Message Template,Notes
 58,Error,Failed to parse #CONTENT.Form: contains invalid characters
 59,Error,Cannot resolve missing or invalid #CONTENT.Form
 60,Error,Unknown #CONTENT.Form for dataset {dataset} and level {level}
-61,Error,Cannot assess expected table set: #CONTENT.{field} unknown
+61,Error,Cannot assess expected table set: {field} unknown
 62,Warning,Missing #DATA_GENERATION.Date\, defaults to processing date
 63,Warning,Missing #DATA_GENERATION.Version\, defaults to {default}
 64,Warning,#DATA_GENERATION.Version is not within allowable range [{lower}]-[{upper}]
-65,Warning,#DATA_GENERATION.Version does not have exactly decimal place
+65,Warning,#DATA_GENERATION.Version does not have exactly 1 decimal place
 66,Error,Failed to parse #DATA_GENERATION.Version: contains invalid characters
 67,Error,#DATA_GENERATION.Agency failed to validate against registry
 70,Warning,#PLATFORM.ID is not 3 digits long
