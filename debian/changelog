@@ -1,9 +1,9 @@
-woudc-extcsv (0.5.0) unstable; urgency=low
+woudc-extcsv (0.5.0) focal; urgency=medium
 
   * swap in woudc-data-registry extended csv parser
   * make corresponding changes to Reader and Writer classes
 
- -- WOUDC <ec.woudc.ec@canada.ca>  Wed, 06 Jul 2022 14:56:00 +0000
+ -- Kevin Ngai <kevin.ngai@ec.gc.ca>  Wed, 3 Aug 2022 14:10:00 +0000
 
 woudc-extcsv (0.4.dev0) unstable; urgency=low
 
