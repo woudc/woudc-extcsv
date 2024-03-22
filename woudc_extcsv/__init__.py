@@ -1723,7 +1723,7 @@ class Writer(object):
             self.add_table(table)
 
         # list input
-        if type(field) == list:
+        if isinstance(field, list):
             self.ecsv.add_field_to_table(table, field, index)
 
         # string input
