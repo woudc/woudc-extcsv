@@ -1168,7 +1168,8 @@ class ExtendedCSV(object):
             column = self.extcsv[table][field]
             if isinstance(column, list) and '' in column:
                 line = valueline + column.index('')
-                if not self._add_to_report(204, line, table=table, field=field):
+                if not self._add_to_report(
+                        204, line, table=table, field=field):
                     success = False
         return success
 
