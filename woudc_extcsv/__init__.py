@@ -67,7 +67,7 @@ __dirpath = os.path.dirname(os.path.realpath(__file__))
 
 WDR_TABLE_SCHEMA = os.path.join(__dirpath, 'tables-schema.json')
 WDR_TABLE_CONFIG = os.path.join(__dirpath, 'tables-backfilling.yml')
-WDR_ERROR_CONFIG = os.path.join(__dirpath, 'Updated_Errors.csv')
+WDR_ERROR_CONFIG = os.path.join(__dirpath, 'errors-backfilling.csv')
 
 LOGGER = logging.getLogger(__name__)
 
