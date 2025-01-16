@@ -204,15 +204,15 @@ Datasets:
           required_fields:
             - IntegratedO3
             - SondeTotalO3
-            - BackgroundCorrection
-            - SampleTemperatureType
           optional_fields:
             - CorrectionCode
             - NormalizationFactor
+            - BackgroundCorrection
+            - SampleTemperatureType
         PROFILE:
           rows: 1+
           occurrences: 1
-          required_fields:
+          optional_fields:
             - Duration
             - Pressure
             - O3PartialPressure
@@ -226,7 +226,6 @@ Datasets:
             - SondeCurrent
             - Latitude
             - Longitude
-          optional_fields:
             - PumpMotorCurrent
             - PumpMotorVoltage
             - Height
@@ -281,6 +280,17 @@ Datasets:
             - MotorCurrent
             - HeadPressure
             - VacuumPressure
+        AUXILIARY_DATA:
+          rows: 1
+          occurrences: 0-1
+          optional_fields:
+            - MeteoSonde
+            - ib1
+            - ib2
+            - PumpRate
+            - BackgroundCorr
+            - SampleTemperatureType
+            - MinutesGroundO3
         OZONE_REFERENCE:
           rows: 1
           occurrences: 0-1
@@ -293,6 +303,66 @@ Datasets:
             - WLCode
             - ObsType
             - UTC_Mean
+        PRELAUNCH:
+          rows: 1+
+          occurrences: 0-1
+          optional_fields:
+            - Duration
+            - Pressure
+            - O3PartialPressure
+            - Temperature
+            - WindSpeed
+            - WindDirection
+            - LevelCode
+            - GPHeight
+            - RelativeHumidity
+            - SampleTemperature
+            - SondeCurrent
+            - Latitude
+            - Longitude
+            - PumpMotorCurrent
+            - PumpMotorVoltage
+            - Height
+        PROFILE_UNCERTAINTY:
+          rows: 1+
+          occurrences: 0-1
+          optional_fields:
+            - Duration
+            - Pressure
+            - O3PartialPressure
+            - Temperature
+            - WindSpeed
+            - WindDirection
+            - LevelCode
+            - GPHeight
+            - RelativeHumidity
+            - SampleTemperature
+            - SondeCurrent
+            - Latitude
+            - Longitude
+            - PumpMotorCurrent
+            - PumpMotorVoltage
+            - Height
+        DESELECTED_DATA:
+          rows: 0+
+          occurrences: 0-1
+          optional_fields:
+            - Duration
+            - Pressure
+            - O3PartialPressure
+            - Temperature
+            - WindSpeed
+            - WindDirection
+            - LevelCode
+            - GPHeight
+            - RelativeHumidity
+            - SampleTemperature
+            - SondeCurrent
+            - Latitude
+            - Longitude
+            - PumpMotorCurrent
+            - PumpMotorVoltage
+            - Height
         data_table: PROFILE
   RocketSonde:
     "1.0":
