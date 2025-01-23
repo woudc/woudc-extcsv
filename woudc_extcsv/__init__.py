@@ -221,6 +221,7 @@ class ExtendedCSV(object):
 
         LOGGER.debug('Reading into csv')
         self._raw = content
+        self._raw = content.lstrip('\ufeff')
         reader = csv.reader(StringIO(self._raw))
 
         LOGGER.debug('Parsing object model')
@@ -827,10 +828,10 @@ class ExtendedCSV(object):
                 success = False
 
         present_year = datetime.now().year
-        if year is not None and year not in range(1940, present_year + 1):
+        if year is not None and year not in range(1924, present_year + 1):
             if not self._add_to_report(303, line_num, table=table,
                                        component='year',
-                                       lower='1940', upper='PRESENT'):
+                                       lower='1924', upper='PRESENT'):
                 success = False
         if month is not None and month not in range(1, 12 + 1):
             if not self._add_to_report(303, line_num, table=table,
@@ -1066,7 +1067,7 @@ class ExtendedCSV(object):
         headerline = self.line_num(table)
         success = True
 
-        if num_rows == 0:
+        if num_rows == 0 and lower != 0:
             if is_required:
                 if not self._add_to_report(208, headerline, table=table):
                     success = False
@@ -1388,9 +1389,11 @@ class ExtendedCSV(object):
                 success = False
 
             LOGGER.debug('Finished validating table {}'.format(table))
-
         for table in extra_tables:
-            table_type = table.rstrip('0123456789_')
+            if table.startswith("SAOZ_DATA_V"):
+                table_type = table
+            else:
+                table_type = table.rstrip('0123456789_')
             if table_type not in optional_tables and table_type != 'comments':
                 if not self._add_to_report(202, table=table, dataset=dataset):
                     success = False
