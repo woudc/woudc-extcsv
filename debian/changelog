@@ -1,3 +1,11 @@
+woudc-extcsv (0.6.0) jammy; urgency=medium
+
+  * updated error codes categorized in 100s, 200s, 300s and 400s
+  * relaxed tables-backfilling rules for OzoneSonde
+  * other minor fixes and updates related to parsing and validation
+
+ -- Kevin Ngai <kevin.ngai@ec.gc.ca>  Fri, 21 Feb 2025 17:33:00 +0000
+
 woudc-extcsv (0.5.0) focal; urgency=medium
 
   * swap in woudc-data-registry extended csv parser

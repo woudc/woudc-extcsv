@@ -1,10 +1,10 @@
 Source: woudc-extcsv
 Section: python
 Priority: optional
-Maintainer: WOUDC <ec.woudc.ec@canada.ca>
+Maintainer: WOUDC <woudc@ec.gc.ca>
 Build-Depends: debhelper (>= 9), python3, python3-setuptools
 Standards-Version: 3.9.5
-X-Python-Version: >= 3.4
+X-Python-Version: >= 3.10
 Vcs-Git: https://github.com/woudc/woudc-extcsv.git
 
 Package: woudc-extcsv
