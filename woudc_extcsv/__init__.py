@@ -18,7 +18,7 @@
 # those files. Users are asked to read the 3rd Party Licenses
 # referenced with those assets.
 #
-# Copyright (c) 2022 Government of Canada
+# Copyright (c) 2025 Government of Canada
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -61,7 +61,7 @@ from woudc_extcsv.util import (parse_integer_range, _table_index,
                                non_content_line)
 
 
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 __dirpath = os.path.dirname(os.path.realpath(__file__))
 

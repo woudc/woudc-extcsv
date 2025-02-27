@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/woudc/woudc-extcsv
 
 Files: *
-Copyright: Copyright (c) 2016 Government of Canada
+Copyright: Copyright (c) 2025 Government of Canada
 License: Expat
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation 
