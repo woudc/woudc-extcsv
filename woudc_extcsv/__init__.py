@@ -382,7 +382,6 @@ class ExtendedCSV(object):
         :param line_num: line number of the table's header (its name)
         :returns: final name for the new table
         """
-
         if table_name not in self._table_count:
             self._table_count[table_name] = 1
         else:
@@ -401,6 +400,39 @@ class ExtendedCSV(object):
         LOGGER.info(msg)
 
         return table_name
+
+    def get_value(self, table, field=None, index=None):
+        """
+        Get value from table field.
+
+        :param table: table name
+        :param field: field name
+        :returns: value in the extcsv file.
+        """
+        if table not in self.extcsv:
+            raise KeyError(f"Table '{table}' not found in extcsv.")
+
+        if field is not None and field not in self.extcsv[table]:
+            raise KeyError(f"Field '{field}' not found in table '{table}'.")
+
+        headers = [
+            'CONTENT', 'DATA_GENERATION', 'PLATFORM',
+            'INSTRUMENT', 'LOCATION', 'TIMESTAMP'
+        ]
+
+        if index == 1:
+            return self.extcsv[table][field][0]
+
+        if table in headers and field is None:
+            data = self.extcsv[table]
+            for field in list(data.keys()):
+                if field != 'comments' and isinstance(data[field], list):
+                    data[field] = data[field][0]
+            return data
+        elif table not in headers and field is None:
+            return self.extcsv[table]
+
+        return self.extcsv[table][field]
 
     def add_field_to_table(self, table_name, fields, index=1):
         """
