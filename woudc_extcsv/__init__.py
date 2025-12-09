@@ -243,11 +243,20 @@ class ExtendedCSV(object):
                     success = False
 
             if len(row) == 1 and row[0].startswith('#'):  # table name
+                line_range = []
                 parent_table = ''.join(row).lstrip('#').strip()
-
+                header = ''
                 try:
                     LOGGER.debug('Found new table {}'.format(parent_table))
+                    previous = row
                     ln, fields = next(lines)
+                    if len(row) == 1 and previous[0].startswith('#'):
+                        header = fields
+                        # if ","  at the end of header, then fields[-1] = '':
+                        if fields[-1] == '' or fields[-1] is None:
+                            if not self._add_to_report(252, line_num,
+                                                       table=parent_table):
+                                success = False
 
                     while non_content_line(fields):
                         if not self._add_to_report(103, ln):
@@ -266,8 +275,22 @@ class ExtendedCSV(object):
                 continue
             elif non_content_line(row):  # blank line
                 LOGGER.debug('Found blank line')
+                if len(line_range) >= 2:
+                    first_line, last_line = min(line_range), max(line_range)
+                    if not self._add_to_report(253,
+                                               f'{first_line}-{last_line}',
+                                               table=parent_table):
+                        success = False
+                    line_range = []  # reset
+                elif len(line_range) == 1:
+                    if not self._add_to_report(253, f'{line_range[0]}',
+                                               table=parent_table):
+                        success = False
+                    line_range = []  # reset
                 continue
             elif parent_table is not None and not non_content_line(row):
+                if len(header) > len(row):
+                    line_range.append(int(line_num))
                 if not self.add_values_to_table(parent_table, row, line_num):
                     success = False
             else:
