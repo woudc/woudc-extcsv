@@ -229,6 +229,8 @@ class ExtendedCSV(object):
         lines = enumerate(reader, 1)
 
         success = True
+        min_line_num = 100000000
+        max_line_num = 0
         for line_num, row in lines:
             separators = []
             for bad_sep in ['::', ';', '$', '%', '|', '\\']:
@@ -243,9 +245,20 @@ class ExtendedCSV(object):
                     success = False
 
             if len(row) == 1 and row[0].startswith('#'):  # table name
-                line_range = []
-                parent_table = ''.join(row).lstrip('#').strip()
                 header = ''
+                if min_line_num == max_line_num:  # only one line
+                    if not self._add_to_report(253, f'{min_line_num}', table=parent_table):
+                        success = False
+                    min_line_num = 100000000  # reset when table encountered
+                    max_line_num = 0
+                elif min_line_num == 100000000 and max_line_num == 0:  # none
+                    continue
+                else:
+                    if not self._add_to_report(253, f'{min_line_num}-{max_line_num}', table=parent_table):
+                        success = False
+                    min_line_num = 100000000  # reset when table encountered
+                    max_line_num = 0
+                parent_table = ''.join(row).lstrip('#').strip()
                 try:
                     LOGGER.debug('Found new table {}'.format(parent_table))
                     previous = row
@@ -275,22 +288,13 @@ class ExtendedCSV(object):
                 continue
             elif non_content_line(row):  # blank line
                 LOGGER.debug('Found blank line')
-                if len(line_range) >= 2:
-                    first_line, last_line = min(line_range), max(line_range)
-                    if not self._add_to_report(253,
-                                               f'{first_line}-{last_line}',
-                                               table=parent_table):
-                        success = False
-                    line_range = []  # reset
-                elif len(line_range) == 1:
-                    if not self._add_to_report(253, f'{line_range[0]}',
-                                               table=parent_table):
-                        success = False
-                    line_range = []  # reset
-                continue
+
             elif parent_table is not None and not non_content_line(row):
+
                 if len(header) > len(row):
-                    line_range.append(int(line_num))
+                    min_line_num = line_num if line_num < min_line_num else min_line_num
+                    max_line_num = line_num if line_num > max_line_num else max_line_num
+
                 if not self.add_values_to_table(parent_table, row, line_num):
                     success = False
             else:
