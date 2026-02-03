@@ -252,7 +252,7 @@ class ExtendedCSV(object):
                     min_line_num = 100000000  # reset when table encountered
                     max_line_num = 0
                 elif min_line_num == 100000000 and max_line_num == 0:  # none
-                    continue
+                    pass
                 else:
                     if not self._add_to_report(253, f'{min_line_num}-{max_line_num}', table=parent_table):
                         success = False
