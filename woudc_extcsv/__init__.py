@@ -76,12 +76,12 @@ with open(WDR_TABLE_SCHEMA) as table_schema_file:
 with open(WDR_TABLE_CONFIG) as table_definitions:
     DOMAINS = yaml.safe_load(table_definitions)
 with open(WDR_ERROR_CONFIG) as error_definitions:
-    reader = csv.reader(error_definitions, escapechar='\\')
-    next(reader)  # Skip header line.
+    reader_wdr_errors = csv.reader(error_definitions, escapechar='\\')
+    next(reader_wdr_errors)  # Skip header line.
     ERRORS = OrderedDict()
-    for row in reader:
-        error_code = int(row[0])
-        ERRORS[error_code] = row[1:3]
+    for row in reader_wdr_errors:
+        wdr_error_code = int(row[0])
+        ERRORS[wdr_error_code] = row[1:3]
 
 
 try:
@@ -166,8 +166,10 @@ def load(filename, reader=True):
                 return Reader(content)
     except UnicodeError as err:
         LOGGER.warning(err)
-        msg = 'Unable to read {} with utf8 encoding. Attempting to read' \
-              ' with latin1 encoding.'.format(filename)
+        msg = (
+            f"Unable to read {filename} with utf8 encoding. "
+            "Attempting to read with latin1 encoding"
+        )
         LOGGER.info(msg)
         with io.open(filename, encoding='latin1') as ff:
             content = ff.read()
@@ -247,7 +249,8 @@ class ExtendedCSV(object):
             if len(row) == 1 and row[0].startswith('#'):  # table name
                 header = ''
                 if min_line_num == max_line_num:  # only one line
-                    if not self._add_to_report(253, f'{min_line_num}', table=parent_table):
+                    if not self._add_to_report(253, f'{min_line_num}',
+                                               table=parent_table):
                         success = False
                     min_line_num = 100000000  # reset when table encountered
                     max_line_num = 0
@@ -423,7 +426,7 @@ class ExtendedCSV(object):
         for field in fields:
             self.extcsv[table_name][field.strip()] = []
 
-        msg = 'added table {}'.format(table_name)
+        msg = f"added table {table_name}"
         LOGGER.info(msg)
 
         return table_name
@@ -484,12 +487,16 @@ class ExtendedCSV(object):
             if field not in self.extcsv[_table_name]:
                 self.extcsv[_table_name][field.strip()] = []
                 added_fields += [field]
-                msg = 'field {} added to table {} index {}' \
-                    .format(field, _table_name, index)
+                msg = (
+                    f"field {field} added to table {_table_name} "
+                    f"index {index}"
+                )
                 LOGGER.info(msg)
             else:
-                msg = 'field {} already exists in table {} index {}' \
-                        .format(field, _table_name, index)
+                msg = (
+                    f"field {field} already exists in table {_table_name} "
+                    f"index {index}"
+                )
                 LOGGER.error(msg)
 
         return added_fields
@@ -562,7 +569,7 @@ class ExtendedCSV(object):
         else:
             self._table_count.pop(table_type)
 
-        msg = 'removed table {}'.format(table_name)
+        msg = f"removed table {table_name}"
         LOGGER.info(msg)
 
     def remove_field(self, table, field, index=1):
@@ -577,10 +584,10 @@ class ExtendedCSV(object):
         table_n = _table_index(table, index)
         try:
             del self.extcsv[table_n][field]
-            msg = 'removed field %s table %s index %s' % (field, table, index)
+            msg = f"removed field {field} table {table} index {index}"
             LOGGER.info(msg)
         except Exception as err:
-            msg = 'unable to remove field %s' % err
+            msg = f"unable to remove field: {err}"
             LOGGER.error(msg)
 
     def remove_values_from_table(self, table, field, data=None, index=1,
@@ -602,28 +609,31 @@ class ExtendedCSV(object):
         if all([d_index is None, data is not None]):  # remove first occurence
             try:
                 self.extcsv[table_n][field].remove(data)
-                msg = 'data %s field %s table %s index %s removed' % \
-                      (data, field, table, index)
+                msg = (
+                    f"data {data} field {field} table {table} "
+                    f"index {index} removed"
+                )
                 LOGGER.info(msg)
             except ValueError:
-                msg = 'value %s not found' % data
+                msg = f"value {data} not found"
                 LOGGER.error(msg)
         if d_index is not None:  # remove by index
             try:
                 self.extcsv[table_n][field].pop(d_index)
-                msg = 'data at index %s field %s table %s index %s removed' % \
-                      (d_index, field, table, index)
+                msg = (f'data at index {d_index} field {field} '
+                       f'table {table} index {index} removed')
                 LOGGER.info(msg)
             except IndexError:
-                msg = 'no data found pos %s field %s table %s index %s' % \
-                      (d_index, field, table, index)
+                msg = (f'no data found pos {d_index} field {field} '
+                       f'table {table} index {index}')
                 LOGGER.error(msg)
         if all([data is not None, all_occurences]):  # remove all
             LOGGER.info('removing all occurences')
             val = filter(lambda a: a != data, self.extcsv[table_n][field])
             self.extcsv[table_n][field] = list(val)
-            msg = 'data %s field %s table %s index %s removed' % \
-                  (data, field, table, index)
+            msg = (
+                f'data {data} field {field} table {table} '
+                f'index {index} removed')
             LOGGER.info(msg)
 
     def clear_file(self):
@@ -635,7 +645,7 @@ class ExtendedCSV(object):
             self.extcsv.clear()
             LOGGER.info('Extended CSV cleared')
         except Exception as err:
-            msg = 'Could not clear Extended CSV: %s' % err
+            msg = f'Could not clear Extended CSV: {err}'
             LOGGER.error(msg)
 
     def clear_table(self, table, index=1):
@@ -653,10 +663,10 @@ class ExtendedCSV(object):
             self.extcsv[table_n].clear()
             # put back commenets
             self.extcsv[table_n]['comments'] = t_comments
-            msg = 'table %s index %s cleared' % (table, index)
+            msg = f'table {table} index {index} cleared'
             LOGGER.info(msg)
         except Exception as err:
-            msg = 'could not clear table %s' % err
+            msg = f'could not clear table: {err}'
             LOGGER.error(msg)
 
     def clear_field(self, table, field, index=1):
@@ -671,10 +681,11 @@ class ExtendedCSV(object):
         table_n = _table_index(table, index)
         try:
             self.extcsv[table_n][field] = []
-            msg = 'field %s table %s index %s cleared' % (field, table, index)
+            msg = (f'field {field} table {table} '
+                   f'index {index} cleared')
             LOGGER.info(msg)
         except Exception as err:
-            msg = 'could not clear field %s' % err
+            msg = f'could not clear field {err}'
             LOGGER.error(msg)
 
     def typecast_value(self, table, field, value, line_num):
@@ -816,8 +827,7 @@ class ExtendedCSV(object):
                 success = False
 
         if not success:
-            raise ValueError('Parsing errors encountered in #{}.Time'
-                             .format(table))
+            raise ValueError(f'Parsing errors encountered in #{table}.Time')
         else:
             return time(hour_numeric, minute_numeric, second_numeric)
 
@@ -1027,14 +1037,14 @@ class ExtendedCSV(object):
 
         agency = self.extcsv['DATA_GENERATION']['Agency']
 
-        filename = '{}.{}.{}.{}.{}.csv'.format(timestamp, instrument_name,
-                                               instrument_model,
-                                               instrument_number, agency)
+        filename = (
+            f"{timestamp}.{instrument_name}.{instrument_model}."
+            f"{instrument_number}.{agency}.csv"
+        )
         if ' ' in filename:
-            LOGGER.warning('filename contains spaces: {}'.format(filename))
+            LOGGER.warning('filename contains spaces: %s', filename)
             file_slug = filename.replace(' ', '-')
-            LOGGER.info('filename {} renamed to {}'
-                        .format(filename, file_slug))
+            LOGGER.info('filename %s renamed to %s', filename, file_slug)
             filename = file_slug
 
         return filename
@@ -1094,12 +1104,12 @@ class ExtendedCSV(object):
                 if count < lower:
                     line = self.line_num(table_type + '_' + str(count))
                     if not self._add_to_report(213, line, table=table_type,
-                                               bound=lower):
+                                           bound=lower):
                         success = False
                 if count > upper:
                     line = self.line_num(table_type + '_' + str(upper + 1))
                     if not self._add_to_report(214, line, table=table_type,
-                                               bound=upper):
+                                           bound=upper):
                         success = False
 
         return success
@@ -1134,11 +1144,11 @@ class ExtendedCSV(object):
                 success = False
         elif num_rows < lower:
             if not self._add_to_report(215, headerline, table=table,
-                                       bound=lower):
+                                   bound=lower):
                 success = False
         elif num_rows > upper:
             if not self._add_to_report(216, headerline, table=table,
-                                       bound=upper):
+                                   bound=upper):
                 success = False
 
         return success
@@ -1197,7 +1207,7 @@ class ExtendedCSV(object):
                 self.extcsv[table][missing] = null_value
 
         if len(missing_fields) == 0:
-            LOGGER.debug('No missing fields in table {}'.format(table))
+            LOGGER.debug("No missing fields in table %s", table)
         else:
             LOGGER.info('Filled missing fields with null string values')
 
@@ -1206,8 +1216,7 @@ class ExtendedCSV(object):
         for extra in extra_fields:
             match_insensitive = optional_case_map.get(extra.lower(), None)
             if match_insensitive:
-                LOGGER.info('Found optional field #{}.{}'
-                            .format(table, extra))
+                LOGGER.info("Found optional field #%s.%s", table, extra)
 
                 if extra != match_insensitive:
                     if not self._add_to_report(105, fieldline, table=table,
@@ -1228,8 +1237,8 @@ class ExtendedCSV(object):
             column = self.extcsv[table][field]
             if isinstance(column, list) and '' in column:
                 line = valueline + column.index('')
-                if not self._add_to_report(
-                        204, line, table=table, field=field):
+                if not self._add_to_report(204, line, table=table,
+                                           field=field):
                     success = False
         return success
 
@@ -1245,8 +1254,7 @@ class ExtendedCSV(object):
             try:
                 self._determine_noncore_schema()
             except (NonStandardDataError, MetadataValidationError) as err:
-                LOGGER.warning('Cannot identify data table due to: {}'
-                               .format(err))
+                LOGGER.warning("Cannot identify data table due to: %s", err)
                 return 0
 
         # Count lines in the file's data table(s)
@@ -1722,7 +1730,7 @@ class Writer(object):
             try:
                 return self.ecsv._table_count[table_name]
             except KeyError:
-                msg = 'no such table: {}'.format(table_name)
+                msg = f'no such table: {table_name}'
                 LOGGER.error(msg)
         else:
             return self.ecsv._table_count
