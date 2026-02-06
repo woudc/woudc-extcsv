@@ -266,6 +266,12 @@ class ExtendedCSV(object):
                     LOGGER.debug('Found new table {}'.format(parent_table))
                     previous = row
                     ln, fields = next(lines)
+
+                    while non_content_line(fields):
+                        if not self._add_to_report(103, ln):
+                            success = False
+                        ln, fields = next(lines)
+
                     if len(row) == 1 and previous[0].startswith('#'):
                         header = fields
                         # if ","  at the end of header, then fields[-1] = '':
@@ -273,11 +279,6 @@ class ExtendedCSV(object):
                             if not self._add_to_report(252, line_num,
                                                        table=parent_table):
                                 success = False
-
-                    while non_content_line(fields):
-                        if not self._add_to_report(103, ln):
-                            success = False
-                        ln, fields = next(lines)
 
                     parent_table = self.init_table(parent_table, fields,
                                                    line_num)
