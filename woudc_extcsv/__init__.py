@@ -257,7 +257,9 @@ class ExtendedCSV(object):
                 elif min_line_num == 100000000 and max_line_num == 0:  # none
                     pass
                 else:
-                    if not self._add_to_report(253, f'{min_line_num}-{max_line_num}', table=parent_table):
+                    line_range = f'{min_line_num}-{max_line_num}',
+                    if not self._add_to_report(253, line_range,
+                                               table=parent_table):
                         success = False
                     min_line_num = 100000000  # reset when table encountered
                     max_line_num = 0
@@ -296,8 +298,8 @@ class ExtendedCSV(object):
             elif parent_table is not None and not non_content_line(row):
 
                 if len(header) > len(row):
-                    min_line_num = line_num if line_num < min_line_num else min_line_num
-                    max_line_num = line_num if line_num > max_line_num else max_line_num
+                    min_line_num = min(line_num, min_line_num)
+                    max_line_num = max(line_num, max_line_num)
 
                 if not self.add_values_to_table(parent_table, row, line_num):
                     success = False
@@ -1105,12 +1107,12 @@ class ExtendedCSV(object):
                 if count < lower:
                     line = self.line_num(table_type + '_' + str(count))
                     if not self._add_to_report(213, line, table=table_type,
-                                           bound=lower):
+                                               bound=lower):
                         success = False
                 if count > upper:
                     line = self.line_num(table_type + '_' + str(upper + 1))
                     if not self._add_to_report(214, line, table=table_type,
-                                           bound=upper):
+                                               bound=upper):
                         success = False
 
         return success
@@ -1145,11 +1147,11 @@ class ExtendedCSV(object):
                 success = False
         elif num_rows < lower:
             if not self._add_to_report(215, headerline, table=table,
-                                   bound=lower):
+                                       bound=lower):
                 success = False
         elif num_rows > upper:
             if not self._add_to_report(216, headerline, table=table,
-                                   bound=upper):
+                                       bound=upper):
                 success = False
 
         return success
