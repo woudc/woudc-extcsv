@@ -8,7 +8,7 @@ Date,Agency,Version,ScientificAuthority
 
 #PLATFORM
 Type,ID,Name,Country,GAW_ID
-STN,315,Eureka Lab,CAN
+STN,315,Eureka Lab,CAN,
 
 #INSTRUMENT
 Name,Model,Number
@@ -24,7 +24,7 @@ UTCOffset,Date,Time
 
 #OZONE_SUMMARY
 Altitudes,MinAltitude,MaxAltitude,StartDate,StartTime,EndDate,EndTime,PulsesAveraged
-168,10483,22354,1996-12-14,06:49:00,1996-12-14,10:12:00
+168,10483,22354,1996-12-14,06:49:00,1996-12-14,10:12:00,
 
 #OZONE_PROFILE
 Altitude,OzoneDensity,StandardError,RangeResolution,AirDensity,Temperature
@@ -36,7 +36,7 @@ Altitude,OzoneDensity,StandardError,RangeResolution,AirDensity,Temperature
 
 #OZONE_SUMMARY
 Altitudes,MinAltitude,MaxAltitude,StartDate,StartTime,EndDate,EndTime,PulsesAveraged
-168,10607,22287,1996-12-14,06:49:00,1996-12-14,10:12:00
+168,10607,22287,1996-12-14,06:49:00,1996-12-14,10:12:00,
 
 #OZONE_PROFILE
 Altitude,OzoneDensity,StandardError,RangeResolution,AirDensity,Temperature
@@ -48,4 +48,4 @@ Altitude,OzoneDensity,StandardError,RangeResolution,AirDensity,Temperature
 
 #OZONE_SUMMARY
 Altitudes,MinAltitude,MaxAltitude,StartDate,StartTime,EndDate,EndTime,PulsesAveraged
-168,10483,22287,1996-12-14,06:49:00,1996-12-14,10:12:00
+168,10483,22287,1996-12-14,06:49:00,1996-12-14,10:12:00,

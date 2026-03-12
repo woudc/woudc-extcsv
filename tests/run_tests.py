@@ -609,13 +609,14 @@ class DatasetValidationTest(unittest.TestCase):
     def test_totalozone_checks(self):
         """Test that TotalOzone checks produce expected warnings/errors"""
 
-        # Test a file with bad delimiter
+        # Test a file with bad delimiter and
+        # mismatch of content commas to column headers for TIMESTAMP
         ecsv = load_test_data_file(
                 'data/totalozone/totalozone-bad-separator.csv',
                 reader=False)
         ecsv.validate_metadata_tables()
         ecsv.validate_dataset_tables()
-        self.assertEqual(len(ecsv.warnings), 1)
+        self.assertEqual(len(ecsv.warnings), 3)
         # self.assertEqual(ecsv.warnings[0],
         #    "Improper delimiter used '{separator}' corrected to ',' (comma)")
         self.assertEqual(len(ecsv.errors), 0)
@@ -675,13 +676,14 @@ class DatasetValidationTest(unittest.TestCase):
                          'be WLCode')
         self.assertEqual(len(ecsv.errors), 0)
 
-        # Test that extra field is detected
+        # Test that extra field is detected and missing commas in content
+        # doesn't match its table header
         ecsv = load_test_data_file(
                 'data/totalozoneobs/totalozoneobs-extra-field.csv',
                 reader=False)
         ecsv.validate_metadata_tables()
         ecsv.validate_dataset_tables()
-        self.assertEqual(len(ecsv.warnings), 1)
+        self.assertEqual(len(ecsv.warnings), 2)
         self.assertEqual(len(ecsv.errors), 0)
 
         # Test that no warnings/errors show up for a correct file
