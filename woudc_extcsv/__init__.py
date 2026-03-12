@@ -61,7 +61,7 @@ from woudc_extcsv.util import (parse_integer_range, _table_index,
                                non_content_line)
 
 
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 __dirpath = os.path.dirname(os.path.realpath(__file__))
 
