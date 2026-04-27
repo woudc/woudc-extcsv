@@ -234,6 +234,10 @@ class ExtendedCSV(object):
         min_line_num = 100000000
         max_line_num = 0
         for line_num, row in lines:
+            # error check for unclosed quotations
+            if any("\n" in column for column in row):
+                if not self._add_to_report(254, line_num):
+                    success = False
             separators = []
             for bad_sep in ['::', ';', '$', '%', '|', '\\']:
                 if not non_content_line(row) and bad_sep in row[0]:
@@ -242,9 +246,13 @@ class ExtendedCSV(object):
             for separator in separators:
                 comma_separated = row[0].replace(separator, ',')
                 row = next(csv.reader(StringIO(comma_separated)))
-
                 if not self._add_to_report(104, line_num, separator=separator):
                     success = False
+            LOGGER.info(f'Read line {line_num}: {row}')
+
+            if len(row) > 0 and row[0].startswith('*'):  # comment
+                LOGGER.debug(f'Found comment: {row}')
+                self.file_comments.append(row)
 
             if len(row) == 1 and row[0].startswith('#'):  # table name
                 header = ''
@@ -288,9 +296,6 @@ class ExtendedCSV(object):
                     if not self._add_to_report(206, line_num,
                                                table=parent_table):
                         success = False
-            elif len(row) > 0 and row[0].startswith('*'):  # comment
-                LOGGER.debug('Found comment')
-                self.file_comments.append(row)
                 continue
             elif non_content_line(row):  # blank line
                 LOGGER.debug('Found blank line')
