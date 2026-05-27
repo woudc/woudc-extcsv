@@ -248,7 +248,7 @@ class ExtendedCSV(object):
                 row = next(csv.reader(StringIO(comma_separated)))
                 if not self._add_to_report(104, line_num, separator=separator):
                     success = False
-            LOGGER.info(f'Read line {line_num}: {row}')
+            LOGGER.debug(f'Read line {line_num}: {row}')
 
             if len(row) > 0 and row[0].startswith('*'):  # comment
                 LOGGER.debug(f'Found comment: {row}')
