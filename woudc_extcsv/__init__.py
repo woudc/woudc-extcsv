@@ -224,7 +224,17 @@ class ExtendedCSV(object):
         LOGGER.debug('Reading into csv')
         self._raw = content
         self._raw = content.lstrip('\ufeff')
-        reader = csv.reader(StringIO(self._raw))
+        lines_raw = self._raw.splitlines()
+
+        # Collect comments before CSV parsing
+        for line in lines_raw:
+            if line.startswith('*'):
+                self.file_comments.append(line)
+
+        # Filter comments out before CSV reader sees them
+        filtered = '\n'.join(line for line in lines_raw if not line.startswith(
+            '*'))
+        reader = csv.reader(StringIO(filtered))
 
         LOGGER.debug('Parsing object model')
         parent_table = None
