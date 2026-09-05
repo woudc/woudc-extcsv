@@ -65,9 +65,9 @@ __version__ = '0.7.0'
 
 __dirpath = os.path.dirname(os.path.realpath(__file__))
 
-WDR_TABLE_SCHEMA = os.path.join(__dirpath, 'tables-schema.json')
-WDR_TABLE_CONFIG = os.path.join(__dirpath, 'tables-backfilling.yml')
-WDR_ERROR_CONFIG = os.path.join(__dirpath, 'errors-backfilling.csv')
+WDR_TABLE_SCHEMA = os.path.join(__dirpath, 'resources', 'tables-schema.json')
+WDR_TABLE_CONFIG = os.path.join(__dirpath, 'resources', 'tables-backfilling.yml')  # noqa
+WDR_ERROR_CONFIG = os.path.join(__dirpath, 'resources', 'errors-backfilling.csv')  # noqa
 
 LOGGER = logging.getLogger(__name__)
 
@@ -190,7 +190,7 @@ def loads(strbuf):
     return Reader(strbuf)
 
 
-class ExtendedCSV(object):
+class ExtendedCSV:
     """
 
     WOUDC Extended CSV parser
@@ -1498,7 +1498,7 @@ class ExtendedCSV(object):
                                           self.errors)
 
 
-class Reader(object):
+class Reader:
     """WOUDC Extended CSV reader"""
 
     def __init__(self, content):
@@ -1624,7 +1624,7 @@ class Reader(object):
         return self.ecsv.validate_metadata_tables()
 
 
-class Writer(object):
+class Writer:
     """WOUDC Extended CSV writer"""
 
     def __init__(self, ds=None, template=False):

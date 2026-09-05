@@ -1,7 +1,4 @@
-[![Build Status](https://travis-ci.org/woudc/woudc-extcsv.png?branch=master)](https://travis-ci.org/woudc/woudc-extcsv) [![Build status](https://ci.appveyor.com/api/projects/status/02koln2pe4ap5kvd/branch/master?svg=true)](https://ci.appveyor.com/project/tomkralidis/woudc-extcsv)
-[![Downloads this month on PyPI](https://img.shields.io/pypi/dm/woudc-extcsv.svg)](http://pypi.python.org/pypi/woudc-extcsv)
-[![Latest release](https://img.shields.io/pypi/v/woudc-extcsv.svg)](http://pypi.python.org/pypi/woudc-extcsv)
-[![License](https://img.shields.io/github/license/woudc/woudc-extcsv.svg)](https://github.com/woudc/woudc-extcsv)
+[![Build Status](https://github.com/woudc/woudc-extcsv/workflows/build%20%E2%9A%99%EF%B8%8F/badge.svg)](https://github.com/woudc/woudc-extcsv/actions)
 
 # WOUDC Extended CSV library
 
@@ -10,24 +7,24 @@ Python package providing read/write support for files of the
 
 ## Installation
 
-### Requirements
+### pip
 
-woudc-extcsv requires Python 3 or above. See `requirements.txt`.
-
-### Development
+Install latest stable version from [PyPI](https://pypi.org/project/woudc-extcsv).
 
 ```bash
-# install dev requirements
-pip install -r requirements-dev.txt
+pip3 install woudc-extcsv
 ```
 
-### Installing the Package
+### From source
+Install latest development version.
 
 ```bash
-# via pip
-pip install woudc-extcsv
-# via easy_install
-easy_install woudc-extcsv
+python3 -m venv woudc-extcsv
+cd woudc-extcsv
+. bin/activate
+git clone https://github.com/woudc/woudc-extcsv.git
+cd woudc-extcsv
+pip3 install .
 ```
 
 ## Usage
@@ -37,7 +34,7 @@ easy_install woudc-extcsv
 ```python
 from woudc_extcsv import Reader
 # read from file
-with open('file.csv', 'r') as ff:
+with open('file.csv') as ff:
     ecsv = Reader(ff.read())
 # read from string
 ecsv = Reader(my_ecsv_string)
@@ -125,7 +122,7 @@ The ExtendedCSV class is a parser class used in the Reader and Writer classes, a
 ```python
 from woudc_extcsv import ExtendedCSV
 # read from file
-with open('file.csv', 'r') as ff:
+with open('file.csv') as ff:
     ecsv = ExtendedCSV(ff.read())
 # read from string
 ecsv = Extended(my_ecsv_string)
@@ -164,54 +161,48 @@ except (NonStandardDataError, MetadataValidationError) as err:
 
 ## Development
 
-For development environments, install
-in a Python [virtualenv](http://virtualenv.org):
-
 ```bash
-virtualenv foo
-cd foo
-. bin/activate
-# fork master
-# fork https://github.com/woudc/woudc-extcsv on GitHub
-# clone your fork to create a branch
-git clone https://github.com/{your GitHub username}/woudc-extcsv.git
+python3 -m venv woudc-extcsv
 cd woudc-extcsv
-# install dev packages
-pip install -r requirements-dev.txt
-# create upstream remote
-git remote add upstream https://github.com/woudc/woudc-extcsv.git
-git pull upstream master
-git branch my-cool-feature
-git checkout my-cool-feature
-# start dev
-git commit -m 'implement cool feature'
-# push to your fork
-git push origin my-cool-feature
-# issue Pull Request on GitHub
-git checkout master
-# cleanup/update once your branch is merged on GitHub
-# remove branch
-git branch -D my-cool-feature
-# update your fork
-git pull upstream master
-git push origin master
+source bin/activate
+git clone https://github.com/woudc/woudc-extcsv.git
+cd woudc-extcsv
+pip3 install .
+pip3 install ".[dev]"
 ```
 
 ### Running Tests
 
 ```bash
-# via distutils
-python setup.py test
-# manually
-python run_tests.py
-# report test coverage
-coverage run --source woudc_extcsv setup.py test
-coverage report -m
+python3 run_tests.py
+```
+
+## Releasing
+
+```bash
+# create release (x.y.z is the release version)
+vi pyproject.toml  # update [project]/version
+git commit -am 'update release version x.y.z'
+git push origin master
+git tag -a x.y.z -m 'tagging release version x.y.z'
+git push --tags
+
+# upload to PyPI
+rm -fr build dist *.egg-info
+python3 -m build
+twine upload dist/*
+
+# publish release on GitHub (https://github.com/woudc/woudc-extcsv/releases/new)
+
+# bump version back to dev
+vi pyproject.toml  # update [project]/version
+git commit -am 'back to dev'
+git push origin master
 ```
 
 ### Code Conventions
 
-woudc_extcsv code conventions are as per
+woudc-extcsv code conventions are as per
 [PEP8](https://www.python.org/dev/peps/pep-0008).
 
 ```bash
@@ -237,5 +228,5 @@ Board [Policy on Acceptable Network and Device Use]
 
 ## Contact
 
-* [Tom Kralidis](http://geds20-sage20.ssc-spc.gc.ca/en/GEDS20/?pgid=015&dn=CN%3Dtom.kralidis%40canada.ca%2COU%3DDAT-GES%2COU%3DMON-STR%2COU%3DMON-DIR%2COU%3DMSCB-DGSMC%2COU%3DDMO-CSM%2COU%3DEC-EC%2CO%3Dgc%2CC%3Dca)
-* [Thinesh Sornalingam](http://geds20-sage20.ssc-spc.gc.ca/en/GEDS20/?pgid=015&dn=CN%3Dthinesh.sornalingam%40canada.ca%2COU%3DDAT-GES%2COU%3DMON-STR%2COU%3DMON-DIR%2COU%3DMSCB-DGSMC%2COU%3DDMO-CSM%2COU%3DEC-EC%2CO%3DGC%2CC%3DCA)
+* [Tom Kralidis](https://github.com/tomkralidis)
+* [Thinesh Sornalingam](https://github.com/thineshsornalingam)
