@@ -174,7 +174,7 @@ pip3 install ".[dev]"
 ### Running Tests
 
 ```bash
-python3 run_tests.py
+python3 tests/run_tests.py
 ```
 
 ## Releasing
