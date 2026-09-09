@@ -1,0 +1,36 @@
+name: build ⚙️
+
+on: [ push, pull_request ]
+
+jobs:
+  main:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v6
+      name: Setup Python ${{ matrix.python-version }}
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install system packages
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y devscripts debhelper-compat dh-python python3-all python3-build pybuild-plugin-pyproject python3-setuptools python3-tomli python3-wheel
+        sudo pip3 install --upgrade setuptools wheel build
+    - name: Install package and dev requirements 📦
+      run: |
+        pip3 install .
+        pip3 install ".[dev]"
+        pip3 install ".[release]"
+    - name: run tests ⚙️
+      run: python3 tests/run_tests.py
+    - name: run flake8 ⚙️
+      run: |
+        xargs flake8
+    - name: build Python package 🏗️
+      run: python3 -m build
+    - name: test debian build
+      run: debuild -b -uc -us
+      continue-on-error: true

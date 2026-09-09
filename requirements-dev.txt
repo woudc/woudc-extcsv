@@ -1,5 +1,0 @@
-Cython
-coverage
-flake8
-twine
-wheel
